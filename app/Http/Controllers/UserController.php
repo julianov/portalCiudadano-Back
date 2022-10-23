@@ -46,7 +46,6 @@ class UserController extends Controller
 
             $user->save();
    
-            
             Mail::to('foo@example.com')
             ->cc('bar@example.com')
             ->queue((new EmailConfirmation($user))->from('us@example.com', 'Laravel'));
@@ -82,7 +81,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario confirmado',
-                'token' => $user->createToken("user_token")->accessToken
+                'token' => $user->createToken("user_token", ['nivel_1'])->accessToken
             ], 200);
 
         }else{
@@ -105,10 +104,12 @@ class UserController extends Controller
 
         if (Auth::attempt($validated)) {
             $user = Auth::user();
-            $token = $user->createToken('user_token')->accessToken;
+            $token = $user->createToken('user_token',['nivel_1'])->accessToken;
+            
             $minutes = 1440;
             $timestamp = now()->addMinute($minutes);
             $expires_at = date('M d, Y H:i A', strtotime($timestamp));
+
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
