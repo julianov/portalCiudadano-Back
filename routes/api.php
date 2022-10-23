@@ -23,4 +23,4 @@ Route::post('/v0/user/validate/email', 'App\Http\Controllers\UserController@vali
 Route::post('/v0/user/login', 'App\Http\Controllers\UserController@login');
 
 
-Route::middleware('auth:authentication')->post('/v0/testroute', 'App\Http\Controllers\UserController@test');
+Route::middleware(['auth:authentication','scope:nivel_1'])->post('/v0/testroute', 'App\Http\Controllers\UserController@test');

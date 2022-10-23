@@ -29,6 +29,12 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
         Passport::tokensExpireIn(now()->addDays(7));
 
-       
+       Passport::tokensCan([
+           'nivel_1' => 'nivel de acceso básico',
+           'nivel_2' => 'nivel de validación de identidad por aplicación',
+           'nivel_3' => 'nivel de validación de identidad presencial',
+       ]);
+
+     
     }
 }
