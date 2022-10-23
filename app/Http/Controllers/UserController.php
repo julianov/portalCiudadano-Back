@@ -81,7 +81,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario confirmado',
-                'token' => $user->createToken("user_token")->accessToken
+                'token' => $user->createToken("user_token", ['nivel_1'])->accessToken
             ], 200);
 
         }else{
@@ -104,7 +104,7 @@ class UserController extends Controller
 
         if (Auth::attempt($validated)) {
             $user = Auth::user();
-            $token = $user->createToken('user_token')->accessToken;
+            $token = $user->createToken('user_token', ['nivel_1'])->accessToken;
 
             $minutes = 1440;
             $timestamp = now()->addMinute($minutes);
