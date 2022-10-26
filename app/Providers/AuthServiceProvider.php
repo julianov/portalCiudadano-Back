@@ -27,8 +27,12 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+        
+        //Tiempo de expiración de los tokens: 7 días
         Passport::tokensExpireIn(now()->addDays(7));
+        Passport::personalAccessTokensExpireIn(now()->addDays(7));
 
+    //Niveles de autenticación de usuarios
        Passport::tokensCan([
            'nivel_1' => 'nivel de acceso básico',
            'nivel_2' => 'nivel de validación de identidad por aplicación',
