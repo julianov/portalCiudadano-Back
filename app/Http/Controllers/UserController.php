@@ -42,13 +42,14 @@ class UserController extends Controller
             $user->email = $request->email;
 
             $user->password = bcrypt($request->password);
-            $user->confirmation_code=random_int(1000,9999);
+          //  $user->confirmation_code=$bignum = hexdec( md5("test") );
+
 
             $user->save();
    
             Mail::to('foo@example.com')
             ->cc('bar@example.com')
-            ->queue((new EmailConfirmation($user))->from('us@example.com', 'Laravel'));
+            ->queue((new EmailConfirmation($user, hexdec( substr(sha1($request->cuil), 0, 4) ) ))->from('us@example.com', 'Laravel'));
 
             return response()->json([
                 'status' => true,
@@ -73,8 +74,8 @@ class UserController extends Controller
 
 
         $user = User::where('cuil', $validated['cuil'] )->first();
-
-        if ($user['confirmation_code']==$validated['confirmation_code']){
+        
+        if ( hexdec( substr(sha1($user['cuil']), 0, 4) )==$validated['confirmation_code']){
              
             $user->markEmailAsVerified();
             $user->save();
@@ -106,8 +107,8 @@ class UserController extends Controller
             $user = Auth::user();
             $token = $user->createToken('user_token', ['nivel_1'])->accessToken;
 
-            $minutes = 1440;
-            $timestamp = now()->addMinute($minutes);
+            //a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
+            $timestamp = now()->addDays(7);
             $expires_at = date('M d, Y H:i A', strtotime($timestamp));
 
             return response()->json([
@@ -128,7 +129,8 @@ class UserController extends Controller
 
     public function test (Request $request) {
 
-        return ("llego");
+            return ("llego");
+        
     }
 
 
