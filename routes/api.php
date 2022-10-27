@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/v0/user/singup', 'App\Http\Controllers\UserController@singup');
 Route::post('/v0/user/validate/email', 'App\Http\Controllers\UserController@validate_new_user');
-Route::post('/v0/user/login', 'App\Http\Controllers\UserController@login');
+Route::get('/v0/user/login', 'App\Http\Controllers\UserController@login');
 
 
 Route::middleware(['auth:authentication','scope:nivel_1'])->post('/v0/testroute', 'App\Http\Controllers\UserController@test');

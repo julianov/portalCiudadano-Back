@@ -15,11 +15,12 @@ class EmailConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
+    public $hash;
 
-    public function __construct(User $user)
+    public function __construct(User $user, $hash)
     {
         $this->user = $user;
-
+        $this->hash = $hash;
     }
 
     /**
