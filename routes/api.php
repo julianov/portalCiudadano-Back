@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/v0/user/singup', 'App\Http\Controllers\UserController@singup');
 Route::post('/v0/user/validate/email', 'App\Http\Controllers\UserController@validate_new_user');
 Route::get('/v0/user/login', 'App\Http\Controllers\UserController@login');
+Route::get('/v0/user/password/reset/validation', 'App\Http\Controllers\UserController@password_reset_validation');
+Route::post('/v0/user/password/reset', 'App\Http\Controllers\UserController@password_reset');
 
 
 Route::middleware(['auth:authentication','scope:nivel_1'])->post('/v0/testroute', 'App\Http\Controllers\UserController@test');
