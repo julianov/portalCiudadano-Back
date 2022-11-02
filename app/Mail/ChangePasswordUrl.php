@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 
 
-class EmailConfirmation extends Mailable
+class ChangePasswordUrl extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class EmailConfirmation extends Mailable
      */
     public function build()
     {
-        return $this->view('emailVerification', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
+        return $this->view('changePassword', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
     }
 }

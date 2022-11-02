@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserConfirmationCode;
 use Illuminate\Support\Facades\Auth;
 
 use App\Mail\EmailConfirmation;
-
+use App\Mail\ChangePasswordUrl;
+use Carbon\Carbon;
 use Mail;
 
 
@@ -36,20 +38,26 @@ class UserController extends Controller
             ]);
 
             $user = new User();
-            $user->cuil = $request->cuil;
-            $user->nombre = $request->nombre;
-            $user->apellido = $request->apellido;
-            $user->email = $request->email;
+            $user->cuil = $validated['cuil'];
+            $user->nombre = $validated['nombre'];
+            $user->apellido = $validated['apellido'];
+            $user->email = $validated['email'];
 
-            $user->password = bcrypt($request->password);
+            $user->password = bcrypt($validated['password']);
           //  $user->confirmation_code=$bignum = hexdec( md5("test") );
 
-
             $user->save();
-   
+
+            $code = random_int(1000,9999);
+            $validation_code = new UserConfirmationCode();
+            $validation_code->id = $user->cuil;
+            $validation_code->code = $code;
+            $validation_code->created_at = Carbon::now()->timestamp;
+            $validation_code->save();
+
             Mail::to('foo@example.com')
             ->cc('bar@example.com')
-            ->queue((new EmailConfirmation($user, hexdec( substr(sha1($request->cuil), 0, 4) ) ))->from('us@example.com', 'Laravel'));
+            ->queue((new EmailConfirmation($user , $code))->from('us@example.com', 'Laravel'));
 
             return response()->json([
                 'status' => true,
@@ -74,11 +82,17 @@ class UserController extends Controller
 
 
         $user = User::where('cuil', $validated['cuil'] )->first();
-        
-        if ( hexdec( substr(sha1($user['cuil']), 0, 4) )==$validated['confirmation_code']){
+
+        $validation_code = UserConfirmationCode::where('id' , $user->cuil )->first();
+
+        if ( $validation_code->code == $validated['confirmation_code'] ){
              
             $user->markEmailAsVerified();
             $user->save();
+
+            //Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes 
+            $validation_code->delete();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario confirmado',
@@ -133,6 +147,84 @@ class UserController extends Controller
         
     }
 
+
+    public function password_reset_validation (Request $request){
+
+        $validated = $this->validate($request, [
+            'cuil' => 'required',
+            
+        ]);
+
+        //aca no tengo que usar Auth porque eso funciona con la contraseña y aca no la tengo
+
+            $user = User::where('cuil', $validated['cuil'] )->first();
+
+            $code = random_int(1000,9999);
+            
+            $validation_code = UserConfirmationCode::where('id', $validated['cuil'] )->first(); 
+
+            if($validation_code){
+                $validation_code->code = $code;
+                $validation_code->created_at = Carbon::now()->timestamp;
+                $validation_code->save();    
+                Mail::to('foo@example.com')
+                ->cc('bar@example.com')
+                ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
+    
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Correo enviado',
+                ], 201);
+            }else{
+            
+                $validation_code = new UserConfirmationCode();
+                $validation_code->code = $code;
+                $validation_code->created_at = Carbon::now()->timestamp;
+                $validation_code->save();
+                
+                Mail::to('foo@example.com')
+            ->cc('bar@example.com')
+            ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Correo enviado',
+            ], 201);
+            }
+    }
+
+    public function password_reset (Request $request){
+
+        $validated = $this->validate($request, [
+            'cuil' => 'required',
+            'new_password' => 'required',
+            'verification_code' => 'required',
+        ]);
+
+        $validation_code = UserConfirmationCode::where('id' , $validated['cuil']  )->first();
+
+        if ($validation_code == $validated['verification_code'] ){
+
+            $user = User::where('cuil', $validated['cuil'] )->first();
+            $user->password = bcrypt($validated['new_password']);
+            $user->save();
+            $validation_code->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Contraseña cambiada',
+            ], 201);
+
+        }else{
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Código de validación erroneo',
+            ], 201);
+        }
+
+
+    }
 
 
     /**

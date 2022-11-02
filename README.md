@@ -9,6 +9,10 @@ then
 
 then 
 
+* php artisan migrate
+
+then 
+
 * php artisan passport:keys
 
 then 
@@ -16,6 +20,3 @@ then
 * php artisan passport:install
 
 
-then 
-
-* php artisan migrate
