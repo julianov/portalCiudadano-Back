@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers;
+use Illuminate\Support\Facades\DB;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,16 +14,20 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get("/test", function () {
+    $users = DB::table("docker")->get();
+    return $users;
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/v0/user/singup', 'App\Http\Controllers\UserController@singup');
-Route::post('/v0/user/validate/email', 'App\Http\Controllers\UserController@validate_new_user');
-Route::get('/v0/user/login', 'App\Http\Controllers\UserController@login');
-Route::get('/v0/user/password/reset/validation', 'App\Http\Controllers\UserController@password_reset_validation');
-Route::post('/v0/user/password/reset', 'App\Http\Controllers\UserController@password_reset');
+Route::post('/v0/user/singup', [Controllers\UserController::class, 'singup']);
+Route::post('/v0/user/validate/email', [Controllers\UserController::class, 'validate_new_user']);
+Route::get('/v0/user/login', [Controllers\UserController::class, 'login']);
+Route::get('/v0/user/password/reset/validation', [Controllers\UserController::class, 'password_reset_validation']);
+Route::post('/v0/user/password/reset', [Controllers\UserController::class, 'password_reset']);
 
 
-Route::middleware(['auth:authentication','scope:nivel_1'])->post('/v0/testroute', 'App\Http\Controllers\UserController@test');
+Route::middleware(['auth:authentication','scope:nivel_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);

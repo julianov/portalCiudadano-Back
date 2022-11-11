@@ -86,11 +86,11 @@ class UserController extends Controller
         $validation_code = UserConfirmationCode::where('id' , $user->cuil )->first();
 
         if ( $validation_code->code == $validated['confirmation_code'] ){
-             
+
             $user->markEmailAsVerified();
             $user->save();
 
-            //Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes 
+            // Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes
             $validation_code->delete();
 
             return response()->json([
@@ -138,13 +138,13 @@ class UserController extends Controller
                 'message' => 'Invalid Credentials',
             ], 400);
         }
-    
+
     }
 
     public function test (Request $request) {
 
             return ("llego");
-        
+
     }
 
 
@@ -152,7 +152,7 @@ class UserController extends Controller
 
         $validated = $this->validate($request, [
             'cuil' => 'required',
-            
+
         ]);
 
         //aca no tengo que usar Auth porque eso funciona con la contraseña y aca no la tengo
@@ -160,28 +160,28 @@ class UserController extends Controller
             $user = User::where('cuil', $validated['cuil'] )->first();
 
             $code = random_int(1000,9999);
-            
-            $validation_code = UserConfirmationCode::where('id', $validated['cuil'] )->first(); 
+
+            $validation_code = UserConfirmationCode::where('id', $validated['cuil'] )->first();
 
             if($validation_code){
                 $validation_code->code = $code;
                 $validation_code->created_at = Carbon::now()->timestamp;
-                $validation_code->save();    
+                $validation_code->save();
                 Mail::to('foo@example.com')
                 ->cc('bar@example.com')
                 ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
-    
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Correo enviado',
                 ], 201);
             }else{
-            
+
                 $validation_code = new UserConfirmationCode();
                 $validation_code->code = $code;
                 $validation_code->created_at = Carbon::now()->timestamp;
                 $validation_code->save();
-                
+
                 Mail::to('foo@example.com')
             ->cc('bar@example.com')
             ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
