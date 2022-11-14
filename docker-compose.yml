@@ -49,7 +49,7 @@ services:
         environment:
             POSTGRES_PASSWORD: postgres
             POSTGRES_USER: postgres
-            POSTGRES_DB: postgres
+            POSTGRES_DB: portalCiudadano
         ports:
             - "5435:5432"
         volumes:
