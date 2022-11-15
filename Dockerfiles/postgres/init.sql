@@ -4,9 +4,9 @@
 CREATE USER postgres WITH PASSWORD 'postgres';
 
 -- Create database with id and name
-CREATE DATABASE portalCiudadano WITH OWNER postgres;
+CREATE DATABASE postgres WITH OWNER postgres;
 
-GRANT ALL PRIVILEGES ON DATABASE portalCiudadano TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;
 
 -- Create table to docker database with id and name
 \c docker
