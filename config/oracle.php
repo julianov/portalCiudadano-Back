@@ -3,8 +3,8 @@
 return [
     'oracle' => [
         'driver'         => 'oracle',
-        'tns'            => env('DB_TNS', ''),
-        'host'           => env('DB_HOST', 'oracle_db'),
+        'tns'            => env('DB_TNS', '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=172.17.0.1)(PORT=1521))) (CONNECT_DATA=(SERVER=DEDICATED)(SID=xe)))'),
+        'host'           => env('DB_HOST', 'oracle-db'),
         'port'           => env('DB_PORT', '1521'),
         'database'       => env('DB_DATABASE', 'xe'),
         'service_name'   => env('DB_SERVICE_NAME', 'PORTALCIUDADANO'),
@@ -19,3 +19,7 @@ return [
         'dynamic'        => [],
     ],
 ];
+
+# * SID = identifies the database instance (database name + instance number). So if your database name is somedb and your instance number is 3, then your SID is somedb3.
+# * Service Name = A "connector" to one or more instances. It is often useful to create additional service names in a RAC environment since the service can be modified to 
+#       use particular SIDs as primary or secondary connections, or to not use certain SIDs at all.
