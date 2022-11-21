@@ -26,55 +26,55 @@ services:
 
         networks:
             app-network:
-#   database:
-#       build:
-#           context: Dockerfiles/oracle
-#           dockerfile: Dockerfile
-#       container_name: oracle-db
-#       environment:
-#           ORACLE_PASSWORD: oracle
-#           ORACLE_ALLOW_REMOTE: true
-#           ORACLE_DISABLE_ASYNCH_IO: true
-#           ORACLE_ENABLE_XDB: true
-#       ports:
-#           - "1521:1521"
-#           - "5500:5500"
-#           - "8081:8080"
-#       volumes:
-#           - oracle-data:/opt/oracle/oradata
-#       networks:
-#           app-network:
     database:
-        image: postgres:latest
-        container_name: postgres-db
-        restart: always
+        build:
+            context: Dockerfiles/oracle
+            dockerfile: Dockerfile
+        container_name: oracle-db
         environment:
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_USER: postgres
-            POSTGRES_DB: postgres
+            ORACLE_PASSWORD: oracle
+            ORACLE_ALLOW_REMOTE: true
+            ORACLE_DISABLE_ASYNCH_IO: true
+            ORACLE_ENABLE_XDB: true
         ports:
-            - "5432:5432"
+            - "1521:1521"
+            - "5500:5500"
+            - "8081:8080"
         volumes:
-            - postgres-data:/var/lib/postgresql/data
-            # add entrypoint script to init db
-            - ./Dockerfiles/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - oracle-data:/opt/oracle/oradata
         networks:
             app-network:
+#    database:
+#        image: postgres:latest
+#        container_name: postgres-db
+#        restart: always
+#        environment:
+#            POSTGRES_PASSWORD: postgres
+#            POSTGRES_USER: postgres
+#            POSTGRES_DB: postgres
+#        ports:
+#            - "5432:5432"
+#        volumes:
+#            - postgres-data:/var/lib/postgresql/data
+            # add entrypoint script to init db
+#            - ./Dockerfiles/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+#       networks:
+#            app-network:
     
-    pgadmin:
-        container_name: pgadmin4_container
-        image: dpage/pgadmin4:latest
-        restart: always
-        environment:
-            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-            PGADMIN_DEFAULT_PASSWORD: root
-        ports:
-            - "5050:80"
-        depends_on:
-            - database
+#    pgadmin:
+#        container_name: pgadmin4_container
+#        image: dpage/pgadmin4:latest
+#        restart: always
+#        environment:
+#            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#            PGADMIN_DEFAULT_PASSWORD: root
+#        ports:
+#            - "5050:80"
+#        depends_on:
+#            - database
 networks:
     app-network:
 
 volumes:
     app-data:
-    postgres-data:
+    oracle-data:
