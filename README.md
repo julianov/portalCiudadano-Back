@@ -8,6 +8,13 @@
     ```bash
     docker compose up -d
     ```
+    
+* Los contenedores disponibles son los siguientes:
+    ```
+    backend - Para el backend
+    database - Para la base de datos
+    webserver - Para la instancia de nginx
+    ```
 
 # Interactuar con la consola de Laravel
 Para ejecutar comandos de php tenemos que ejecutar el siguiente comando
@@ -22,25 +29,12 @@ En caso de que querramos ejecutar comandos de composer, tenemos que ejecutar el 
 docker compose exec backend composer {comando}
 ```
 
-# Interactuar con la consola de Postgres
-Para ejecutar comandos de postgres tenemos que ejecutar el siguiente comando
+# Oracle DB driver 
 
-```bash
-docker compose exec database psql -U {user} -d {database}
-```
+For more info check: 
 
-En caso de que querramos entrar a revisar los archivos de cada container, tenemos que ejecutar el siguiente comando
+* https://github.com/yajra/laravel-oci8
 
-```bash
-docker compose exec -it {container} bash
-```
-
-* Los contenedores disponibles son los siguientes:
-    ```
-    backend - Para el backend
-    database - Para la base de datos
-    webserver - Para la instancia de nginx
-    ```
 
 # Comandos para iniciar el proyecto
 
