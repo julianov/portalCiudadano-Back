@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/v0/user/singup', [Controllers\UserController::class, 'singup']);
+Route::post('/v0/user/signup', [Controllers\UserController::class, 'singup']);
 Route::post('/v0/user/validate/email', [Controllers\UserController::class, 'validate_new_user']);
 Route::get('/v0/user/login', [Controllers\UserController::class, 'login']);
 Route::get('/v0/user/password/reset/validation', [Controllers\UserController::class, 'password_reset_validation']);
