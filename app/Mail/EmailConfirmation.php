@@ -16,11 +16,14 @@ class EmailConfirmation extends Mailable
 
     public $user;
     public $hash;
+    public $cuil;
 
     public function __construct(User $user, $hash)
     {
         $this->user = $user;
         $this->hash = $hash;
+        $this->cuil = $user->cuil;
+
     }
 
     /**
