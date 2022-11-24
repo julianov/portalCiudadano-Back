@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('user_confirmation_codes', function (Blueprint $table) {
             
-            $table->increments('id');
+            $table->bigInteger('id');
             $table->foreign('id')->references('cuil')->on('users')->onDelete('cascade');
 
             $table->integer('code');
