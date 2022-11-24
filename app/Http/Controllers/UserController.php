@@ -118,20 +118,29 @@ class UserController extends Controller
 
 
         if (Auth::attempt($validated)) {
+            
             $user = Auth::user();
             $token = $user->createToken('user_token', ['nivel_1'])->accessToken;
 
             //a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
             $timestamp = now()->addDays(7);
             $expires_at = date('M d, Y H:i A', strtotime($timestamp));
+             
+            $user_data = [
+                "name"=> $user->nombre,
+                "apellido"=>$user->apellido
+            ];
 
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_at' => $expires_at
+                'expires_at' => $expires_at,
+                'user_data'=> $user_data
+                
             ], 200);
+
         } else {
             return response()->json([
                 'status' => false,
