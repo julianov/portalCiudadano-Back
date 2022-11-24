@@ -69,3 +69,8 @@ Generamos las configuraciones de passport
 ```bash 
 docker compose exec backend php artisan passport:install
 ```
+
+Levantar servidor
+```bash 
+docker compose exec backend php artisan serve
+```
