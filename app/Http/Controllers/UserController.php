@@ -161,7 +161,6 @@ class UserController extends Controller
 
         $validated = $this->validate($request, [
             'cuil' => 'required',
-
         ]);
 
         //aca no tengo que usar Auth porque eso funciona con la contraseña y aca no la tengo
@@ -187,6 +186,7 @@ class UserController extends Controller
             }else{
 
                 $validation_code = new UserConfirmationCode();
+                $validation_code->id = $validated['cuil'];
                 $validation_code->code = $code;
                 $validation_code->created_at = Carbon::now()->timestamp;
                 $validation_code->save();
