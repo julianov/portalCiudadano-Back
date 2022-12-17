@@ -55,9 +55,9 @@ class UserController extends Controller
             $validation_code->created_at = Carbon::now()->timestamp;
             $validation_code->save();
 
-            Mail::to('foo@example.com')
-            ->cc('bar@example.com')
-            ->queue((new EmailConfirmation($user , $code))->from('us@example.com', 'Laravel'));
+            Mail::to($user->email)
+            ->cc('gvillanueva@entrerios.gov.ar')
+            ->queue((new EmailConfirmation($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
             return response()->json([
                 'status' => true,
@@ -175,9 +175,10 @@ class UserController extends Controller
                 $validation_code->code = $code;
                 $validation_code->created_at = Carbon::now()->timestamp;
                 $validation_code->save();
-                Mail::to('foo@example.com')
-                ->cc('bar@example.com')
-                ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
+
+                Mail::to($user->email)
+                ->cc('gvillanueva@entrerios.gov.ar')
+                ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
                 return response()->json([
                     'status' => true,
@@ -191,9 +192,9 @@ class UserController extends Controller
                 $validation_code->created_at = Carbon::now()->timestamp;
                 $validation_code->save();
 
-                Mail::to('foo@example.com')
-            ->cc('bar@example.com')
-            ->queue((new ChangePasswordUrl($user , $code))->from('us@example.com', 'Laravel'));
+                Mail::to($user->email)
+                ->cc('gvillanueva@entrerios.gov.ar')
+                ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
             return response()->json([
                 'status' => true,
