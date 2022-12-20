@@ -4,7 +4,7 @@ services:
     webserver:
         image: nginx:latest
         container_name: webserver
-        restart: unless-stopped
+        restart: always
         depends_on:
             - backend
         ports:
@@ -16,6 +16,9 @@ services:
             app-network:
 
     backend:
+        restart: always
+        depends_on:
+            - database
         build:
             context: Dockerfiles/php
             dockerfile: Dockerfile
@@ -27,6 +30,7 @@ services:
         networks:
             app-network:
     database:
+        restart: always
         build:
             context: Dockerfiles/oracle
             dockerfile: Dockerfile
@@ -44,34 +48,7 @@ services:
             - oracle-data:/opt/oracle/oradata
         networks:
             app-network:
-#    database:
-#        image: postgres:latest
-#        container_name: postgres-db
-#        restart: always
-#        environment:
-#            POSTGRES_PASSWORD: postgres
-#            POSTGRES_USER: postgres
-#            POSTGRES_DB: postgres
-#        ports:
-#            - "5432:5432"
-#        volumes:
-#            - postgres-data:/var/lib/postgresql/data
-            # add entrypoint script to init db
-#            - ./Dockerfiles/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-#       networks:
-#            app-network:
-    
-#    pgadmin:
-#        container_name: pgadmin4_container
-#        image: dpage/pgadmin4:latest
-#        restart: always
-#        environment:
-#            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#            PGADMIN_DEFAULT_PASSWORD: root
-#        ports:
-#            - "5050:80"
-#        depends_on:
-#            - database
+
 networks:
     app-network:
 
