@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserConfirmationCode;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 use App\Mail\EmailConfirmation;
 use App\Mail\ChangePasswordUrl;
@@ -23,6 +24,37 @@ class UserController extends Controller
     public function index()
     {
         //
+    }
+
+    public function check_user_cuil (Request $request){
+
+        $validated = $this->validate($request, [
+            'cuil' => 'required',
+        ]);
+
+        $dni = substr($validated['cuil'], 2, -1);
+
+        if (substr($validated['cuil'], 0,1)=="0"){
+
+            $dni = substr($validated['cuil'], 1);
+        }
+   
+        $response_user = Http::withHeaders(
+            ['Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o'])->get("https://apps.entrerios.gov.ar/wsEntreRios/consultaPF/".$dni);
+
+        $url_actor="https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni."/".json_decode($response_user->body(), true)[0]["SEXO"];
+        
+        $response_actor = Http::withHeaders([
+            'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o',
+        ])->get($url_actor);
+
+        return response()->json([
+            'status' => true,
+            'user' => $response_user->body(),
+            'actor' => $response_actor->body(),
+        ], 201);
+
+
     }
 
     public function singup(Request $request)
@@ -56,7 +88,7 @@ class UserController extends Controller
             $validation_code->save();
 
             Mail::to($user->email)
-            ->cc('gvillanueva@entrerios.gov.ar')
+            #->cc('gvillanueva@entrerios.gov.ar')
             ->queue((new EmailConfirmation($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
             return response()->json([
@@ -177,7 +209,7 @@ class UserController extends Controller
                 $validation_code->save();
 
                 Mail::to($user->email)
-                ->cc('gvillanueva@entrerios.gov.ar')
+                #->cc('gvillanueva@entrerios.gov.ar')
                 ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
                 return response()->json([
@@ -193,7 +225,7 @@ class UserController extends Controller
                 $validation_code->save();
 
                 Mail::to($user->email)
-                ->cc('gvillanueva@entrerios.gov.ar')
+                #->cc('gvillanueva@entrerios.gov.ar')
                 ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
             return response()->json([
