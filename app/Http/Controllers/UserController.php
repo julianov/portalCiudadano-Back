@@ -42,8 +42,9 @@ class UserController extends Controller
         $response_user = Http::withHeaders(
             ['Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o'])->get("https://apps.entrerios.gov.ar/wsEntreRios/consultaPF/".$dni);
 
-        $url_actor="https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni."/".json_decode($response_user->body(), true)[0]["SEXO"];
-        
+        $sexo="/'".json_decode($response_user->body(),true)[0]["SEXO"] ;
+        $url_actor="https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni.$sexo."'";
+    
         $response_actor = Http::withHeaders([
             'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o',
         ])->get($url_actor);
