@@ -13,18 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        $a = Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->bigInteger('cuil')->unique();
-            $table->string('nombre');
-            $table->string('apellido');
-            $table->string('email');
-            $table->string('password');
-
-            $table->timestamp('email_verified_at')->nullable();
-
-            $table->rememberToken();
+        Schema::create('autenticacion_tipos', function (Blueprint $table) {
+            $table->uuid("id")->primary(); # Identifica univocamente el registro
+            $table->enum("descripcion", ["REGISTRADO","ANSES","AFIP","MIARGENTINA","PRESENCIAL"]);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -35,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('autenticacion_tipos');
     }
 };
