@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class UserConfirmationCode
+ * @property string $id
  * @property string $code
- * @property string $user_id
  * @property string $type
- * @property string $status
- * @property string $expiration_date
+ * @property string $created_at
  * @mixin Eloquent
  */
 class UserConfirmationCode extends Model

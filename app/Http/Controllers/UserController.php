@@ -7,27 +7,32 @@ use App\Mail\EmailConfirmation;
 use App\Models\User;
 use App\Models\UserConfirmationCode;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 use Mail;
 use Throwable;
-
 
 class UserController extends Controller
 {
 	/**
 	 * Display a listing of the resource.
 	 *
-	 * @return Response
+	 * @return JsonResponse
 	 */
-	public function index()
+	public function index(): JsonResponse
 	{
 		//
+		return response()->json();
 	}
 
-	public function check_user_cuil(Request $request)
+	/**
+	 * @throws ValidationException
+	 */
+	public function check_user_cuil(Request $request): JsonResponse
 	{
 
 		$validated = $this->validate($request, [
@@ -36,7 +41,7 @@ class UserController extends Controller
 
 		$dni = substr($validated['cuil'], 2, -1);
 
-		if (substr($validated['cuil'], 0, 1) == "0") {
+		if (str_starts_with($validated['cuil'], "0")) {
 
 			$dni = substr($validated['cuil'], 1);
 		}
@@ -44,12 +49,6 @@ class UserController extends Controller
 		$response_user = Http::withHeaders(
 			['Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o'])->get("https://apps.entrerios.gov.ar/wsEntreRios/consultaPF/".$dni);
 
-        $sexo="/'".json_decode($response_user->body(),true)[0]["SEXO"] ;
-        $url_actor="https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni.$sexo."'";
-
-        $response_actor = Http::withHeaders([
-            'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o',
-        ])->get($url_actor);
 		$url_actor = "https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni."/".json_decode($response_user->body(),
 				true)[0]["SEXO"];
 
@@ -66,7 +65,7 @@ class UserController extends Controller
 
 	}
 
-	public function singup(Request $request)
+	public function singup(Request $request): JsonResponse
 	{
 
 		try {
@@ -115,7 +114,10 @@ class UserController extends Controller
 
 	}
 
-	public function validate_new_user(Request $request)
+	/**
+	 * @throws ValidationException
+	 */
+	public function validate_new_user(Request $request): JsonResponse
 	{
 		$validated = $this->validate($request, [
 			'cuil' => 'required',
@@ -139,7 +141,7 @@ class UserController extends Controller
 				'status' => true,
 				'message' => 'Usuario confirmado',
 				'token' => $user->createToken("user_token", ['nivel_1'])->accessToken
-			], 200);
+			]);
 
 		} else {
 
@@ -151,7 +153,10 @@ class UserController extends Controller
 		}
 	}
 
-	public function login(Request $request)
+	/**
+	 * @throws ValidationException
+	 */
+	public function login(Request $request): JsonResponse
 	{
 
 		$validated = $this->validate($request, [
@@ -182,7 +187,7 @@ class UserController extends Controller
 				'expires_at' => $expires_at,
 				'user_data' => $user_data
 
-			], 200);
+			]);
 
 		} else {
 			return response()->json([
@@ -193,22 +198,24 @@ class UserController extends Controller
 
 	}
 
-	public function test(Request $request)
+	public function test(): string
 	{
-
 		return ("llego");
-
 	}
 
 
-	public function password_reset_validation(Request $request)
+	/**
+	 * @throws ValidationException
+	 * @throws Exception
+	 */
+	public function password_reset_validation(Request $request): JsonResponse
 	{
 
 		$validated = $this->validate($request, [
 			'cuil' => 'required',
 		]);
 
-		//aca no tengo que usar Auth porque eso funciona con la contraseña y aca no la tengo
+		# aca no tengo que usar Auth porque eso funciona con la contraseña y aca no la tengo
 
 		$user = User::where('cuil', $validated['cuil'])->first();
 
@@ -216,41 +223,29 @@ class UserController extends Controller
 
 		$validation_code = UserConfirmationCode::where('id', $validated['cuil'])->first();
 
-		if ($validation_code) {
-			$validation_code->code = $code;
-			$validation_code->created_at = Carbon::now()->timestamp;
-			$validation_code->save();
-
-			Mail::to($user->email)
-				#->cc('gvillanueva@entrerios.gov.ar')
-				->queue((new ChangePasswordUrl($user, $code))->from('gvillanueva@entrerios.gov.ar',
-					'Portal Ciudadano - Provincia de Entre Ríos'));
-
-			return response()->json([
-				'status' => true,
-				'message' => 'Correo enviado',
-			], 201);
-		} else {
+		if (!$validation_code) {
 
 			$validation_code = new UserConfirmationCode();
 			$validation_code->id = $validated['cuil'];
-			$validation_code->code = $code;
-			$validation_code->created_at = Carbon::now()->timestamp;
-			$validation_code->save();
 
-			Mail::to($user->email)
-				#->cc('gvillanueva@entrerios.gov.ar')
-				->queue((new ChangePasswordUrl($user, $code))->from('gvillanueva@entrerios.gov.ar',
-					'Portal Ciudadano - Provincia de Entre Ríos'));
-
-			return response()->json([
-				'status' => true,
-				'message' => 'Correo enviado',
-			], 201);
 		}
+		$validation_code->code = $code;
+		$validation_code->created_at = Carbon::now()->timestamp;
+		$validation_code->save();
+		Mail::to($user->email)
+			#->cc('gvillanueva@entrerios.gov.ar')
+			->queue((new ChangePasswordUrl($user, $code))->from('gvillanueva@entrerios.gov.ar',
+				'Portal Ciudadano - Provincia de Entre Ríos'));
+		return response()->json([
+			'status' => true,
+			'message' => 'Correo enviado',
+		], 201);
 	}
 
-	public function password_reset(Request $request)
+	/**
+	 * @throws ValidationException
+	 */
+	public function password_reset(Request $request): JsonResponse
 	{
 
 		$validated = $this->validate($request, [
@@ -288,33 +283,32 @@ class UserController extends Controller
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  int  $id
-	 * @return Response
+	 * @param  string  $id
+	 * @return JsonResponse
 	 */
-	public function show($id)
+	public function show(string $id): JsonResponse
 	{
-		//
+		return response()->json(["id"=>$id]);
 	}
 
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  Request  $request
 	 * @param  int  $id
-	 * @return Response
+	 * @return JsonResponse
 	 */
-	public function update(Request $request, $id)
+	public function update(int $id): JsonResponse
 	{
-		//
+		return response()->json(["id"=>$id]);
 	}
 
 	/**
 	 * Remove the specified resource from storage.
 	 *
 	 * @param  int  $id
-	 * @return Response
+	 * @return void
 	 */
-	public function destroy($id)
+	public function destroy(int $id): void
 	{
 		//
 	}

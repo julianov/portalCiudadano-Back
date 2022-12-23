@@ -10,6 +10,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 /**
+ * @property string $cuil
+ * @property string $nombre
+ * @property string $apellido
+ * @property string $email
+ * @property string $password
  * @mixin Eloquent
  */
 class User extends Authenticatable
