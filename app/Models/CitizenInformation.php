@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $localidadId  Id de la localidad provincial
  * @property string $domicilio  Calle del domicilio declarado por el ciudadano
  * @property string $numero  Nro de casa declarado por el ciudadano
- * @property citizen $ciudadano
+ * @property User $ciudadano
  * @mixin Eloquent
  */
 class CitizenInformation extends Model
@@ -30,7 +30,6 @@ class CitizenInformation extends Model
 	protected $table = "datos_contacto";
 	protected $keyType = 'string';
 
-	protected $connection = "sqlite";
 	protected $fillable = [
 		'email',
 		'email_token',
@@ -50,6 +49,6 @@ class CitizenInformation extends Model
 	 */
 	public function ciudadano(): BelongsTo
 	{
-		return $this->belongsTo(Citizen::class, 'ciudadano_id');
+		return $this->belongsTo(User::class, 'user_id');
 	}
 }

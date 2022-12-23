@@ -33,6 +33,6 @@ class Presential extends Model
 
 	public function ciudadanoAutenticacion()
 	{
-		return $this->belongsTo(CitizenAuthentication::class, 'citizen_auth_id');
+		return $this->belongsTo(CitizenAuth::class, 'citizen_auth_id');
 	}
 }

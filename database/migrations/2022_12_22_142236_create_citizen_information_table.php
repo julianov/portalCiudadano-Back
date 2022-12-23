@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Citizen;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +15,7 @@ return new class extends Migration {
 	{
 		Schema::create('datos_contacto', function (Blueprint $table) {
 			$table->uuid("id")->primary();
-			$table->foreignIdFor(Citizen::class, "ciudadano_id")->constrained()->cascadeOnDelete();
+			$table->foreignIdFor(User::class, "user_id")->constrained()->cascadeOnDelete();
 			$table->string("email")->unique(); # Dirección de mail declarada por el ciudadano para notificaciones
 			$table->string("email_token"); # Token de confirmación de email
 			$table->string("fecha_nacimiento"); # Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario

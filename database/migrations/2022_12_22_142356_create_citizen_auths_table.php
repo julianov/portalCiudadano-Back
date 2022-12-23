@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\AuthType;
-use App\Models\Citizen;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,8 +16,8 @@ return new class extends Migration {
 	{
 		Schema::create('ciudadano_autenticacion', function (Blueprint $table) {
 			$table->uuid("id")->primary(); # Identifica univocamente el registro
-			$table->foreignIdFor(Citizen::class,
-				"ciudadano_id")->constrained()->cascadeOnDelete(); # Id de la tabla ciudadano
+			$table->foreignIdFor(User::class,
+				"user_id")->constrained()->cascadeOnDelete(); # Id de la tabla ciudadano
 			$table->foreignIdFor(AuthType::class,
 				"autenticacion_tipo_id")->constrained()->cascadeOnDelete(); # Id de la tabla AUTENTICACION_TIPO
 			$table->string("nivel"); # Nivel que le corresponde al tipo de autenticación

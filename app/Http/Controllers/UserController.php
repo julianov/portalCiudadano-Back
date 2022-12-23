@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Services\UserService;
 use App\Mail\ChangePasswordUrl;
 use App\Mail\EmailConfirmation;
 use App\Models\User;
 use App\Models\UserConfirmationCode;
+use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +21,20 @@ use Throwable;
 
 class UserController extends Controller
 {
+	/**
+	 * The user service implementation.
+	 *
+	 * @var UserService
+	 */
+	protected UserService $userService;
+	private EntreRiosWSService $wsService;
+
+	public function __construct(UserService $userService, EntreRiosWSService $wsService)
+	{
+		$this->userService = $userService;
+		$this->wsService = $wsService;
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -32,9 +49,8 @@ class UserController extends Controller
 	/**
 	 * @throws ValidationException
 	 */
-	public function check_user_cuil(Request $request): JsonResponse
+	public function checkUserCuil(Request $request): JsonResponse
 	{
-
 		$validated = $this->validate($request, [
 			'cuil' => 'required',
 		]);
@@ -46,47 +62,24 @@ class UserController extends Controller
 			$dni = substr($validated['cuil'], 1);
 		}
 
-		$response_user = Http::withHeaders(
-			['Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o'])->get("https://apps.entrerios.gov.ar/wsEntreRios/consultaPF/".$dni);
-
-		$url_actor = "https://apps.entrerios.gov.ar/wsEntreRios/consultaBduActorEntidad/".$dni."/".json_decode($response_user->body(),
-				true)[0]["SEXO"];
-
-		$response_actor = Http::withHeaders([
-			'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o',
-		])->get($url_actor);
+		$response = $this->wsService->checkUserCuil($dni);
 
 		return response()->json([
-			'status' => true,
-			'user' => $response_user->body(),
-			'actor' => $response_actor->body(),
+			'status' => $response->getStatus(),
+			'user' => $response->getUser(),
+			'actor' => $response->getActor(),
 		], 201);
 
 
 	}
 
-	public function singup(Request $request): JsonResponse
+	public function singup(CreateUserRequest $request): JsonResponse
 	{
 
 		try {
-			$validated = $this->validate($request, [
-				'cuil' => 'required',
-				'nombre' => 'required',
-				'apellido' => 'required',
-				'email' => 'required',
-				'password' => 'required',
-			]);
+			$validated = $request->validated();
 
-			$user = new User();
-			$user->cuil = $validated['cuil'];
-			$user->nombre = $validated['nombre'];
-			$user->apellido = $validated['apellido'];
-			$user->email = $validated['email'];
-
-			$user->password = bcrypt($validated['password']);
-			//  $user->confirmation_code=$bignum = hexdec( md5("test") );
-
-			$user->save();
+			$user = $this->userService->signup($validated);
 
 			$code = random_int(1000, 9999);
 			$validation_code = new UserConfirmationCode();
@@ -288,27 +281,27 @@ class UserController extends Controller
 	 */
 	public function show(string $id): JsonResponse
 	{
-		return response()->json(["id"=>$id]);
+		return response()->json(["id" => $id]);
 	}
 
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  int  $id
+	 * @param  string  $id
 	 * @return JsonResponse
 	 */
-	public function update(int $id): JsonResponse
+	public function update(string $id): JsonResponse
 	{
-		return response()->json(["id"=>$id]);
+		return response()->json(["id" => $id]);
 	}
 
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  int  $id
+	 * @param  string  $id
 	 * @return void
 	 */
-	public function destroy(int $id): void
+	public function destroy(string $id): void
 	{
 		//
 	}

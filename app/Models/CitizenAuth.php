@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class CitizenAuth
@@ -23,19 +24,19 @@ class CitizenAuth extends Model
 	protected $keyType = 'string';
 
 	protected $fillable = [
-		'citizen_id',
+		'user_id',
 		'autenticacion_tipo_id',
 		'nivel',
 		'fecha_autenticacion',
 	];
 
-	public function ciudadano()
+	public function ciudadano(): BelongsTo
 	{
-		return $this->belongsTo(Citizen::class, 'citizen_id');
+		return $this->belongsTo(User::class, 'user_id');
 	}
 
-	public function autenticacionTipo()
+	public function autenticacionTipo(): BelongsTo
 	{
-		return $this->belongsTo(AuthenticationType::class, 'autenticacion_tipo_id');
+		return $this->belongsTo(AuthType::class, 'autenticacion_tipo_id');
 	}
 }
