@@ -2,35 +2,27 @@
 
 namespace App\Models;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-enum AuthTypeEnum {
-    case REGISTRADO;
-    case ANSES;
-    case AFIP;
-    case MIARGENTINA;
-    case PRESENCIAL;
-}
 
 /**
  * Class AuthType
  * @property string $id Identifica univocamente el registro
  * @property AuthTypeEnum $descripcion
+ * @mixin Eloquent
  */
 class AuthType extends Model
 {
-    use HasFactory, HasUuids;
+	use HasFactory, HasUuids;
 
-    protected $table = "autenticacion_tipos";
+	public $timestamps = true;
+	protected $table = "autenticacion_tipos";
+	protected $keyType = 'string';
 
-    public $timestamps = true;
-
-    protected $keyType = 'string';
-
-    protected $fillable = [
-        'descripcion',
-    ];
+	protected $fillable = [
+		'descripcion',
+	];
 
 }
