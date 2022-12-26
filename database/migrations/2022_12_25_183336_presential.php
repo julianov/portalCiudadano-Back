@@ -28,8 +28,10 @@ return new class extends Migration
            # $table->foreign('actor_id')->references('id')->on('user_authentication')->onDelete('cascade');
             $table->foreign('actor_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->timestamp("created_at");
-            $table->timestamp("updated_at");
+            #$table->timestamp("created_at");
+            #$table->timestamp("updated_at");
+            $table->timestamps(); //fixed 
+
         });
     }
 
