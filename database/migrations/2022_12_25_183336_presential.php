@@ -24,10 +24,12 @@ return new class extends Migration
             $table->binary("dni_dorso"); #
             $table->binary("foto"); #
 
-            $table->string("actor_id"); # Id del actor que registra la identidad presencial obtenido del ws actores
+            $table->bigInteger("actor_id"); # Id del actor que registra la identidad presencial obtenido del ws actores
            # $table->foreign('actor_id')->references('id')->on('user_authentication')->onDelete('cascade');
+            $table->foreign('actor_id')->references('id')->on('users')->onDelete('cascade');
 
-            $table->timestamp("fecha_autenticacion");
+            $table->timestamp("created_at");
+            $table->timestamp("updated_at");
         });
     }
 

@@ -17,17 +17,20 @@ return new class extends Migration
             
             $table->id()->primary();
 
-            $table->unsignedBigInteger('user_id');
+            $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
-            $table->string("email")->unique(); # Dirección de mail declarada por el ciudadano para notificaciones
+            $table->string("email"); # Dirección de mail declarada por el ciudadano para notificaciones
             $table->string("fecha_nacimiento"); # Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario
             $table->string("celular"); # Nro de celular declarado por el ciudadano para notificaciones (3dig caracteristica+7dig nro)
             $table->string("departamento_id"); # Id del departamento provincial
             $table->string("localidad_id"); # Id de la localidad provincial
             $table->string("domicilio"); # Calle del domicilio declarado por el ciudadano
             $table->string("numero"); # Nro de casa declarado por el ciudadano
-            $table->timestamps();
+            
+            $table->timestamp("created_at");
+            $table->timestamp("updated_at");
+            
             $table->softDeletes();
         });
     }
