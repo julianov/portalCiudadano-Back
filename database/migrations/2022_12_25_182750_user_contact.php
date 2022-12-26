@@ -14,12 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_contact', function (Blueprint $table) {
-            
+
             $table->id()->primary();
 
             $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             $table->string("email"); # Dirección de mail declarada por el ciudadano para notificaciones
             $table->string("fecha_nacimiento"); # Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario
             $table->string("celular"); # Nro de celular declarado por el ciudadano para notificaciones (3dig caracteristica+7dig nro)
@@ -27,10 +27,10 @@ return new class extends Migration
             $table->string("localidad_id"); # Id de la localidad provincial
             $table->string("domicilio"); # Calle del domicilio declarado por el ciudadano
             $table->string("numero"); # Nro de casa declarado por el ciudadano
-            
+
             $table->timestamp("created_at");
             $table->timestamp("updated_at");
-            
+
             $table->softDeletes();
         });
     }

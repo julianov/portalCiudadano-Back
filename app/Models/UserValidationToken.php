@@ -12,7 +12,7 @@ class UserValidationToken extends Model
 
     protected $table = "user_validation_token";
 
-    protected $fillable =[ 
+    protected $fillable =[
         'id',
         'user_id',
         'val_token',

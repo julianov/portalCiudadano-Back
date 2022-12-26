@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/v0/user/check/cuil', [Controllers\UserController::class, 'check_user_cuil']); 
+Route::get('/v0/user/check/cuil', [Controllers\UserController::class, 'checkUserCuil']);
 Route::post('/v0/user/signup', [Controllers\UserController::class, 'singup']);
 Route::post('/v0/user/validate/email', [Controllers\UserController::class, 'validate_new_user']);
 Route::get('/v0/user/login', [Controllers\UserController::class, 'login']);

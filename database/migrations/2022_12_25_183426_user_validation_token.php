@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         $a = Schema::create('user_validation_token', function (Blueprint $table) {
-            
+
             $table->id()->primary();
 
             $table->bigInteger('user_id');
