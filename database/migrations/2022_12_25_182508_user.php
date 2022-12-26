@@ -24,11 +24,10 @@ return new class extends Migration
 
             $table->timestamp('email_verified_at')->nullable();
 
-            #$table->timestamp("created_at");
-            #$table->timestamp("updated_at");
             $table->timestamps(); //fixed
+            
+			$table->softDeletes();
 
-            $table->rememberToken();
         });
     }
 

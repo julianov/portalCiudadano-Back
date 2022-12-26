@@ -25,9 +25,9 @@ return new class extends Migration
             $table->foreign('authentication_types_id')->references('id')->on('authentication_types')->onDelete('cascade');
 
             $table->string("nivel_auth"); # Nivel que le corresponde al tipo de autenticación
-           #$table->timestamp("created_at");
-            #$table->timestamp("updated_at");
+         
             $table->timestamps(); //fixed 
+			$table->softDeletes();
 
         });
     }

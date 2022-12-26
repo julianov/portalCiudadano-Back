@@ -28,8 +28,6 @@ return new class extends Migration
             $table->string("domicilio"); # Calle del domicilio declarado por el ciudadano
             $table->string("numero"); # Nro de casa declarado por el ciudadano
 
-            #$table->timestamp("created_at");
-            #$table->timestamp("updated_at");
             $table->timestamps(); //fixed
 
             $table->softDeletes();
