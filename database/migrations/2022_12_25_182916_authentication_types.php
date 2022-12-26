@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('autenticacion_tipos', function (Blueprint $table) {
-            $table->uuid("id")->primary(); # Identifica univocamente el registro
+        Schema::create('authentication_types', function (Blueprint $table) {
+            $table->id()->primary();
             $table->enum("descripcion", ["REGISTRADO","ANSES","AFIP","MIARGENTINA","PRESENCIAL"]);
             $table->timestamps();
             $table->softDeletes();
@@ -28,6 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('autenticacion_tipos');
+        Schema::dropIfExists('authentication_types');
+
     }
 };

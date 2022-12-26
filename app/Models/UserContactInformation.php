@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
     * @property string $numero  Nro de casa declarado por el ciudadano
     * @property \App\Models\Citizen $ciudadano
  */
-class CitizenInformation extends Model
+class UserContactInformation extends Model
 {
     use HasFactory, HasUuids;
 

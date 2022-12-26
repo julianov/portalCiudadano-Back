@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\UserConfirmationCode;
+use App\Models\UserValidationToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -65,6 +65,7 @@ class UserController extends Controller
             $validated = $this->validate($request, [
                 'cuil' => 'required',
                 'nombre' => 'required',
+                'prs_id' => 'required',
                 'apellido' => 'required',
                 'email' => 'required',
                 'password' => 'required',
@@ -72,6 +73,7 @@ class UserController extends Controller
 
             $user = new User();
             $user->cuil = $validated['cuil'];
+            $user->prs_id=$validated['prs_id'];
             $user->nombre = $validated['nombre'];
             $user->apellido = $validated['apellido'];
             $user->email = $validated['email'];
@@ -82,9 +84,9 @@ class UserController extends Controller
             $user->save();
 
             $code = random_int(1000,9999);
-            $validation_code = new UserConfirmationCode();
-            $validation_code->id = $user->cuil;
-            $validation_code->code = $code;
+            $validation_code = new UserValidationToken();
+            $validation_code->user_id = $user->id;
+            $validation_code->val_token = $code;
             $validation_code->created_at = Carbon::now()->timestamp;
             $validation_code->save();
 
@@ -116,9 +118,11 @@ class UserController extends Controller
 
         $user = User::where('cuil', $validated['cuil'] )->first();
 
-        $validation_code = UserConfirmationCode::where('id' , $user->cuil )->first();
+        
+        $validation_code = UserValidationToken::where('user_id' , $user->id )->first();
 
-        if ( $validation_code->code == $validated['confirmation_code'] ){
+
+        if ( $validation_code->val_token == $validated['confirmation_code'] ){
 
             $user->markEmailAsVerified();
             $user->save();
@@ -202,7 +206,7 @@ class UserController extends Controller
 
             $code = random_int(1000,9999);
 
-            $validation_code = UserConfirmationCode::where('id', $validated['cuil'] )->first();
+            $validation_code = UserValidationToken::where('id', $validated['cuil'] )->first();
 
             if($validation_code){
                 $validation_code->code = $code;

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Citizen;
 
 return new class extends Migration
 {
@@ -14,11 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('datos_contacto', function (Blueprint $table) {
-            $table->uuid("id")->primary();
-            $table->foreignIdFor(Citizen::class, "ciudadano_id")->constrained()->cascadeOnDelete();
+        Schema::create('user_contact', function (Blueprint $table) {
+            
+            $table->id()->primary();
+
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string("email")->unique(); # Dirección de mail declarada por el ciudadano para notificaciones
-            $table->string("email_token"); # Token de confirmación de email
             $table->string("fecha_nacimiento"); # Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario
             $table->string("celular"); # Nro de celular declarado por el ciudadano para notificaciones (3dig caracteristica+7dig nro)
             $table->string("departamento_id"); # Id del departamento provincial
@@ -37,6 +39,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('datos_contacto');
+        Schema::dropIfExists('user_contact');
+
     }
 };

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \DateTimeInterface $fecha_autenticacion Fecha de autenticación
  *
  */
-class CitizenAuth extends Model
+class UserAuth extends Model
 {
     use HasFactory, HasUuids;
 
