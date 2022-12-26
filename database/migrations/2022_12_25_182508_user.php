@@ -17,15 +17,17 @@ return new class extends Migration
             $table->id()->primary();
             $table->bigInteger('cuil')->unique();
             $table->bigInteger('prs_id')->unique();
+            $table->string("email");
             $table->string('password');
             $table->string('nombre');
             $table->string('apellido');
 
             $table->timestamp('email_verified_at')->nullable();
 
-            $table->timestamp("created_at");
-            $table->timestamp("updated_at");
-            
+            #$table->timestamp("created_at");
+            #$table->timestamp("updated_at");
+            $table->timestamps(); //fixed 
+
             $table->rememberToken();
         });
     }

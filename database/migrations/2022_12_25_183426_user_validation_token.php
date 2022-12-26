@@ -21,8 +21,8 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->string('val_token');
-            $table->timestamp('created_at');
-            $table->timestamp('updated_at');
+            $table->timestamps(); //fixed 
+
             $table->timestamp('expires_at')->nullable();
 
         });
