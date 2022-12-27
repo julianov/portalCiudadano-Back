@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property DateTimeInterface $fecha_autenticacion Fecha de autenticación
  * @mixin Eloquent
  */
-class CitizenAuth extends Model
+class UserAuth extends Model
 {
 	use HasFactory, HasUuids;
 

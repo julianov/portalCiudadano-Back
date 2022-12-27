@@ -24,22 +24,22 @@ class User extends Authenticatable
 {
 	use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-	protected $keyType = 'string';
-	protected $fillable = [
-		'cuil',
-		'prs_id',
-		'nombre',
-		'apellido',
-		'email',
-		'password',
-	];
+    protected $table = "users";
 
-	protected $hidden = [
-		'password',
-		'remember_token',
-	];
+    protected $fillable =[
+        'cuil',
+        'prs_id',
+        'nombre',
+        'apellido',
+        'email',
+        'password',
+    ];
 
-	protected $casts = [
+    protected $hidden = [
+        'password',
+    ];
+
+    protected $casts = [
 		'email_verified_at' => 'datetime',
 	];
 }

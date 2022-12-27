@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property User $ciudadano
  * @mixin Eloquent
  */
-class CitizenInformation extends Model
+class UserContactInformation extends Model
 {
 	use HasFactory, HasUuids;
 

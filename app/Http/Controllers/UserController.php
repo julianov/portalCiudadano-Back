@@ -7,7 +7,7 @@ use App\Http\Services\UserService;
 use App\Mail\ChangePasswordUrl;
 use App\Mail\EmailConfirmation;
 use App\Models\User;
-use App\Models\UserConfirmationCode;
+use App\Models\UserValidationToken;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
 use Exception;
@@ -82,9 +82,9 @@ class UserController extends Controller
 			$user = $this->userService->signup($validated);
 
 			$code = random_int(1000, 9999);
-			$validation_code = new UserConfirmationCode();
-			$validation_code->id = $user->cuil;
-			$validation_code->code = $code;
+			$validation_code = new UserValidationToken();
+			$validation_code->user_id = $user->id;
+			$validation_code->val_token = $code;
 			$validation_code->created_at = Carbon::now()->timestamp;
 			$validation_code->save();
 
@@ -120,9 +120,11 @@ class UserController extends Controller
 
 		$user = User::where('cuil', $validated['cuil'])->first();
 
-		$validation_code = UserConfirmationCode::where('id', $user->cuil)->first();
 
-		if ($validation_code->code == $validated['confirmation_code']) {
+        $validation_code = UserValidationToken::where('user_id' , $user->id )->first();
+
+
+        if ( $validation_code->val_token == $validated['confirmation_code'] ){
 
 			$user->markEmailAsVerified();
 			$user->save();
@@ -214,25 +216,37 @@ class UserController extends Controller
 
 		$code = random_int(1000, 9999);
 
-		$validation_code = UserConfirmationCode::where('id', $validated['cuil'])->first();
+		$validation_code = UserValidationToken::where('id', $validated['cuil'])->first();
 
-		if (!$validation_code) {
+		if($validation_code){
+            $validation_code->code = $code;
+            $validation_code->created_at = Carbon::now()->timestamp;
+            $validation_code->save();
 
-			$validation_code = new UserConfirmationCode();
-			$validation_code->id = $validated['cuil'];
+            Mail::to($user->email)
+            #->cc('gvillanueva@entrerios.gov.ar')
+            ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
 
-		}
-		$validation_code->code = $code;
-		$validation_code->created_at = Carbon::now()->timestamp;
-		$validation_code->save();
-		Mail::to($user->email)
-			#->cc('gvillanueva@entrerios.gov.ar')
-			->queue((new ChangePasswordUrl($user, $code))->from('gvillanueva@entrerios.gov.ar',
-				'Portal Ciudadano - Provincia de Entre Ríos'));
-		return response()->json([
-			'status' => true,
-			'message' => 'Correo enviado',
-		], 201);
+            return response()->json([
+                'status' => true,
+                'message' => 'Correo enviado',
+            ], 201);
+        }else{
+                $validation_code = new UserConfirmationCode();
+                $validation_code->id = $validated['cuil'];
+                $validation_code->code = $code;
+                $validation_code->created_at = Carbon::now()->timestamp;
+                $validation_code->save();
+
+                Mail::to($user->email)
+                #->cc('gvillanueva@entrerios.gov.ar')
+                ->queue((new ChangePasswordUrl($user , $code))->from('gvillanueva@entrerios.gov.ar', 'Portal Ciudadano - Provincia de Entre Ríos'));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Correo enviado',
+            ], 201);
+        }
 	}
 
 	/**
