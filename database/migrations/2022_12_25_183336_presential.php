@@ -17,19 +17,19 @@ return new class extends Migration
             
             $table->id()->primary();
             
-            $table->bigInteger("user_autenticacion_id");
-            $table->foreign('user_autenticacion_id')->references('id')->on('user_authentication')->onDelete('cascade');
+            $table->bigInteger("user_authentication_id");
+            $table->foreign('user_authentication_id')->references('id')->on('user_authentication')->onDelete('cascade');
 
-            $table->binary("dni_frente"); #
-            $table->binary("dni_dorso"); #
-            $table->binary("foto"); #
+            $table->binary("dni_front"); #
+            $table->binary("dni_back"); #
+            $table->binary("user_photo"); #
 
             $table->bigInteger("actor_id"); # Id del actor que registra la identidad presencial obtenido del ws actores
            # $table->foreign('actor_id')->references('id')->on('user_authentication')->onDelete('cascade');
             $table->foreign('actor_id')->references('id')->on('users')->onDelete('cascade');
 
-            
             $table->timestamps(); //fixed 
+
 
         });
     }

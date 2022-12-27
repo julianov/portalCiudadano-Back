@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('authentication_types', function (Blueprint $table) {
             $table->id()->primary();
-            $table->enum("descripcion", ["REGISTRADO","ANSES","AFIP","MIARGENTINA","PRESENCIAL"]);
+            $table->enum("description", ["REGISTRADO","ANSES","AFIP","MIARGENTINA","PRESENCIAL"]);
             $table->timestamps();
             $table->softDeletes();
         });
