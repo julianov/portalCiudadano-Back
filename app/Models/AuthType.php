@@ -18,11 +18,11 @@ class AuthType extends Model
 	use HasFactory, HasUuids;
 
 	public $timestamps = true;
-	protected $table = "autenticacion_tipos";
+	protected $table = "authentication_types";
 	protected $keyType = 'string';
 
 	protected $fillable = [
-		'descripcion',
+		'description',
 	];
 
 }

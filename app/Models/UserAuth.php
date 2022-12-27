@@ -20,14 +20,13 @@ class UserAuth extends Model
 	use HasFactory, HasUuids;
 
 	public $timestamps = true;
-	protected $table = "ciudadano_autenticacion";
+	protected $table = "user_authentication";
 	protected $keyType = 'string';
 
 	protected $fillable = [
 		'user_id',
-		'autenticacion_tipo_id',
-		'nivel',
-		'fecha_autenticacion',
+		'authentication_types_id',
+		'auth_level',
 	];
 
 	public function ciudadano(): BelongsTo
@@ -40,3 +39,5 @@ class UserAuth extends Model
 		return $this->belongsTo(AuthType::class, 'autenticacion_tipo_id');
 	}
 }
+
+

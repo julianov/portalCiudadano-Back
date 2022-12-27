@@ -27,18 +27,22 @@ class UserContactInformation extends Model
 	use HasFactory, HasUuids;
 
 	public $timestamps = true;
-	protected $table = "datos_contacto";
+	protected $table = "user_contact";
 	protected $keyType = 'string';
 
 	protected $fillable = [
 		'email',
-		'email_token',
-		'fecha_nacimiento',
-		'celular',
-		'departamento_id',
-		'localidad_id',
-		'domicilio',
-		'numero',
+		'birthday',
+		'cellphone_number',
+		'department_id',
+		'locality_id',
+		'address_street',
+		'address_number',
+	];
+
+	protected $casts = [
+		'email_verified_at' => 'datetime',
+		'cellphone_number_verified_at'=> 'datetime',
 	];
 
 
@@ -52,3 +56,4 @@ class UserContactInformation extends Model
 		return $this->belongsTo(User::class, 'user_id');
 	}
 }
+

@@ -15,9 +15,10 @@ class UserService {
 		try {
 			$user = new User();
 			$user->cuil = $request['cuil'];
-			$user->nombre = $request['nombre'];
-			$user->apellido = $request['apellido'];
-			$user->email = $request['email'];
+			$user->name = $request['nombre'];
+			$user->last_name = $request['apellido'];
+
+			#$user->email = $request['email'];
 
 			$user->password = bcrypt($request['password']);
 

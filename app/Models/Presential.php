@@ -21,18 +21,18 @@ class Presential extends Model
 	use HasFactory;
 
 	public $timestamps = true;
-	protected $table = "presencial";
+	protected $table = "presential";
 	protected $fillable = [
-		'citizen_auth_id',
-		'dni_frente',
-		'dni_dorso',
-		'foto',
+		'user_authentication_id',
+		'dni_front',
+		'dni_back',
+		'user_photo',
 		'actor_id',
-		'fecha_autenticacion',
 	];
 
 	public function ciudadanoAutenticacion()
 	{
-		return $this->belongsTo(CitizenAuth::class, 'citizen_auth_id');
+		return $this->belongsTo(CitizenAuth::class, 'user_authentication_id');
 	}
 }
+
