@@ -95,7 +95,7 @@ class UserController extends Controller
 
 			return response()->json([
 				'status' => true,
-				'message' => 'Correo enviado',
+				'message' => 'Email sent',
 			], 201);
 
 		} catch (Throwable $th) {
