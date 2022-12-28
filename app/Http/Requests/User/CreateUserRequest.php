@@ -29,6 +29,7 @@ class CreateUserRequest extends FormRequest
     {
         return [
 	        'cuil' => 'required',
+			'prs_id' => 'required',
 	        'nombre' => 'required',
 	        'apellido' => 'required',
 	        'email' => 'required',
@@ -45,6 +46,7 @@ class CreateUserRequest extends FormRequest
 	{
 		return [
 			'cuil.required' => 'El campo CUIL es obligatorio',
+			'prs_id.required' => 'El campo prs_id es obligatorio',
 			'nombre.required' => 'El campo Nombre es obligatorio',
 			'apellido.required' => 'El campo Apellido es obligatorio',
 			'email.required' => 'El campo Email es obligatorio',

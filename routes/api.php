@@ -27,6 +27,8 @@ Route::get('/v0/user/check/cuil', [Controllers\UserController::class, 'checkUser
 Route::post('/v0/user/signup', [Controllers\UserController::class, 'singup']);
 Route::post('/v0/user/validate/email', [Controllers\UserController::class, 'validate_new_user']);
 Route::get('/v0/user/login', [Controllers\UserController::class, 'login']);
+Route::post('/v0/user/personal/data', [Controllers\UserController::class, 'personal_data']);
+
 Route::get('/v0/user/password/reset/validation', [Controllers\UserController::class, 'password_reset_validation']);
 Route::post('/v0/user/password/reset', [Controllers\UserController::class, 'password_reset']);
 

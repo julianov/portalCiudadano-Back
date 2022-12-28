@@ -38,6 +38,7 @@ class UserContactInformation extends Model
 		'locality_id',
 		'address_street',
 		'address_number',
+		'apartment',
 	];
 
 	protected $casts = [
