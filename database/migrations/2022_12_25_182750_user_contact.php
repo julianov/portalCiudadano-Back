@@ -28,7 +28,6 @@ return new class extends Migration
             $table->string("apartment"); # Nro de departamento o vivienda, ejemplo 16 F
 
             $table->timestamps(); //fixed
-            $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('cellphone_number_verified_at')->nullable();
 
             $table->softDeletes();

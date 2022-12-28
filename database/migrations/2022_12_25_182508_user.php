@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('last_name'); #apellido de usuario
 
             $table->timestamps(); //fixed
-            
+            $table->timestamp('email_verified_at')->nullable();
+
 			$table->softDeletes();
 
 
