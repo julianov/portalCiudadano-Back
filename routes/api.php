@@ -26,7 +26,7 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::get('/login', [Controllers\UserController::class, 'login']);
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'password_reset_validation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'password_reset']);
-    Route::::middleware(['auth:authentication','scope:nivel_1'])->post('/personal/data', [Controllers\UserController::class, 'personal_data']);
+    Route::middleware(['auth:authentication','scope:nivel_1'])->post('/personal/data', [Controllers\UserController::class, 'personal_data']);
 
 });
 
