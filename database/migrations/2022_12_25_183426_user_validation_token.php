@@ -16,13 +16,10 @@ return new class extends Migration
         $a = Schema::create('user_validation_token', function (Blueprint $table) {
 
             $table->id()->primary();
-
             $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
             $table->string('val_token');
-            $table->timestamps(); //fixed 
-
+            $table->timestamps();
             $table->timestamp('expires_at')->nullable();
 
         });

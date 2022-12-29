@@ -3,9 +3,9 @@
 namespace App\Services\WebServices\WsEntreRios\Contracts;
 
 class CheckUserCuilResponse {
-	private readonly bool $status;
-	private readonly PersonaFisicaResponse $user;
-	private readonly BduActorEntidadResponse $actor;
+	public readonly bool $status;
+	public readonly PersonaFisicaResponse $user;
+	public readonly BduActorEntidadResponse $actor;
 
 	public function __construct(bool $status, PersonaFisicaResponse $user, BduActorEntidadResponse $actor) {
 		$this->status = $status;
@@ -23,5 +23,13 @@ class CheckUserCuilResponse {
 
 	public function getActor(): BduActorEntidadResponse {
 		return $this->actor;
+	}
+
+	public function toArray(): array {
+		return [
+			"status" => $this->status,
+			"user" => $this->user->toArray(),
+			"actor" => $this->actor->toArray(),
+		];
 	}
 }

@@ -19,9 +19,9 @@ return new class extends Migration
             $table->bigInteger('prs_id')->unique();
             $table->string('name'); #nombre de usuario
             $table->string('last_name'); #apellido de usuario
-
+            $table->string("password");
             $table->timestamps(); //fixed
-            
+
 			$table->softDeletes();
 
 

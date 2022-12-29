@@ -9,11 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Presential
- * @property string $dniFrente
- * @property string $dniDorso
- * @property string $foto
- * @property string $actorId Id del actor que registra la identidad presencial obtenido del ws actores
- * @property DateTimeInterface $fechaAutenticacion Fecha de autenticación
+ * @property string $dni_front
+ * @property string $dni_back
+ * @property string $user_photo
+ * @property string $actor_id Id del actor que registra la identidad presencial obtenido del ws actores
  * @mixin Eloquent
  */
 class Presential extends Model

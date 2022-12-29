@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class CitizenAuth
- * @property string $nivel Nivel que le corresponde al tipo de autenticación
+ * @property string $auth_level Nivel que le corresponde al tipo de autenticación
  * @property DateTimeInterface $fecha_autenticacion Fecha de autenticación
  * @mixin Eloquent
  */
@@ -29,12 +29,12 @@ class UserAuth extends Model
 		'auth_level',
 	];
 
-	public function ciudadano(): BelongsTo
+	public function user(): BelongsTo
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
 
-	public function autenticacionTipo(): BelongsTo
+	public function authType(): BelongsTo
 	{
 		return $this->belongsTo(AuthType::class, 'autenticacion_tipo_id');
 	}

@@ -35,7 +35,7 @@ class PersonaFisicaResponse
 		$this->NroDocumento = $payload["NRO_DOCUMENTO"];
 		$this->Apellido = $payload["APELLIDO"];
 		$this->Nombres = $payload["NOMBRES"];
-		$this->FechaNacimiento = $payload["FECHA_NACIMIENTO"];
+		$this->FechaNacimiento = DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $payload["FECHA_NACIMIENTO"]);
 		$this->FechaDefuncion = $payload["FECHA_DEFUNCION"];
 		$this->Sexo = $payload["SEXO"];
 		$this->Localidad = $payload["LOCALIDAD"];
@@ -76,10 +76,10 @@ class PersonaFisicaResponse
 	}
 
 	public function getFechaNacimiento(): DateTime {
-		return DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $this->FechaNacimiento);
+		return $this->FechaNacimiento;
 	}
 	public function getFechaDefuncion(): ?DateTime {
-		return DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $this->FechaDefuncion);
+		return $this->FechaDefuncion;
 	}
 	public function getSexo(): string {
 		return $this->Sexo;
@@ -122,5 +122,31 @@ class PersonaFisicaResponse
 	}
 	public function getCuil(): string {
 		return $this->Cuil;
+	}
+
+	public function toArray() {
+        return [
+            'id' => $this->getid(),
+            'TipoDocumento' => $this->getTipoDocumento(),
+            'NroDocumento' => $this->getNroDocumento(),
+            'Apellido' => $this->getApellido(),
+            'Nombres' => $this->getNombres(),
+            'FechaNacimiento' => $this->getFechaNacimiento(),
+            'FechaDefuncion' => $this->getFechaDefuncion(),
+            'Sexo' => $this->getSexo(),
+            'Localidad' => $this->getLocalidad(),
+            'Departamento' => $this->getDepartamento(),
+            'Provincia' => $this->getProvincia(),
+            'Barrio' => $this->getBarrio(),
+            'Calle' => $this->getCalle(),
+            'Numeracion' => $this->getNumeracion(),
+            'Piso' => $this->getPiso(),
+            'Depto' => $this->getDepto(),
+            'UF' => $this->getUF(),
+            'Referencias' => $this->getReferencias(),
+            'Latitud' => $this->getLatitud(),
+            'Longitud' => $this->getLongitud(),
+            'Cuil' => $this->getCuil(),
+        ];
 	}
 }

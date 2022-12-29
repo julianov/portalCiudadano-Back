@@ -49,28 +49,30 @@ class UserController extends Controller
 	/**
 	 * @throws ValidationException
 	 */
-	public function checkUserCuil(Request $request): JsonResponse
+	public function checkUserCuil(Request $request, \Response $rs)
 	{
-		$validated = $this->validate($request, [
-			'cuil' => 'required',
-		]);
+		try {
+			$validated = $this->validate($request, [
+				'cuil' => 'required',
+			]);
 
-		$dni = substr($validated['cuil'], 2, -1);
+			$dni = substr($validated['cuil'], 2, -1);
 
-		if (str_starts_with($validated['cuil'], "0")) {
+			if (str_starts_with($validated['cuil'], "0")) {
 
-			$dni = substr($validated['cuil'], 1);
+				$dni = substr($validated['cuil'], 1);
+			}
+
+			$rs = $this->wsService->checkUserCuil($dni);
+
+			return response()->json($rs);
+		} catch (Throwable $e) {
+			return \Response::json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'details' => $e->__toString()
+            ]);
 		}
-
-		$response = $this->wsService->checkUserCuil($dni);
-
-		return response()->json([
-			'status' => $response->getStatus(),
-			'user' => $response->getUser(),
-			'actor' => $response->getActor(),
-		], 201);
-
-
 	}
 
 	public function singup(CreateUserRequest $request): JsonResponse

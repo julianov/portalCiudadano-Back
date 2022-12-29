@@ -50,4 +50,16 @@ class BduActorEntidadResponse
 	public function getDescripcion(): string {
 		return $this->Descripcion;
 	}
+
+    public function toArray() {
+        return [
+            "PrsId" => $this->PrsId,
+            "NroDocumento" => $this->NroDocumento,
+            "Apellido" => $this->Apellido,
+            "Nombres" => $this->Nombres,
+            "EntId" => $this->EntId,
+            "OrfId" => $this->OrfId,
+            "Descripcion" => $this->Descripcion,
+        ];
+    }
 }

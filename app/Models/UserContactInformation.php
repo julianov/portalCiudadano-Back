@@ -10,16 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 /**
- * Class CitizenInformation
+ * Class UserContactInformation
  * @property string $email Dirección de mail declarada por el ciudadano para notificaciones
  * @property string $emailToken  Token de confirmación de email
- * @property string $fechaNacimiento  Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario
- * @property string $celular  Nro de celular declarado por el ciudadano para notificaciones (3dig caracteristica+7dig nro)
- * @property string $departamentoId  Id del departamento provincial
- * @property string $localidadId  Id de la localidad provincial
- * @property string $domicilio  Calle del domicilio declarado por el ciudadano
- * @property string $numero  Nro de casa declarado por el ciudadano
- * @property User $ciudadano
+ * @property string $birthday  Fecha de Nacimiento declarada por del ciudadano para notificaciones por rango etario
+ * @property string $cellphone_number  Nro de celular declarado por el ciudadano para notificaciones (3dig caracteristica+7dig nro)
+ * @property string $department_id  Id del departamento provincial
+ * @property string $locality_id  Id de la localidad provincial
+ * @property string $address_street  Calle del domicilio declarado por el ciudadano
+ * @property string $address_number  Nro de casa declarado por el ciudadano
+ * @property User $user
  * @mixin Eloquent
  */
 class UserContactInformation extends Model

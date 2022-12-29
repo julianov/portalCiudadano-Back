@@ -26,11 +26,10 @@ return new class extends Migration
             $table->string("locality_id"); # Id de la localidad provincial
             $table->string("address_street"); # Calle del domicilio declarado por el ciudadano
             $table->string("address_number"); # Nro de casa declarado por el ciudadano
-
-            $table->timestamps(); //fixed
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('cellphone_number_verified_at')->nullable();
 
+            $table->timestamps(); //fixed
             $table->softDeletes();
         });
     }

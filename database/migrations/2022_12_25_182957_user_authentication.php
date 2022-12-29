@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-       
         Schema::create('user_authentication', function (Blueprint $table) {
 
             $table->id()->primary();
-            
+
             $table->bigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
@@ -25,8 +24,7 @@ return new class extends Migration
             $table->foreign('authentication_types_id')->references('id')->on('authentication_types')->onDelete('cascade');
 
             $table->string("auth_level"); # Nivel que le corresponde al tipo de autenticación
-         
-            $table->timestamps(); //fixed 
+            $table->timestamps(); //fixed
 			$table->softDeletes();
 
         });
