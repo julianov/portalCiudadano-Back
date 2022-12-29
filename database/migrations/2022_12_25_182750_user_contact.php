@@ -30,7 +30,6 @@ return new class extends Migration
             $table->timestamps(); //fixed
             $table->timestamp('cellphone_number_verified_at')->nullable();
 
-            $table->timestamps(); //fixed
             $table->softDeletes();
         });
     }
