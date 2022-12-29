@@ -87,7 +87,7 @@ class UserController extends Controller
 			$validation_code = new UserValidationToken();
 			$validation_code->user_id = $user->id;
 			$validation_code->val_token = $code;
-			$validation_code->created_at = Carbon::now()->timestamp;
+			//$validation_code->created_at = Carbon::now()->timestamp;
 			$validation_code->save();
 
 			Mail::to($user->email)
@@ -97,7 +97,7 @@ class UserController extends Controller
 
 			return response()->json([
 				'status' => true,
-				'message' => 'Correo enviado',
+				'message' => 'Email sent',
 			], 201);
 
 		} catch (Throwable $th) {
@@ -119,16 +119,14 @@ class UserController extends Controller
 			'confirmation_code' => 'required',
 		]);
 
-
 		$user = User::where('cuil', $validated['cuil'])->first();
-
 
         $validation_code = UserValidationToken::where('user_id' , $user->id )->first();
 
-
         if ( $validation_code->val_token == $validated['confirmation_code'] ){
 
-			$user->markEmailAsVerified();
+			//$user->markEmailAsVerified();
+			$user->email_verified_at = Carbon::now()->timestamp;
 			$user->save();
 
 			// Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes
@@ -191,6 +189,25 @@ class UserController extends Controller
 				'status' => false,
 				'message' => 'Invalid Credentials',
 			], 400);
+		}
+
+	}
+
+	public function personal_data(Request $request): JsonResponse 
+	{
+		$validated = $this->validate($request, [
+			'cuil' => 'required',
+			'birthday"' => 'required',
+            'cellphone_number' => 'required',
+            'department_id' => 'required',
+            'locality_id' => 'required',
+            'address_street' => 'required',
+            'address_number' => 'required',
+            'apartment' => 'required',
+		]);
+
+		if (Auth::attempt($validated)) {
+			
 		}
 
 	}

@@ -23,52 +23,21 @@ class EntreRiosWSService
 	private function getPersonaFisica(string $dni): PersonaFisicaResponse
 	{
 		$url = "consultaPF/".$dni;
-		# $response = Http::withHeaders(
-		# 	['Authorization' => $this->authToken])
-		# 	->get($this->baseUrl.$url);
+		$response = Http::withHeaders(
+			['Authorization' => $this->authToken])
+			->get($this->baseUrl.$url);
 
-		return new PersonaFisicaResponse(
-			[
-				"ID" => 876231,
-				"TIPO_DOCUMENTO" => "DNI",
-				"NRO_DOCUMENTO" => 35441282,
-				"APELLIDO" => "OVIEDO",
-				"NOMBRES" => "JULIAN ARIEL",
-				"FECHA_NACIMIENTO" => "1990-11-30T03:00:00.000Z",
-				"FECHA_DEFUNCION" => null,
-				"SEXO" => "M",
-				"LOCALIDAD" => "PARANA",
-				"DEPARTAMENTO" => "PARANA",
-				"PROVINCIA" => "ENTRE RIOS",
-				"BARRIO" => null,
-				"CALLE" => "SIN ESPECIFICAR",
-				"NUMERACION" => null,
-				"PISO" => null,
-				"DEPTO" => null,
-				"UF" => null,
-				"REFERENCIAS" => "FRAY F.CASTAÃ`EDA 1178",
-				"LATITUD" => null,
-				"LONGITUD" => null,
-				"CUIL" => "23354412829",
-			]);
+		return new PersonaFisicaResponse($response->json()[0]);
 	}
 
 	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse
 	{
 
 		$url = "consultaBduActorEntidad/".$dni."/".$sexo;
-		# $response = Http::withHeaders(
-		#	['Authorization' => $this->authToken])
-		#	->get($this->baseUrl.$url);
-		return new BduActorEntidadResponse([
-			"PRS_ID" => 408752,
-			"NRO_DOCUMENTO" => 24155974,
-			"APELLIDO" => "DE LAS CASAS",
-			"NOMBRES" => "GONZALO ANDRES",
-			"ENT_ID" => 31489,
-			"ORF_ID" => 1003017,
-			"DESCRIPCION" => "OFIC. SEC. GUALEGUAYCHU (CIUDAD) - DIR. DEL REG. DE ESTADO CIVIL Y CAPACIDAD DE LAS PERSONAS - SEC. JUSTICIA - MIN. GOBIERNO Y JUSTICIA - PODER EJECUTIVO",
-		]);
+		$response = Http::withHeaders(
+			['Authorization' => $this->authToken])
+			->get($this->baseUrl.$url);
+		return new BduActorEntidadResponse($response->json());
 	}
 
 	public function checkUserCuil(string $dni): array

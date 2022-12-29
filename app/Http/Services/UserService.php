@@ -15,18 +15,17 @@ class UserService {
 		try {
 			$user = new User();
 			$user->cuil = $request['cuil'];
+			$user->prs_id = $request['prs_id'];
 			$user->name = $request['nombre'];
 			$user->last_name = $request['apellido'];
-
-			#$user->email = $request['email'];
-
+			$user->email = $request['email'];
 			$user->password = bcrypt($request['password']);
-
 			$user->save();
 
 			return $user;
+
 		} catch (Throwable $th) {
-			throw new Exception("Error al crear el usuario", $th->getCode());
+			throw new Exception("User creation failed ".$th, $th->getCode());
 		}
 	}
 }

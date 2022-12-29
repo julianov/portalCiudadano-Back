@@ -31,6 +31,7 @@ class User extends Authenticatable
         'prs_id',
         'name',
         'last_name',
+        'email',
         'password',
     ];
 

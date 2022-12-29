@@ -17,10 +17,13 @@ return new class extends Migration
             $table->id()->primary();
             $table->bigInteger('cuil')->unique();
             $table->bigInteger('prs_id')->unique();
+            $table->string("email");
+            $table->string('password'); #nombre de usuario
             $table->string('name'); #nombre de usuario
             $table->string('last_name'); #apellido de usuario
             $table->string("password");
             $table->timestamps(); //fixed
+            $table->timestamp('email_verified_at')->nullable();
 
 			$table->softDeletes();
 
