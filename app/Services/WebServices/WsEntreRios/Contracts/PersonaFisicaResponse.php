@@ -120,7 +120,7 @@ class PersonaFisicaResponse
 	public function getLongitud(): ?string {
 		return $this->Longitud;
 	}
-	public function getCuil(): string {
+	public function getCuil(): ?string {
 		return $this->Cuil;
 	}
 
