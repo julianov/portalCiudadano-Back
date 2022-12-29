@@ -87,7 +87,7 @@ class UserController extends Controller
 			$validation_code = new UserValidationToken();
 			$validation_code->user_id = $user->id;
 			$validation_code->val_token = $code;
-			//$validation_code->created_at = Carbon::now()->timestamp;
+			//$validation_code->created_at = Carbon::now();
 			$validation_code->save();
 
 			Mail::to($user->email)
@@ -126,7 +126,7 @@ class UserController extends Controller
         if ( $validation_code->val_token == $validated['confirmation_code'] ){
 
 			//$user->markEmailAsVerified();
-			$user->email_verified_at = Carbon::now()->timestamp;
+			$user->email_verified_at = Carbon::now();
 			$user->save();
 
 			// Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes
