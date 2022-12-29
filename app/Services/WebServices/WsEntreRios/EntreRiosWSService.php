@@ -32,12 +32,12 @@ class EntreRiosWSService
 
 	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse
 	{
-
-		$url = "consultaBduActorEntidad/".$dni."/".$sexo;
+        $sexo_var="'".$sexo;
+		$url = "consultaBduActorEntidad/".$dni."/".$sexo_var."'";
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
-		return new BduActorEntidadResponse($response->json());
+		return new BduActorEntidadResponse($response->json()[0]);
 	}
 
 	public function checkUserCuil(string $dni): array
