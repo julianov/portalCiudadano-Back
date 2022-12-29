@@ -26,7 +26,7 @@ class PersonaFisicaResponse
 	private ?string $Referencias;
 	private ?string $Latitud;
 	private ?string $Longitud;
-	private string $Cuil;
+	private ?string $Cuil;
 
 	public function __construct(array $payload)
 	{
