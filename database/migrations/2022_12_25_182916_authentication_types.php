@@ -13,14 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_confirmation_codes', function (Blueprint $table) {
-            
-            $table->bigInteger('id');
-            $table->foreign('id')->references('cuil')->on('users')->onDelete('cascade');
-
-            $table->integer('code');
-            $table->timestamp('created_at')->nullable();
-
+        Schema::create('authentication_types', function (Blueprint $table) {
+            $table->id()->primary();
+            $table->enum("description", ["REGISTRADO","ANSES","AFIP","MIARGENTINA","PRESENCIAL"]);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -31,6 +28,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_confirmation_codes');
+        Schema::dropIfExists('authentication_types');
+
     }
 };
