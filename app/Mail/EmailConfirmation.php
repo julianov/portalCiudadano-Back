@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
+
 
 class EmailConfirmation extends Mailable
 {
@@ -19,9 +21,8 @@ class EmailConfirmation extends Mailable
 	public function __construct(User $user, $hash)
 	{
 		$this->user = $user;
-		$this->hash = $hash;
-		$this->cuil = $user->cuil;
-
+        $this->hash = base64_encode($hash);
+        $this->cuil = base64_encode($user->cuil);
 	}
 
 	/**

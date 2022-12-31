@@ -8,6 +8,7 @@ use App\Mail\ChangePasswordUrl;
 use App\Mail\EmailConfirmation;
 use App\Models\User;
 use App\Models\UserValidationToken;
+use App\Models\UserContactInformation;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
 use Exception;
@@ -31,6 +32,7 @@ class UserController extends Controller
 
 	public function __construct(UserService $userService, EntreRiosWSService $wsService)
 	{
+
 		$this->userService = $userService;
 		$this->wsService = $wsService;
 	}
@@ -82,7 +84,6 @@ class UserController extends Controller
 			$validated = $request->validated();
 
 			$user = $this->userService->signup($validated);
-
 			$code = random_int(1000, 9999);
 			$validation_code = new UserValidationToken();
 			$validation_code->user_id = $user->id;
@@ -128,21 +129,22 @@ class UserController extends Controller
 			//$user->markEmailAsVerified();
 			$user->email_verified_at = Carbon::now();
 			$user->save();
+			$user_auth=$this->userService->setAuthType($user, "REGISTRADO", "level_1");
 
 			// Ademas eliminamos el codigo de confirmacion de la tabla user_confirmation_codes
-			$validation_code->delete();
+			//$validation_code->delete();
 
 			return response()->json([
 				'status' => true,
-				'message' => 'Usuario confirmado',
-				'token' => $user->createToken("user_token", ['nivel_1'])->accessToken
+				'message' => 'Email user confirmed',
+				'token' => $user->createToken("user_token", ['level_1'])->accessToken
 			]);
 
 		} else {
 
 			return response()->json([
 				'status' => false,
-				'message' => 'Codigo de confirmacion erroneo'
+				'message' => 'Bad confirmation code'
 			], 400);
 
 		}
@@ -163,15 +165,15 @@ class UserController extends Controller
 		if (Auth::attempt($validated)) {
 
 			$user = Auth::user();
-			$token = $user->createToken('user_token', ['nivel_1'])->accessToken;
+			$token = $user->createToken('user_token', ['level_1'])->accessToken;
 
 			//a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
 			$timestamp = now()->addDays(7);
 			$expires_at = date('M d, Y H:i A', strtotime($timestamp));
 
 			$user_data = [
-				"name" => $user->nombre,
-				"apellido" => $user->apellido
+				"user" => $user,
+				"user_contact" => UserContactInformation::where('user_id', $user->id)->first()
 			];
 
 			return response()->json([
@@ -193,11 +195,11 @@ class UserController extends Controller
 
 	}
 
-	public function personal_data(Request $request): JsonResponse 
+	public function personal_data(Request $request) 
 	{
 		$validated = $this->validate($request, [
 			'cuil' => 'required',
-			'birthday"' => 'required',
+			'birthday' => 'required',
             'cellphone_number' => 'required',
             'department_id' => 'required',
             'locality_id' => 'required',
@@ -206,9 +208,17 @@ class UserController extends Controller
             'apartment' => 'required',
 		]);
 
-		if (Auth::attempt($validated)) {
-			
-		}
+		$user = $this->userService->getUser($validated['cuil']);
+		$user_contact=  $this->userService->setUserContact($user , $validated);
+		$this->userService->setAuthType($user, "REGISTRADO", "level_2");
+
+		return response()->json([
+			'status' => true,
+			'message' => 'User contact data saved',
+			'token' => $user->createToken("user_token", ['level_2'])->accessToken
+		]);
+
+		
 
 	}
 

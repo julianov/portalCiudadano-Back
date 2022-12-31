@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserContactInformation extends Model
 {
-	use HasFactory, HasUuids;
+	use HasFactory;
 
 	public $timestamps = true;
 	protected $table = "user_contact";
