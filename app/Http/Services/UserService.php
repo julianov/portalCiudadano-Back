@@ -42,6 +42,8 @@ class UserService {
 	public function setAuthType (User $user, string $auth_type, string $auth_level):UserAuth {
 
 
+		//resolver error de authentication_types_id tabla vacia 
+		 
 		$user_auth_type=UserAuth::where('user_id', $user->id)->first();
 
 		if($user_auth_type){
