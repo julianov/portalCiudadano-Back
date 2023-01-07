@@ -58,21 +58,36 @@ class UserController extends Controller
 				'cuil' => 'required',
 			]);
 
-			$dni = substr($validated['cuil'], 2, -1);
+			$user = User::where('cuil', $cuil)->first();
 
-			if (str_starts_with($validated['cuil'], "0")) {
+			if($user){
 
-				$dni = substr($validated['cuil'], 1);
+				return response()->json([
+					'status' => false,
+					'message' => 'User already registered'
+				], 409);
+
+
+			}else{
+
+				$dni = substr($validated['cuil'], 2, -1);
+
+				if (str_starts_with($validated['cuil'], "0")) {
+
+					$dni = substr($validated['cuil'], 1);
+				}
+
+				$rs = $this->wsService->checkUserCuil($dni);
+
+				return response()->json($rs);
+
 			}
 
-			$rs = $this->wsService->checkUserCuil($dni);
-
-			return response()->json($rs);
+			
 		} catch (Throwable $e) {
 			return \Response::json([
                 'status' => false,
-                'message' => $e->getMessage(),
-                'details' => $e->__toString()
+                'message' => "bad cuil",
             ]);
 		}
 	}
@@ -81,32 +96,46 @@ class UserController extends Controller
 	{
 
 		try {
+
 			$validated = $request->validated();
 
-			$user = $this->userService->signup($validated);
-			$code = random_int(1000, 9999);
-			$validation_code = new UserValidationToken();
-			$validation_code->user_id = $user->id;
-			$validation_code->val_token = $code;
-			//$validation_code->created_at = Carbon::now();
-			$validation_code->save();
+			$user = User::where('cuil', $cuil)->first();
 
-			Mail::to($user->email)
-				#->cc('gvillanueva@entrerios.gov.ar')
-				->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
-					'Portal Ciudadano - Provincia de Entre Ríos'));
+			if ($user){
+				
+				return response()->json([
+					'status' => false,
+					'message' => 'User already registered'
+				], 409);
 
-			return response()->json([
-				'status' => true,
-				'message' => 'Email sent',
-			], 201);
+			}else{
 
-		} catch (Throwable $th) {
+				$user = $this->userService->signup($validated);
+				$code = random_int(1000, 9999);
+				$validation_code = new UserValidationToken();
+				$validation_code->user_id = $user->id;
+				$validation_code->val_token = $code;
+				//$validation_code->created_at = Carbon::now();
+				$validation_code->save();
+
+				Mail::to($user->email)
+					#->cc('gvillanueva@entrerios.gov.ar')
+					->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
+						'Portal Ciudadano - Provincia de Entre Ríos'));
+
+				return response()->json([
+					'status' => true,
+					'message' => 'Email sent',
+				], 201);
+
+			}			
+
+		}catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
 				'message' => $th->getMessage()
 			], 500);
-		}
+		}		
 
 	}
 
@@ -165,26 +194,39 @@ class UserController extends Controller
 		if (Auth::attempt($validated)) {
 
 			$user = Auth::user();
-			$token = $user->createToken('user_token', ['level_1'])->accessToken;
+			if ($user->email_verified_at==null){
 
-			//a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
-			$timestamp = now()->addDays(7);
-			$expires_at = date('M d, Y H:i A', strtotime($timestamp));
+				return response()->json([
+					'status' => false,
+					'message' => 'email validation still pending'
+				], 400);
 
-			$user_data = [
-				"user" => $user,
-				"user_contact" => UserContactInformation::where('user_id', $user->id)->first()
-			];
 
-			return response()->json([
-				'status' => true,
-				'message' => 'Login successful',
-				'access_token' => $token,
-				'token_type' => 'bearer',
-				'expires_at' => $expires_at,
-				'user_data' => $user_data
+			}else{
 
-			]);
+				$token = $user->createToken('user_token', ['level_1'])->accessToken;
+
+				//a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
+				$timestamp = now()->addDays(7);
+				$expires_at = date('M d, Y H:i A', strtotime($timestamp));
+
+				$user_data = [
+					"user" => $user,
+					"user_contact" => UserContactInformation::where('user_id', $user->id)->first()
+				];
+
+				return response()->json([
+					'status' => true,
+					'message' => 'Login successful',
+					'access_token' => $token,
+					'token_type' => 'bearer',
+					'expires_at' => $expires_at,
+					'user_data' => $user_data
+
+				]);
+
+			}
+			
 
 		} else {
 			return response()->json([
@@ -217,8 +259,6 @@ class UserController extends Controller
 			'message' => 'User contact data saved',
 			'token' => $user->createToken("user_token", ['level_2'])->accessToken
 		]);
-
-		
 
 	}
 
