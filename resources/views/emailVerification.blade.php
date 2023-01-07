@@ -55,7 +55,7 @@
             
             <br>
              
-            <a id="btn_validar_email" href="{{'http://localhost:3000/v0/api/emailvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
+            <a id="btn_validar_email" href="{{'http://localhost:3000/emailvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
                 <p id="btn_validar_email_txt">Verificar Email</p>
             </a>   
             <br>
