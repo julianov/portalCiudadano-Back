@@ -99,7 +99,7 @@ class UserController extends Controller
 
 			$validated = $request->validated();
 
-			$user = User::where('cuil', $cuil)->first();
+			$user = User::where('cuil', $validated['cuil'])->first();
 
 			if ($user){
 				
