@@ -4,7 +4,6 @@ namespace App\Models;
 
 use DateTimeInterface;
 use Eloquent;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,11 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserAuth extends Model
 {
-	use HasFactory, HasUuids;
+	use HasFactory;
 
 	public $timestamps = true;
 	protected $table = "user_authentication";
-	protected $keyType = 'string';
+//	protected $keyType = 'string';
 
 	protected $fillable = [
 		'user_id',

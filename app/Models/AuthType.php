@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Eloquent;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AuthType extends Model
 {
-	use HasFactory, HasUuids;
+	use HasFactory;
 
 	public $timestamps = true;
 	protected $table = "authentication_types";

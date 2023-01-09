@@ -23,43 +23,56 @@ class BduActorEntidadResponse
 		$this->Descripcion = $payload["DESCRIPCION"];
 	}
 
-	public function getPrsId(): ?int {
+	public function getPrsId(): ?int
+	{
 		return $this->PrsId;
 	}
-	public function getNroDocumento(): ?int {
+
+	public function getNroDocumento(): ?int
+	{
 		return $this->NroDocumento;
 	}
-	public function getApellido(): ?string {
+
+	public function getApellido(): ?string
+	{
 		return $this->Apellido;
 	}
-	public function getNombres(): ?string {
+
+	public function getNombres(): ?string
+	{
 		return $this->Nombres;
 	}
 
 	public function getFullName(): ?string
 	{
-		return $this->Apellido . ", " . $this->Nombres;
+		return $this->Apellido.", ".$this->Nombres;
 	}
 
-	public function getEntId(): ?int {
+	public function getEntId(): ?int
+	{
 		return $this->EntId;
 	}
-	public function getOrfId(): ?int {
+
+	public function getOrfId(): ?int
+	{
 		return $this->OrfId;
 	}
-	public function getDescripcion(): ?string {
+
+	public function getDescripcion(): ?string
+	{
 		return $this->Descripcion;
 	}
 
-    public function toArray() {
-        return [
-            "PrsId" => $this->PrsId,
-            "NroDocumento" => $this->NroDocumento,
-            "Apellido" => $this->Apellido,
-            "Nombres" => $this->Nombres,
-            "EntId" => $this->EntId,
-            "OrfId" => $this->OrfId,
-            "Descripcion" => $this->Descripcion,
-        ];
-    }
+	public function toArray()
+	{
+		return [
+			"PrsId" => $this->PrsId,
+			"NroDocumento" => $this->NroDocumento,
+			"Apellido" => $this->Apellido,
+			"Nombres" => $this->Nombres,
+			"EntId" => $this->EntId,
+			"OrfId" => $this->OrfId,
+			"Descripcion" => $this->Descripcion,
+		];
+	}
 }
