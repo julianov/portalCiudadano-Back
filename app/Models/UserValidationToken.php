@@ -7,18 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserValidationToken extends Model
 {
-    use HasFactory;
-    public $timestamps = false;
+	use HasFactory;
 
-    protected $table = "user_validation_token";
+	public $timestamps = false;
 
-    protected $fillable =[
-        'id',
-        'user_id',
-        'val_token',
-    ];
+	protected $table = "user_validation_token";
 
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
+	protected $fillable = [
+		'id',
+		'user_id',
+		'val_token',
+	];
+
+	protected $casts = [
+		'created_at' => 'datetime',
+	];
 }

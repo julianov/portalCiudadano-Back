@@ -15,7 +15,7 @@ class BaseService implements Contracts\BaseServiceInterface
 	/**
 	 * BaseService constructor.
 	 *
-	 * @param BaseRepository $repository
+	 * @param  BaseRepository  $repository
 	 */
 	public function __construct(BaseRepository $repository)
 	{

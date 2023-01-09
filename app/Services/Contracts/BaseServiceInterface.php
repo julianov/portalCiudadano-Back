@@ -24,21 +24,21 @@ interface BaseServiceInterface
 	/**
 	 * Update
 	 * @param  array  $payload
-	 * @param  string $id
+	 * @param  string  $id
 	 * @return mixed
 	 */
 	public function update(array $payload, string $id): mixed;
 
 	/**
 	 * Delete
-	 * @param  string $id
+	 * @param  string  $id
 	 * @return mixed
 	 */
 	public function delete(string $id): mixed;
 
 	/**
 	 * Find by id
-	 * @param  string $id
+	 * @param  string  $id
 	 * @param  array  $columns
 	 * @return mixed
 	 */

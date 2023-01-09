@@ -53,100 +53,140 @@ class PersonaFisicaResponse
 		$this->Cuil = $payload["CUIL"];
 	}
 
-	public function getid(): int {
+	public function getFullName(): string
+	{
+		return $this->Apellido.", ".$this->Nombres;
+	}
+
+	public function toArray()
+	{
+		return [
+			'id' => $this->getid(),
+			'TipoDocumento' => $this->getTipoDocumento(),
+			'NroDocumento' => $this->getNroDocumento(),
+			'Apellido' => $this->getApellido(),
+			'Nombres' => $this->getNombres(),
+			'FechaNacimiento' => $this->getFechaNacimiento(),
+			'FechaDefuncion' => $this->getFechaDefuncion(),
+			'Sexo' => $this->getSexo(),
+			'Localidad' => $this->getLocalidad(),
+			'Departamento' => $this->getDepartamento(),
+			'Provincia' => $this->getProvincia(),
+			'Barrio' => $this->getBarrio(),
+			'Calle' => $this->getCalle(),
+			'Numeracion' => $this->getNumeracion(),
+			'Piso' => $this->getPiso(),
+			'Depto' => $this->getDepto(),
+			'UF' => $this->getUF(),
+			'Referencias' => $this->getReferencias(),
+			'Latitud' => $this->getLatitud(),
+			'Longitud' => $this->getLongitud(),
+			'Cuil' => $this->getCuil(),
+		];
+	}
+
+	public function getid(): int
+	{
 		return $this->id;
 	}
 
-	public function getTipoDocumento(): string {
+	public function getTipoDocumento(): string
+	{
 		return $this->TipoDocumento;
 	}
-	public function getNroDocumento(): string {
+
+	public function getNroDocumento(): string
+	{
 		return $this->NroDocumento;
 	}
-	public function getApellido(): string {
+
+	public function getApellido(): string
+	{
 		return $this->Apellido;
 	}
-	public function getNombres(): string {
+
+	public function getNombres(): string
+	{
 		return $this->Nombres;
 	}
 
-	public function getFullName(): string
+	public function getFechaNacimiento(): DateTime
 	{
-		return $this->Apellido . ", " . $this->Nombres;
-	}
-
-	public function getFechaNacimiento(): DateTime {
 		return $this->FechaNacimiento;
 	}
-	public function getFechaDefuncion(): ?DateTime {
+
+	public function getFechaDefuncion(): ?DateTime
+	{
 		return $this->FechaDefuncion;
 	}
-	public function getSexo(): string {
+
+	public function getSexo(): string
+	{
 		return $this->Sexo;
 	}
-	public function getLocalidad(): ?string {
+
+	public function getLocalidad(): ?string
+	{
 		return $this->Localidad;
 	}
-	public function getDepartamento(): ?string {
+
+	public function getDepartamento(): ?string
+	{
 		return $this->Departamento;
 	}
-	public function getProvincia(): ?string {
+
+	public function getProvincia(): ?string
+	{
 		return $this->Provincia;
 	}
-	public function getBarrio(): ?string {
+
+	public function getBarrio(): ?string
+	{
 		return $this->Barrio;
 	}
-	public function getCalle(): ?string {
+
+	public function getCalle(): ?string
+	{
 		return $this->Calle;
 	}
-	public function getNumeracion(): ?string {
+
+	public function getNumeracion(): ?string
+	{
 		return $this->Numeracion;
 	}
-	public function getPiso(): ?string {
+
+	public function getPiso(): ?string
+	{
 		return $this->Piso;
 	}
-	public function getDepto(): ?string {
+
+	public function getDepto(): ?string
+	{
 		return $this->Depto;
 	}
-	public function getUF(): ?string {
+
+	public function getUF(): ?string
+	{
 		return $this->UF;
 	}
-	public function getReferencias(): ?string {
+
+	public function getReferencias(): ?string
+	{
 		return $this->Referencias;
 	}
-	public function getLatitud(): ?string {
+
+	public function getLatitud(): ?string
+	{
 		return $this->Latitud;
 	}
-	public function getLongitud(): ?string {
+
+	public function getLongitud(): ?string
+	{
 		return $this->Longitud;
 	}
-	public function getCuil(): ?string {
-		return $this->Cuil;
-	}
 
-	public function toArray() {
-        return [
-            'id' => $this->getid(),
-            'TipoDocumento' => $this->getTipoDocumento(),
-            'NroDocumento' => $this->getNroDocumento(),
-            'Apellido' => $this->getApellido(),
-            'Nombres' => $this->getNombres(),
-            'FechaNacimiento' => $this->getFechaNacimiento(),
-            'FechaDefuncion' => $this->getFechaDefuncion(),
-            'Sexo' => $this->getSexo(),
-            'Localidad' => $this->getLocalidad(),
-            'Departamento' => $this->getDepartamento(),
-            'Provincia' => $this->getProvincia(),
-            'Barrio' => $this->getBarrio(),
-            'Calle' => $this->getCalle(),
-            'Numeracion' => $this->getNumeracion(),
-            'Piso' => $this->getPiso(),
-            'Depto' => $this->getDepto(),
-            'UF' => $this->getUF(),
-            'Referencias' => $this->getReferencias(),
-            'Latitud' => $this->getLatitud(),
-            'Longitud' => $this->getLongitud(),
-            'Cuil' => $this->getCuil(),
-        ];
+	public function getCuil(): ?string
+	{
+		return $this->Cuil;
 	}
 }

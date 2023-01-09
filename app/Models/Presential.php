@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +30,7 @@ class Presential extends Model
 
 	public function ciudadanoAutenticacion()
 	{
-		return $this->belongsTo(CitizenAuth::class, 'user_authentication_id');
+		return $this->belongsTo(UserAuth::class, 'user_authentication_id');
 	}
 }
 

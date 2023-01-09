@@ -6,11 +6,12 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-interface EloquentRepositoryInterface {
+interface EloquentRepositoryInterface
+{
 	/**
 	 * Get all records
-	 * @param array $columns
-	 * @param array $relations
+	 * @param  array  $columns
+	 * @param  array  $relations
 	 * @return Collection
 	 */
 	public function all(array $columns = ['*'], array $relations = []): Collection;
@@ -23,22 +24,22 @@ interface EloquentRepositoryInterface {
 
 	/**
 	 * Find thrashed model by id
-	 * @param string $id
+	 * @param  string  $id
 	 * @return Model
 	 */
 	public function findTrashed(string $id): Model;
 
 	/**
 	 * Create a model
-	 * @param array $payload
+	 * @param  array  $payload
 	 * @return ?Model
 	 */
 	public function create(array $payload): ?Model;
 
 	/**
 	 * Update a model
-	 * @param array $payload
-	 * @param string $id
+	 * @param  array  $payload
+	 * @param  string  $id
 	 * @return Model
 	 */
 	public function update(array $payload, string $id): Model;
@@ -52,31 +53,31 @@ interface EloquentRepositoryInterface {
 
 	/**
 	 * Force delete model
-	 * @param string $id
+	 * @param  string  $id
 	 * @return bool
 	 */
 	public function forceDelete(string $id): bool;
 
 	/**
 	 * Get all records with pagination
-	 * @param int $perPage
-	 * @param array $columns
-	 * @param array $relations
+	 * @param  int  $perPage
+	 * @param  array  $columns
+	 * @param  array  $relations
 	 * @return LengthAwarePaginator
 	 */
 	public function paginate(int $perPage = 15, array $columns = ['*'], array $relations = []): LengthAwarePaginator;
 
 	/**
 	 * Delete a model
-	 * @param string $id
+	 * @param  string  $id
 	 * @return bool
 	 */
 	public function delete(string $id): bool;
 
 	/**
 	 * Find a model by id
-	 * @param string $id
-	 * @param array $columns
+	 * @param  string  $id
+	 * @param  array  $columns
 	 * @return Model
 	 */
 	public function find(string $id, array $columns = ['*']): Model;

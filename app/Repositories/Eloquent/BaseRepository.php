@@ -14,7 +14,7 @@ class BaseRepository implements EloquentRepositoryInterface
 	/**
 	 * BaseService constructor.
 	 *
-	 * @param Model $model
+	 * @param  Model  $model
 	 */
 	public function __construct(Model $model)
 	{

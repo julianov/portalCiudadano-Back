@@ -5,7 +5,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,20 +23,20 @@ class User extends Authenticatable
 {
 	use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    protected $table = "users";
+	protected $table = "users";
 
-    protected $fillable =[
-        'cuil',
-        'prs_id',
-        'name',
-        'last_name',
-        'email',
-        'password',
-    ];
+	protected $fillable = [
+		'cuil',
+		'prs_id',
+		'name',
+		'last_name',
+		'email',
+		'password',
+	];
 
-    protected $hidden = [
-        'password',
-    ];
+	protected $hidden = [
+		'password',
+	];
 
 
 }

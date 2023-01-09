@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Eloquent;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,7 +42,7 @@ class UserContactInformation extends Model
 
 	protected $casts = [
 		'email_verified_at' => 'datetime',
-		'cellphone_number_verified_at'=> 'datetime',
+		'cellphone_number_verified_at' => 'datetime',
 	];
 
 

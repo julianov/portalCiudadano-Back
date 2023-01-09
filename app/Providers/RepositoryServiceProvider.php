@@ -9,14 +9,14 @@ use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     *
-     * @return void
-     */
-    public function register(): void
-    {
-        $this->app->bind(
+	/**
+	 * Register services.
+	 *
+	 * @return void
+	 */
+	public function register(): void
+	{
+		$this->app->bind(
 			UserRepositoryInterface::class,
 			BaseRepository::class
 		);
@@ -24,15 +24,15 @@ class RepositoryServiceProvider extends ServiceProvider
 			\App\Repositories\Contracts\UserRepositoryInterface::class,
 			UserRepository::class
 		);
-    }
+	}
 
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        //
-    }
+	/**
+	 * Bootstrap services.
+	 *
+	 * @return void
+	 */
+	public function boot(): void
+	{
+		//
+	}
 }
