@@ -81,49 +81,49 @@ docker compose exec backend php artisan serve
 
 * Modificar Dockerfiles/nginx/nginx.conf
 
-server {
-    listen 8443 ssl;
-    index index.php index.html;
-    error_log  /var/log/nginx/error.log;
-    access_log /var/log/nginx/access.log;
-    root /var/www/public;
+    server {
+        listen 8443 ssl;
+        index index.php index.html;
+        error_log  /var/log/nginx/error.log;
+        access_log /var/log/nginx/access.log;
+        root /var/www/public;
 
-    ssl_certificate /etc/letsencrypt/live/jaodevvps.online/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/jaodevvps.online/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/jaodevvps.online/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/jaodevvps.online/privkey.pem;
 
-    location ~ \.php$ {
-        try_files $uri =404;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass backend:9000;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
+        location ~ \.php$ {
+            try_files $uri =404;
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass backend:9000;
+            fastcgi_index index.php;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param PATH_INFO $fastcgi_path_info;
+        }
+
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+            gzip_static on;
+        }
     }
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-        gzip_static on;
-    }
-}
 
 
 * Modificar webserver in docker-compose.yml
 
-webserver:
-        image: nginx:latest
-        container_name: webserver
-        restart: always
-        depends_on:
-            - backend
-        ports:
-            - "8443:8443"
-        volumes:
-            - ./:/var/www
-            - ./Dockerfiles/nginx:/etc/nginx/conf.d
-            - /etc/letsencrypt:/etc/letsencrypt # Agregando este volumen para usar los certificados SSL/TLS
-        networks:
-            app-network:
+        webserver:
+                image: nginx:latest
+                container_name: webserver
+                restart: always
+                depends_on:
+                    - backend
+                ports:
+                    - "8443:8443"
+                volumes:
+                    - ./:/var/www
+                    - ./Dockerfiles/nginx:/etc/nginx/conf.d
+                    - /etc/letsencrypt:/etc/letsencrypt # Agregando este volumen para usar los certificados SSL/TLS
+                networks:
+                    app-network:
             
 * Luego creamos un middleware 
 
@@ -131,31 +131,31 @@ docker compose exec backend php artisan make:middleware Cors
 
 * App\Http\Middleware\Cors.php
 
-<?php
-namespace App\Http\Middleware;
+        <?php
+        namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
+        use Closure;
+        use Illuminate\Http\Request;
 
-class Cors
-{
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
-    public function handle(Request $request, Closure $next)
-    {
-        $response = $next($request);
+        class Cors
+        {
+            /**
+             * Handle an incoming request.
+             *
+             * @param  \Illuminate\Http\Request  $request
+             * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+             * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+             */
+            public function handle(Request $request, Closure $next)
+            {
+                $response = $next($request);
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+                $response->headers->set('Access-Control-Allow-Origin', '*');
+                $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE');
+                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
 
-        return $response;
-    }
-}
+                return $response;
+            }
+        }
 
 * Por último en Kernel.php agregamos en protected $middleware al final la linea \App\Http\Middleware\Cors::class, y en protected $routeMiddleware agregamos al final la linea 'cors' => \App\Http\Middleware\Cors::class  
