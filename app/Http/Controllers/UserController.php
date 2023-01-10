@@ -326,4 +326,25 @@ class UserController extends Controller
 	{
 		//
 	}
+	public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
+		$validated = $request->validated();
+		$cuil = $validated['cuil'];
+		$user = User::where('cuil', $cuil)->first();
+
+		if ($user) {
+				$user->delete();
+
+				return response()->json([
+						'status' => true,
+						'message' => 'User removed'
+				], 201);
+		}
+		else{
+				return response()->json([
+						'status' => false,
+						'message' => 'tehere is not that user'
+				], 409);
+		}
+	}
+
 }
