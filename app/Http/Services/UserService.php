@@ -5,11 +5,21 @@ namespace App\Http\Services;
 use App\Models\User;
 use App\Models\UserAuth;
 use App\Models\UserContactInformation;
+use App\Repositories\UserRepository;
 use Exception;
 use Throwable;
 
 class UserService
 {
+
+	/**
+	 * @param  UserRepository  $userRepository
+	 */
+	public function __construct(
+		private readonly UserRepository $userRepository,
+	)
+	{
+	}
 
 	/**
 	 * @throws Exception
@@ -24,8 +34,7 @@ class UserService
 			$user->last_name = $request['apellido'];
 			$user->email = $request['email'];
 			$user->password = bcrypt($request['password']);
-			$user->save();
-
+			$this->userRepository->create($user);
 			return $user;
 
 		} catch (Throwable $th) {

@@ -31,10 +31,10 @@ interface EloquentRepositoryInterface
 
 	/**
 	 * Create a model
-	 * @param  array  $payload
-	 * @return ?Model
+	 * @param  mixed $payload
+	 * @return bool
 	 */
-	public function create(array $payload): ?Model;
+	public function create(mixed $payload): bool;
 
 	/**
 	 * Update a model

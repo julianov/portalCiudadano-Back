@@ -16,6 +16,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string $prs_id Código que identifica a la persona en BDU
  * @property string $name
  * @property string $last_name
+ * @property string $email
  * @property string $password
  * @mixin Eloquent
  */

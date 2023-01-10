@@ -56,7 +56,7 @@
                         <h1>{{$user->name }} {{$user->last_name}}</h1>
                         <h2>PARA CAMBIAR LA CONTRASEÑA PRESIONE EL SIGUIENTE ENLACE</h2>
                         <br>
-                        <a id="btn_cambiar_pass" href="{{'http://localhost:3000/changepasswordvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
+                        <a id="btn_cambiar_pass" href="{{'/changepasswordvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
                             <p id="btn_validar_email_txt">CAMBIAR PASSWORD</p>
                         </a> 
                         <br>
