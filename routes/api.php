@@ -23,7 +23,7 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::get('/check/cuil', [Controllers\UserController::class, 'checkUserCuil']);
 	Route::post('/signup', [Controllers\UserController::class, 'singup']);
 	Route::post('/validate/email', [Controllers\UserController::class, 'validateNewUser']);
-	Route::get('/login', [Controllers\UserController::class, 'login']);
+	Route::post('/login', [Controllers\UserController::class, 'login']);
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'passwordResetValidation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'passwordReset']);
     Route::middleware(['auth:authentication','scope:level_1'])->post('/personal/data', [Controllers\UserController::class,

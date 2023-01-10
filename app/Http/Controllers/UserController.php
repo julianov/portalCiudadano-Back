@@ -122,28 +122,36 @@ class UserController extends Controller
 	 */
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
-		$validated = $request->validated();
+		try {
+			$this->userService->
+			$validated = $request->validated();
+			$user = User::where('cuil', $validated['cuil'])->first();
 
-		$user = User::where('cuil', $validated['cuil'])->first();
+			$validation_code = UserValidationToken::where('user_id', $user->id)->first();
 
-		$validation_code = UserValidationToken::where('user_id', $user->id)->first();
+			if ($validation_code->val_token == $validated['confirmation_code']) {
+				$user->email_verified_at = Carbon::now();
+				$user->save();
+				$this->userService->setAuthType($user, "REGISTRADO", "level_1");
 
-		if ($validation_code->val_token == $validated['confirmation_code']) {
-			$user->email_verified_at = Carbon::now();
-			$user->save();
-			$this->userService->setAuthType($user, "REGISTRADO", "level_1");
+				return response()->json([
+					'status' => true,
+					'message' => 'Email user confirmed',
+					'token' => $user->createToken("user_token", ['level_1'])->accessToken
+				]);
 
+			}
 			return response()->json([
-				'status' => true,
-				'message' => 'Email user confirmed',
-				'token' => $user->createToken("user_token", ['level_1'])->accessToken
-			]);
-
+				'status' => false,
+				'message' => 'Bad confirmation code'
+			], 400);
+		} catch (Throwable $th) {
+			return response()->json([
+				'status' => false,
+				'code' => $th->getCode(),
+				'message' => $th->getMessage()
+			], 500);
 		}
-		return response()->json([
-			'status' => false,
-			'message' => 'Bad confirmation code'
-		], 400);
 	}
 
 	/**
@@ -153,7 +161,6 @@ class UserController extends Controller
 	{
 		try {
 			$validated = $request->validated();
-
 
 			if (Auth::attempt($validated)) {
 				$user = Auth::user();

@@ -3,6 +3,8 @@
 namespace App\Repositories\Eloquent;
 
 use App\Repositories\Contracts\EloquentRepositoryInterface;
+use DB;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +18,13 @@ class BaseRepository implements EloquentRepositoryInterface
 	 *
 	 * @param  Model  $model
 	 */
+
+	protected string $table;
+
 	public function __construct(Model $model)
 	{
 		$this->model = $model;
+		$this->table = $model->getTable();
 	}
 
 	/**
@@ -47,11 +53,15 @@ class BaseRepository implements EloquentRepositoryInterface
 
 	/**
 	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function create(array $payload): ?Model
+	public function create(mixed $payload): bool
 	{
-		$model = $this->model->create($payload);
-		return $model->fresh();
+		$stmt = 'BEGIN INSERTAR_FILA(:p_nombre_tabla, :p_valores_columnas); END;';
+		$params = ['p_nombre_tabla' => $this->table, 'p_valores_columnas' => $payload];
+		$result = DB::statement($stmt, $params);
+		if (!$result) throw new Exception("Error al crear el registro");
+		return $result;
 	}
 
 	/**
