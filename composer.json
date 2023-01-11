@@ -8,11 +8,7 @@
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
-<<<<<<< HEAD
-        "laravel/passport": "^11.3",
-=======
         "laravel/passport": "^11.4",
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
         "yajra/laravel-oci8": "^9.0"

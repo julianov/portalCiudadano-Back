@@ -1,12 +1,7 @@
 <!doctype html>
-<<<<<<< HEAD
-<html>
-    <head>
-=======
 <html lang="es">
     <head>
-        
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
+
         <title>Portal ciudadano - Gobierno de Entre Ríos</title>
         <meta name="description" content="Our first page">
         <meta name="keywords" content="html tutorial template">
@@ -14,20 +9,13 @@
             #btn_validar_email{
                 border:solid 1px #799f4f;
                 background:#799f4f;
-<<<<<<< HEAD
-=======
                 border-radius: 50px;
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
                 display:inline-block;
                 margin-left:auto;
                 margin-right:auto;
                 text-align:center;
-<<<<<<< HEAD
-                padding: 5px 5px 5px 5px
-=======
                 padding: 0 30px;
                 text-decoration: none;
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
             }
             #central{
                 display:flex;
@@ -36,11 +24,6 @@
                 text-align:center
             }
             #btn_validar_email_txt{
-<<<<<<< HEAD
-                color:blue;
-                font-size:1.5em;
-            }
-=======
                 color:white;
                 font-size:1em;
                 font-family: sans-serif;
@@ -57,20 +40,10 @@
                 font-size:2em;
                 font-weight: bold;
             }
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
-       
+
         </style>
     </head>
     <body>
-<<<<<<< HEAD
-    <div id="central">
-            <h1>{{$user->nombre }} {{$user->apellido}}</h1>
-            <h2>PARA DARSE DE ALTA SIGA EL SIGUIENTE ENLACE</h2>
-            
-            <a id="btn_validar_email" href="{{'http://127.0.0.1:8001/v0/api/emailvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
-                <p id="btn_validar_email_txt">VERIFICAR EMAIL</p>
-            </a>    
-=======
         <div id="central">
             <table style="width: 100%; border: none; border-collapse: collapse;">
                 <tr>
@@ -81,13 +54,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 20px;">      
+                    <td style="padding: 20px;">
                         <h1 id="username_text">{{$user->name }} {{$user->last_name}}</h1>
-                        <h2 id="info_text">PARA DARSE DE ALTA SIGA EL SIGUIENTE ENLACE</h2>    
+                        <h2 id="info_text">PARA DARSE DE ALTA SIGA EL SIGUIENTE ENLACE</h2>
                         <br>
                         <a id="btn_validar_email" href="{{'http://localhost:3000/emailvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
                             <p id="btn_validar_email_txt">VERIFICAR EMAIL</p>
-                        </a>   
+                        </a>
                         <br>
                         <br>
                         <br>
@@ -100,7 +73,6 @@
                     </td>
                 </tr>
             </table>
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
         </div>
     </body>
 </html>

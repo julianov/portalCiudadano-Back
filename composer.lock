@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "367cfff11a1fd3026553a48bf45e0e3e",
-=======
     "content-hash": "728e3abf3b129265cbf2cd91d624fa0f",
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
     "packages": [
         {
             "name": "brick/math",
@@ -1217,18 +1213,6 @@
         },
         {
             "name": "laravel/passport",
-<<<<<<< HEAD
-            "version": "v11.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/passport.git",
-                "reference": "4c2105887c724fe05fc4cd9b7d6c8d8df30e1bcf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/passport/zipball/4c2105887c724fe05fc4cd9b7d6c8d8df30e1bcf",
-                "reference": "4c2105887c724fe05fc4cd9b7d6c8d8df30e1bcf",
-=======
             "version": "v11.4.0",
             "source": {
                 "type": "git",
@@ -1239,7 +1223,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/passport/zipball/2d746b752b08e47f6b5bd69d8e76fbe477e23532",
                 "reference": "2d746b752b08e47f6b5bd69d8e76fbe477e23532",
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
                 "shasum": ""
             },
             "require": {
@@ -1303,11 +1286,7 @@
                 "issues": "https://github.com/laravel/passport/issues",
                 "source": "https://github.com/laravel/passport"
             },
-<<<<<<< HEAD
-            "time": "2022-10-22T16:38:00+00:00"
-=======
             "time": "2023-01-03T09:40:19+00:00"
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
         },
         {
             "name": "laravel/sanctum",
@@ -6597,144 +6576,6 @@
             },
             "time": "2022-06-03T18:03:27+00:00"
         },
-<<<<<<< HEAD
-        {
-            "name": "yajra/laravel-oci8",
-            "version": "v9.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/yajra/laravel-oci8.git",
-                "reference": "733faad98177159d83f5924e1502b0e39a3a55be"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/yajra/laravel-oci8/zipball/733faad98177159d83f5924e1502b0e39a3a55be",
-                "reference": "733faad98177159d83f5924e1502b0e39a3a55be",
-                "shasum": ""
-            },
-            "require": {
-                "ext-oci8": ">=3.0.1",
-                "ext-pdo": "*",
-                "illuminate/database": "^9",
-                "illuminate/pagination": "^9",
-                "illuminate/support": "^9",
-                "illuminate/validation": "^9",
-                "php": "^8.0.2",
-                "yajra/laravel-pdo-via-oci8": "^3.0"
-            },
-            "require-dev": {
-                "doctrine/dbal": "^3.3",
-                "mockery/mockery": "^1.4.4",
-                "orchestra/testbench": "^7.0",
-                "phpunit/phpunit": "^9.5.8"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "9.x-dev"
-                },
-                "laravel": {
-                    "providers": [
-                        "Yajra\\Oci8\\Oci8ServiceProvider",
-                        "Yajra\\Oci8\\Oci8ValidationServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/helper.php"
-                ],
-                "psr-4": {
-                    "Yajra\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Arjay Angeles",
-                    "email": "aqangeles@gmail.com"
-                }
-            ],
-            "description": "Oracle DB driver for Laravel 4|5|6|7 via OCI8",
-            "keywords": [
-                "laravel",
-                "oci8",
-                "oracle",
-                "pdo_oci"
-            ],
-            "support": {
-                "issues": "https://github.com/yajra/laravel-oci8/issues",
-                "source": "https://github.com/yajra/laravel-oci8/tree/v9.0.3"
-            },
-            "funding": [
-                {
-                    "url": "https://www.paypal.me/yajra",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://www.patreon.com/yajra",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2022-06-15T08:38:08+00:00"
-        },
-        {
-            "name": "yajra/laravel-pdo-via-oci8",
-            "version": "v3.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/yajra/pdo-via-oci8.git",
-                "reference": "6eb7c3a659b0d2503ff86d76a1c5cf295c57a890"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/yajra/pdo-via-oci8/zipball/6eb7c3a659b0d2503ff86d76a1c5cf295c57a890",
-                "reference": "6eb7c3a659b0d2503ff86d76a1c5cf295c57a890",
-                "shasum": ""
-            },
-            "require": {
-                "ext-oci8": "*",
-                "ext-pdo": "*",
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.4|^9.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Yajra\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Arjay Angeles",
-                    "email": "aqangeles@gmail.com"
-                }
-            ],
-            "description": "PDO userspace driver proxying calls to PHP OCI8 driver",
-            "support": {
-                "issues": "https://github.com/yajra/pdo-via-oci8/issues",
-                "source": "https://github.com/yajra/pdo-via-oci8/tree/v3.2.4"
-            },
-            "time": "2022-06-12T02:29:39+00:00"
-        }
-    ],
-    "packages-dev": [
-=======
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
         {
             "name": "yajra/laravel-oci8",
             "version": "v9.2.0",
