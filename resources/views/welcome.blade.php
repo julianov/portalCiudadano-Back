@@ -55,7 +55,11 @@
 
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+<<<<<<< HEAD
                                     TExto falopa
+=======
+                                    ASDASDASD
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
                                 </div>
                             </div>
                         </div>

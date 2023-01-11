@@ -4,7 +4,11 @@ services:
     webserver:
         image: nginx:latest
         container_name: webserver
+<<<<<<< HEAD
         restart: unless-stopped
+=======
+        restart: always
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
         depends_on:
             - backend
         ports:
@@ -16,6 +20,12 @@ services:
             app-network:
 
     backend:
+<<<<<<< HEAD
+=======
+        restart: always
+        depends_on:
+            - database
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
         build:
             context: Dockerfiles/php
             dockerfile: Dockerfile
@@ -27,6 +37,10 @@ services:
         networks:
             app-network:
     database:
+<<<<<<< HEAD
+=======
+        restart: always
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
         build:
             context: Dockerfiles/oracle
             dockerfile: Dockerfile
@@ -44,6 +58,7 @@ services:
             - oracle-data:/opt/oracle/oradata
         networks:
             app-network:
+<<<<<<< HEAD
 #    database:
 #        image: postgres:latest
 #        container_name: postgres-db
@@ -72,9 +87,16 @@ services:
 #            - "5050:80"
 #        depends_on:
 #            - database
+=======
+
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
 networks:
     app-network:
 
 volumes:
     app-data:
+<<<<<<< HEAD
     oracle-data:
+=======
+    oracle-data:
+>>>>>>> e40bfe757f261588605a6116f2891d17defade28
