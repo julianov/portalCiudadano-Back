@@ -82,6 +82,7 @@ class UserController extends Controller
 
 		try {
 			$validated = $request->validated();
+
 			$user = User::where('cuil', $validated['cuil'])->first();
 
 			if ($user) {
@@ -90,7 +91,7 @@ class UserController extends Controller
 					'message' => 'User already registered'
 				], 409);
 
-			}
+			}else{
 			$user = $this->userService->signup($validated);
 			$code = random_int(1000, 9999);
 			$validation_code = new UserValidationToken();
@@ -120,14 +121,13 @@ class UserController extends Controller
 	/**
 	 * @throws ValidationException
 	 */
-
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
-                  try {
-			//$this->userService->
+		try {
+			$this->userService->
 			$validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
-   
+
 			$validation_code = UserValidationToken::where('user_id', $user->id)->first();
 
 			if ($validation_code->val_token == $validated['confirmation_code']) {
@@ -327,7 +327,7 @@ class UserController extends Controller
 	{
 		//
 	}
-public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
+	public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
 		$validated = $request->validated();
 		$cuil = $validated['cuil'];
 		$user = User::where('cuil', $cuil)->first();
@@ -347,4 +347,5 @@ public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
 				], 409);
 		}
 	}
+
 }

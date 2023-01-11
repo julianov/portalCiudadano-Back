@@ -27,6 +27,7 @@ class UserService
 	public function signup(array $request): User
 	{
 		try {
+
 			$user = new User();
 			$user->cuil = $request['cuil'];
 			$user->prs_id = $request['prs_id'];
@@ -34,7 +35,8 @@ class UserService
 			$user->last_name = $request['apellido'];
 			$user->email = $request['email'];
 			$user->password = bcrypt($request['password']);
-			$this->userRepository->create($user);
+			//$this->userRepository->create($user)
+$user->save();
 			return $user;
 
 		} catch (Throwable $th) {

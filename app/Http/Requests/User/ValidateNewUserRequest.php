@@ -25,7 +25,7 @@ class ValidateNewUserRequest extends FormRequest
 	{
 		return [
 			'cuil' => 'required|min:11|max:11',
-			'confirmation_code' => 'required|min:6|max:6',
+			'confirmation_code' => 'required|min:4|max:4',
 		];
 	}
 

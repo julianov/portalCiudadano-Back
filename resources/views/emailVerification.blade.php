@@ -58,7 +58,7 @@
                         <h1 id="username_text">{{$user->name }} {{$user->last_name}}</h1>
                         <h2 id="info_text">PARA DARSE DE ALTA SIGA EL SIGUIENTE ENLACE</h2>    
                         <br>
-                        <a id="btn_validar_email" href="{{'http://localhost:3000/emailvalidation?code=' . $hash ."&cuil=" . $cuil  }}">
+                        <a id="btn_validar_email" href="{{'https://ciudadano-digital-er.web.app/validarcorreo?code=' . $hash ."&cuil=" . $cuil  }}">
                             <p id="btn_validar_email_txt">VERIFICAR EMAIL</p>
                         </a>   
                         <br>
