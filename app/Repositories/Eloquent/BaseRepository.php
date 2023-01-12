@@ -64,6 +64,29 @@ class BaseRepository implements EloquentRepositoryInterface
 		return $result;
 	}
 
+	public function modificarFila($tabla, $valoresColumnas, $clausulaWhere){
+
+    $stmt = 'BEGIN :resultado := MODIFICAR_FILAR(:p_nombre_tabla, :p_valores_columnas, :p_clausula_where); END;';
+    $params = [
+        'p_nombre_tabla' => $tabla,
+        'p_valores_columnas' => $valoresColumnas,
+        'p_clausula_where' => $clausulaWhere];
+
+    $result = DB::select($stmt, $params);
+    return $result[0]->resultado;
+}
+
+public function obtenerFila($tabla, $nombreCampo, $valorCampo)
+{
+    $stmt = 'BEGIN :resultado := OBTENER_FILA(:p_nombre_tabla, :p_nombre_campo, :p_valor_campo); END;';
+    $params = [
+        'p_nombre_tabla' => $tabla,
+        'p_nombre_campo' => $nombreCampo,
+        'p_valor_campo' => $valorCampo];
+    $result = DB::select($stmt, $params);
+    return $result[0]->resultado;
+}
+
 	/**
 	 * @inheritDoc
 	 */
