@@ -81,6 +81,7 @@ class UserController extends Controller
 	{
 
 		try {
+
 			$validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
 
@@ -90,24 +91,25 @@ class UserController extends Controller
 					'message' => 'User already registered'
 				], 409);
 
-			}
-			$user = $this->userService->signup($validated);
-			$code = random_int(1000, 9999);
-			$validation_code = new UserValidationToken();
-			$validation_code->user_id = $user->id;
-			$validation_code->val_token = $code;
-			//$validation_code->created_at = Carbon::now();
-			$validation_code->save();
+			}else{
+					
+				$user = $this->userService->signup($validated);
+				$code = random_int(1000, 9999);
+				$validation_code = new UserValidationToken();
+				$validation_code->user_id = $user->id;
+				$validation_code->val_token = $code;
+				//$validation_code->created_at = Carbon::now();
+				$validation_code->save();
 
-			Mail::to($user->email)
-				->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
-					'Portal Ciudadano - Provincia de Entre Ríos'));
+				Mail::to($user->email)
+					->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
+						'Portal Ciudadano - Provincia de Entre Ríos'));
 
-			return response()->json([
-				'status' => true,
-				'message' => 'Email sent',
-			], 201);
-
+				return response()->json([
+					'status' => true,
+					'message' => 'Email sent',
+				], 201);
+		    }
 		} catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
@@ -123,12 +125,11 @@ class UserController extends Controller
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
 		try {
-			$this->userService->
+		//	$this->userService->
 			$validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
 
 			$validation_code = UserValidationToken::where('user_id', $user->id)->first();
-
 			if ($validation_code->val_token == $validated['confirmation_code']) {
 				$user->email_verified_at = Carbon::now();
 				$user->save();
@@ -326,4 +327,26 @@ class UserController extends Controller
 	{
 		//
 	}
+	public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
+	
+		$validated = $request->validated();
+		$cuil = $validated['cuil'];
+		$user = User::where('cuil', $cuil)->first();
+
+		if ($user) {
+				$user->delete();
+
+				return response()->json([
+						'status' => true,
+						'message' => 'User removed'
+				], 201);
+		}
+		else{
+				return response()->json([
+						'status' => false,
+						'message' => 'tehere is not that user'
+				], 409);
+		}
+	}
+
 }
