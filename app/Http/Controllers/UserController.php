@@ -23,6 +23,8 @@ use Illuminate\Validation\ValidationException;
 use Mail;
 use Throwable;
 
+use Illuminate\Support\Facades\DB;
+
 class UserController extends Controller
 {
 	/**
@@ -92,13 +94,31 @@ class UserController extends Controller
 
 			}
 			$user = $this->userService->signup($validated);
+
+
 			$code = random_int(1000, 9999);
+
+			$table_name = "USER_VALIDATION_TOKEN";
+            $columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+            $values = $user->id.','.$code.','.Carbon::now();
+			$result=false;
+
+			$res = DB::select("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.INSERTAR_FILA(:table_name, :columns, :values); END;",
+            [
+                'table_name' => $table_name,
+                'columns' => $columns,
+                'values' => $values,
+            ]);
+
+
+			/*
+
 			$validation_code = new UserValidationToken();
 			$validation_code->user_id = $user->id;
 			$validation_code->val_token = $code;
 			//$validation_code->created_at = Carbon::now();
 			$validation_code->save();
-
+*/
 			Mail::to($user->email)
 				->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
 					'Portal Ciudadano - Provincia de Entre Ríos'));
@@ -123,13 +143,21 @@ class UserController extends Controller
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
 		try {
-			$this->userService->
+			//$this->userService->
 			$validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
 
-			$validation_code = UserValidationToken::where('user_id', $user->id)->first();
+			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_VALIDATION_TOKEN(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
 
-			if ($validation_code->val_token == $validated['confirmation_code']) {
+
+			//$validation_code = UserValidationToken::where('user_id', $user->id)->first();
+			$column_name = "USER_ID";
+			$column_value = 3;
+			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_VALIDATION_TOKEN(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
+
+			$json = json_decode($result[0]->result);
+
+			if ($json->val_token == $validated['confirmation_code']) {
 				$user->email_verified_at = Carbon::now();
 				$user->save();
 				$this->userService->setAuthType($user, "REGISTRADO", "level_1");
