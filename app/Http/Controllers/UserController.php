@@ -100,10 +100,10 @@ class UserController extends Controller
 
 			$table_name = "USER_VALIDATION_TOKEN";
             $columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-            $values = $user->id.','.$code.','.Carbon::now();
+            $values = $user->id.','.$code.',sysdate';
 			$result=false;
 
-			$res = DB::select("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.INSERTAR_FILA(:table_name, :columns, :values); END;",
+			$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.INSERTAR_FILA(:table_name, :columns, :values); END;",
             [
                 'table_name' => $table_name,
                 'columns' => $columns,
@@ -120,7 +120,7 @@ class UserController extends Controller
 			$validation_code->save();
 */
 			Mail::to($user->email)
-				->queue((new EmailConfirmation($user, $code))->from('gvillanueva@entrerios.gov.ar',
+				->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 					'Portal Ciudadano - Provincia de Entre Ríos'));
 
 			return response()->json([
@@ -147,17 +147,14 @@ class UserController extends Controller
 			$validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
 
-			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_VALIDATION_TOKEN(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-
-
 			//$validation_code = UserValidationToken::where('user_id', $user->id)->first();
 			$column_name = "USER_ID";
-			$column_value = 3;
+			$column_value = $user->id;
 			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_VALIDATION_TOKEN(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-
+			
 			$json = json_decode($result[0]->result);
 
-			if ($json->val_token == $validated['confirmation_code']) {
+			if ($json->VAL_TOKEN== $validated['confirmation_code']) {
 				$user->email_verified_at = Carbon::now();
 				$user->save();
 				$this->userService->setAuthType($user, "REGISTRADO", "level_1");
@@ -206,9 +203,14 @@ class UserController extends Controller
 					$timestamp = now()->addDays(7);
 					$expires_at = date('M d, Y H:i A', strtotime($timestamp));
 
+					$column_name = "USER_ID";
+					$column_value = $user->id;
+					$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_CONTACT(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
+					$user_data = json_decode($result[0]->result);
+
 					$user_data = [
 						"user" => $user,
-						"user_contact" => UserContactInformation::where('user_id', $user->id)->first()
+						"user_contact" => $user_data
 					];
 
 					return response()->json([
@@ -239,6 +241,7 @@ class UserController extends Controller
 			$validated = $request->validated();
 
 			$user = $this->userService->getUser($validated['cuil']);
+
 			$this->userService->setUserContact($user, $validated);
 			$this->userService->setAuthType($user, "REGISTRADO", "level_2");
 
@@ -284,7 +287,7 @@ class UserController extends Controller
 		$validation_code->save();
 		Mail::to($user->email)
 			#->cc('gvillanueva@entrerios.gov.ar')
-			->queue((new ChangePasswordUrl($user, $code))->from('gvillanueva@entrerios.gov.ar',
+			->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 				'Portal Ciudadano - Provincia de Entre Ríos'));
 		return response()->json([
 			'status' => true,

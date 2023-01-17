@@ -14,5 +14,6 @@ yarn-error.log
 /.idea
 /.vscode
 .env
+/.env
 /_ide_helper.php
 /bootstrap/cache/*.php
