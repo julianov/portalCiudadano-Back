@@ -36,7 +36,6 @@ class UserService
 			$user->last_name = $request['apellido'];
 			$user->email = $request['email'];
 			$user->password = bcrypt($request['password']);
-			//$this->userRepository->create($user);
 			$user->save();
 			return $user;
 
@@ -121,7 +120,10 @@ class UserService
 			'columns' => $columns,
 			'values' => $values,
 		]);
+		
 		return $res;
 
 	}
+
+
 }
