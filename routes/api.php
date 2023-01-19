@@ -26,10 +26,8 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::post('/login', [Controllers\UserController::class, 'login']);
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'passwordResetValidation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'passwordReset']);
-    Route::middleware(['auth:authentication','scope:level_1'])->post('/personal/data', [Controllers\UserController::class,
-	    'personalData'
-    ]);
-
+    Route::middleware(['auth:authentication','scope:level_1'])->post('/personal/data', [Controllers\UserController::class,'personalData']);
+	Route::delete('/', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
 });
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);

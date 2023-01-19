@@ -45,8 +45,10 @@ class Kernel extends HttpKernel
 		ValidatePostSize::class,
 		TrimStrings::class,
 		ConvertEmptyStringsToNull::class,
+		\App\Http\Middleware\Cors::class,
 
-	];
+];
+
 
 	/**
 	 * The application's route middleware groups.
@@ -90,5 +92,7 @@ class Kernel extends HttpKernel
 		'verified' => EnsureEmailIsVerified::class,
 		'scopes' => CheckScopes::class,
 		'scope' => CheckForAnyScope::class,
-	];
+		'cors' => \App\Http\Middleware\Cors::class,
+];
+
 }

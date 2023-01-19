@@ -29,6 +29,7 @@ class UserService
 	public function signup(array $request): User
 	{
 		try {
+
 			$user = new User();
 			$user->cuil = $request['cuil'];
 			$user->prs_id = $request['prs_id'];
@@ -60,7 +61,7 @@ class UserService
 		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_AUTHENTICATION(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
 
 		if (!$result[0]->result) {
-			
+
 			$column_name = "DESCRIPTION";
 			$column_value = $auth_type;
 			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_AUTHENTICATION_TYPES(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
@@ -68,7 +69,7 @@ class UserService
 
 			$table_name = "USER_AUTHENTICATION";
             $columns = "USER_ID, AUTHENTICATION_TYPES_ID, AUTH_LEVEL, CREATED_AT";
-			$apostrofe = "'"; 
+			$apostrofe = "'";
             $values = $user->id.','. $json_auth_types->ID .','.$auth_level.','.Carbon::now();
 			$result=false;
 
@@ -87,7 +88,7 @@ class UserService
 			$column_value = $auth_type;
 			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_AUTHENTICATION_TYPES(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
 			$json_auth_types = json_decode($result[0]->result);
-		
+
 			$table_name= "USER_AUTHENTICATION";
 			$columns= 'AUTHENTICATION_TYPES_ID = '.$json_auth_types->id .', AUTH_LEVEL = '.$auth_level.' ,UPDATED_AT = '.Carbon::now();
 			$values= 'USER_ID ='.$user->id;
@@ -99,8 +100,8 @@ class UserService
             ]);
 			return $res;
 		}
-		
-		
+
+
 
 	}
 
@@ -120,10 +121,8 @@ class UserService
 			'columns' => $columns,
 			'values' => $values,
 		]);
-		
+
 		return $res;
 
 	}
-
-
 }

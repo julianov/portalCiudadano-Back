@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('cuil')->unique();
             $table->bigInteger('prs_id')->unique();
             $table->string("email");
-            $table->string('password'); 
+            $table->string('password');
             $table->string('name'); #nombre de usuario
             $table->string('last_name'); #apellido de usuario
 
