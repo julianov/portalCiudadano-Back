@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\DB;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get("/test", function () {
-    $users = DB::table("docker")->get();
-    return $users;
-});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

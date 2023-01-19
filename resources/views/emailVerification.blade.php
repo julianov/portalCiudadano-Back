@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="es">
     <head>
-        
+
         <title>Portal ciudadano - Gobierno de Entre Ríos</title>
         <meta name="description" content="Our first page">
         <meta name="keywords" content="html tutorial template">
         <style>
             #btn_validar_email{
-                border:solid 1px #799f4f;
-                background:#799f4f;
+                border:solid 1px #2a8ec1;
+                background:#2a8ec1;
                 border-radius: 50px;
                 display:inline-block;
                 margin-left:auto;
@@ -32,15 +32,15 @@
             #info_text{
                 font-family: sans-serif;
                 font-style: normal;
-                font-size:1.5em;
+                font-size:14px;
             }
             #username_text{
                 font-family: sans-serif;
                 font-style: normal;
-                font-size:2em;
+                font-size:16px;
                 font-weight: bold;
             }
-       
+
         </style>
     </head>
     <body>
@@ -54,13 +54,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 20px;">      
+                    <td style="padding: 20px;">
                         <h1 id="username_text">{{$user->name }} {{$user->last_name}}</h1>
-                        <h2 id="info_text">PARA DARSE DE ALTA SIGA EL SIGUIENTE ENLACE</h2>    
+                        <h2 id="info_text">Para darte de alta en la plataforma, accede a tu cuenta haciendo clic en este botón.</h2>
                         <br>
                         <a id="btn_validar_email" href="{{'https://ciudadano-digital-er.web.app/validarcorreo?code=' . $hash ."&cuil=" . $cuil  }}">
-                            <p id="btn_validar_email_txt">VERIFICAR EMAIL</p>
-                        </a>   
+                            <p id="btn_validar_email_txt">Validá tu e-mail</p>
+                        </a>
                         <br>
                         <br>
                         <br>

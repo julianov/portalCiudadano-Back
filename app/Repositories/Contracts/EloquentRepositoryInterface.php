@@ -81,4 +81,8 @@ interface EloquentRepositoryInterface
 	 * @return Model
 	 */
 	public function find(string $id, array $columns = ['*']): Model;
+
+    public function modificarFila(array $valoresColumnas = [], string $clausulaWhere):mixed;
+
+    public function obtenerFila($nombreCampo, $valorCampo):mixed;
 }
