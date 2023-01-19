@@ -35,8 +35,8 @@ class UserService
 			$user->last_name = $request['apellido'];
 			$user->email = $request['email'];
 			$user->password = bcrypt($request['password']);
-			//$this->userRepository->create($user)
-$user->save();
+			//$this->userRepository->create($user);
+			$user->save();
 			return $user;
 
 		} catch (Throwable $th) {
@@ -55,7 +55,7 @@ $user->save();
 	{
 
 
-		//resolver error de authentication_types_id tabla vacia 
+		//resolver error de authentication_types_id tabla vacia
 
 		$user_auth_type = UserAuth::where('user_id', $user->id)->first();
 

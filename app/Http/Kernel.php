@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
 		ValidatePostSize::class,
 		TrimStrings::class,
 		ConvertEmptyStringsToNull::class,
-		\App\Http\Middleware\Cors::class, 
+		\App\Http\Middleware\Cors::class,
 
 ];
 
@@ -92,7 +92,7 @@ class Kernel extends HttpKernel
 		'verified' => EnsureEmailIsVerified::class,
 		'scopes' => CheckScopes::class,
 		'scope' => CheckForAnyScope::class,
-		'cors' => \App\Http\Middleware\Cors::class, 
+		'cors' => \App\Http\Middleware\Cors::class,
 ];
 
 }

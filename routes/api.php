@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\DB;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get("/test", function () {
+    $users = DB::table("docker")->get();
+    return $users;
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -27,7 +31,7 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'passwordResetValidation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'passwordReset']);
     Route::middleware(['auth:authentication','scope:level_1'])->post('/personal/data', [Controllers\UserController::class,'personalData']);
-	Route::post('/remove/user', [Controllers\UserController::class, 'eliminarUser']); //solo para testing. 
+	Route::delete('/', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
 });
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
