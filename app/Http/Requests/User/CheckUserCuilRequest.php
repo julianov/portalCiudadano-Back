@@ -13,7 +13,7 @@ class CheckUserCuilRequest extends FormRequest
 	 */
 	public function authorize()
 	{
-		return false;
+		return true;
 	}
 
 	/**
@@ -27,7 +27,6 @@ class CheckUserCuilRequest extends FormRequest
 			'cuil' => 'required|min:11|max:11',
 		];
 	}
-
 	/**
 	 * Get the error messages for the defined validation rules.
 	 */

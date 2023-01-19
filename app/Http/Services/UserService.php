@@ -27,6 +27,7 @@ class UserService
 	public function signup(array $request): User
 	{
 		try {
+
 			$user = new User();
 			$user->cuil = $request['cuil'];
 			$user->prs_id = $request['prs_id'];
@@ -54,7 +55,7 @@ class UserService
 	{
 
 
-		//resolver error de authentication_types_id tabla vacia 
+		//resolver error de authentication_types_id tabla vacia
 
 		$user_auth_type = UserAuth::where('user_id', $user->id)->first();
 

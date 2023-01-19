@@ -63,20 +63,11 @@ return [
 	|
 	*/
 
-<<<<<<< HEAD
-    'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-        
-=======
 	'providers' => [
 		'users' => [
 			'driver' => 'eloquent',
 			'model' => App\Models\User::class,
 		],
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
 
 
 		// 'users' => [

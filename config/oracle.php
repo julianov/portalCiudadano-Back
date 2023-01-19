@@ -5,7 +5,7 @@ return [
 		'driver' => 'oracle',
 		'tns' => env('DB_TNS',
 			'(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=database)(PORT=1521))) (CONNECT_DATA=(SERVER=DEDICATED)(SID=xe)))'),
-		'host' => env('DB_HOST', 'oracle-db'),
+		'host' => env('DB_HOST', 'database'),
 		'port' => env('DB_PORT', '1521'),
 		'database' => env('DB_DATABASE', 'xe'),
 		'service_name' => env('DB_SERVICE_NAME', 'PORTALCIUDADANO'),

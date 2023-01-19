@@ -64,7 +64,6 @@ Generamos las keys de passport
 ```bash 
 docker compose exec backend php artisan passport:keys
 ```
-<<<<<<< HEAD
 
 Generamos las configuraciones de passport
 ```bash 
@@ -75,18 +74,3 @@ Levantar servidor
 ```bash 
 docker compose exec backend php artisan serve
 ```
-=======
-
-Generamos las configuraciones de passport
-```bash 
-docker compose exec backend php artisan passport:install
-```
-
-Levantar servidor
-```bash 
-docker compose exec backend php artisan serve
-```
-
-
-
->>>>>>> e40bfe757f261588605a6116f2891d17defade28

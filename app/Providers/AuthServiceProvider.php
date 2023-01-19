@@ -8,41 +8,6 @@ use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
-<<<<<<< HEAD
-    /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
-    protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
-        
-     
-    ];
-
-    /**
-     * Register any authentication / authorization services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->registerPolicies();
-        
-        //Tiempo de expiración de los tokens: 7 días
-        Passport::tokensExpireIn(now()->addDays(7));
-        Passport::personalAccessTokensExpireIn(now()->addDays(7));
-
-    //Niveles de autenticación de usuarios
-       Passport::tokensCan([
-           'nivel_1' => 'nivel de acceso básico',
-           'nivel_2' => 'nivel de validación de identidad por aplicación',
-           'nivel_3' => 'nivel de validación de identidad presencial',
-       ]);
-
-     
-    }
-=======
 	/**
 	 * The model to policy mappings for the application.
 	 *
@@ -76,5 +41,4 @@ class AuthServiceProvider extends ServiceProvider
 
 
 	}
->>>>>>> e40bfe757f261588605a6116f2891d17defade28
 }
