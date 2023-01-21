@@ -62,19 +62,24 @@ class UserController extends Controller
 		$user = User::where('cuil', $cuil)->first();
 
 		if ($user) {
+
 			return response()->json([
 				'status' => false,
 				'message' => 'User already registered'
 			], 409);
+
 		}
 
 		$dni = substr($validated['cuil'], 2, -1);
 
 		if (str_starts_with($validated['cuil'], "0")) {
+
 			$dni = substr($validated['cuil'], 1);
+
 		}
 
 		$rs = $this->wsService->checkUserCuil($dni);
+
 		return response()->json($rs);
 	}
 
@@ -87,12 +92,14 @@ class UserController extends Controller
 			$user = User::where('cuil', $validated['cuil'])->first();
 
 			if ($user) {
+
 				return response()->json([
 					'status' => false,
 					'message' => 'User already registered'
 				], 409);
 
 			}
+
 			$user = $this->userService->signup($validated);
 
 			$code = random_int(1000, 9999);
@@ -100,17 +107,17 @@ class UserController extends Controller
 			$table_name = "USER_VALIDATION_TOKEN";
             $columns = "USER_ID, VAL_TOKEN, CREATED_AT";
             $values = $user->id.','.$code.',sysdate';
-
 			$result= $this->userService->insertarFila($table_name, $columns, $values);
 
 			Mail::to($user->email)
 				->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 					'Ciudadano Digital - Provincia de Entre Ríos'));
 
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);
+			return response()->json([
+				'status' => true,
+				'message' => 'Email sent',
+			], 201);
+
 		} catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
@@ -127,7 +134,8 @@ class UserController extends Controller
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
 		try {
-			$validated = $request->validated();
+
+            $validated = $request->validated();
 			$user = User::where('cuil', $validated['cuil'])->first();
 
 			$column_name = "USER_ID";
@@ -136,22 +144,38 @@ class UserController extends Controller
 			$json = $this->userService->getRow($table, $column_name, $column_value);
 
 			if ($json->VAL_TOKEN== $validated['confirmation_code']) {
+
 				$user->email_verified_at = Carbon::now();
 				$user->save();
-				$this->userService->setAuthType($user, "REGISTRADO", "level_1");
 
-				return response()->json([
-					'status' => true,
-					'message' => 'Email user confirmed',
-					'token' => $user->createToken("user_token", ['level_1'])->accessToken
-				]);
+				$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
 
-			}
-			return response()->json([
-				'status' => false,
-				'message' => 'Bad confirmation code'
-			], 400);
-			
+				if($resgitered ){
+
+					return response()->json([
+						'status' => true,
+						'message' => 'Email user confirmed',
+						'token' => $user->createToken("user_token", ['level_1'])->accessToken
+					], 200);
+
+				}else{
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Problema en servidor. Intente más tarde'
+					], 400);
+
+				}
+
+			}else{
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Bad confirmation code'
+                ], 400);
+
+            }
+
 		} catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
@@ -179,7 +203,7 @@ class UserController extends Controller
 					], 400);
 
 
-				} else {
+				}else{
 
 					$column_name = "USER_ID";
 					$column_value = $user->id;
@@ -214,6 +238,7 @@ class UserController extends Controller
 							'expires_at' => $expires_at,
 							'user_data' => $user_data
 						]);
+                        
 					}else{
 
 						//enviar error de nivel de autenticación
@@ -342,7 +367,6 @@ class UserController extends Controller
 	{
 
 		$validated = $request->validated();
-
 
         $column_name = "USER_ID";
 		$column_value = $user->id;
