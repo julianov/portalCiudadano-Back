@@ -174,7 +174,6 @@ class UserController extends Controller
 						return response()->json([
 							'status' => true,
 							'message' => 'Email user confirmed',
-							'token' => $user->createToken("user_token", ['level_1'])->accessToken
 						], 200);
 
 					}else{
