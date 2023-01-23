@@ -28,9 +28,9 @@ class AuthServiceProvider extends ServiceProvider
 	{
 		$this->registerPolicies();
 
-		//Tiempo de expiración de los tokens: 7 días
-		Passport::tokensExpireIn(now()->addDays(7));
-		Passport::personalAccessTokensExpireIn(now()->addDays(7));
+		//Tiempo de expiración de los tokens: 1 día
+		Passport::tokensExpireIn(now()->addDays(1));
+		Passport::personalAccessTokensExpireIn(now()->addDays(1));
 
 		//Niveles de autenticación de usuarios
 		Passport::tokensCan([
