@@ -6,8 +6,8 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-
-
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException
 class EmailConfirmation extends Mailable
 {
 	use Queueable, SerializesModels;
@@ -19,8 +19,12 @@ class EmailConfirmation extends Mailable
 	public function __construct(User $user, $hash)
 	{
 		$this->user = $user;
-		$this->hash = base64_encode($hash);
-		$this->cuil = base64_encode($user->cuil);
+		try{
+			$this->hash = Crypt::encrypt($hash);
+			$this->cuil = Crypt::encrypt($user->cuil);
+		} catch (EncryptException $e){
+			return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+		}
 	}
 
 	/**
@@ -29,7 +33,13 @@ class EmailConfirmation extends Mailable
 	 * @return $this
 	 */
 	public function build()
-	{
+	{	
+		try {
+			$original_hash = Crypt::decrypt($this->hash);
+			$original_cuil = Crypt::decrypt($this->cuil);
+		} catch (DecryptException $e) {
+			return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+		}
 		return $this->view('emailVerification', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
 	}
 }
