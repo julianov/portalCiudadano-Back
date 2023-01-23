@@ -34,12 +34,6 @@ class EmailConfirmation extends Mailable
 	 */
 	public function build()
 	{	
-		try {
-			$original_hash = Crypt::decrypt($this->hash);
-			$original_cuil = Crypt::decrypt($this->cuil);
-		} catch (DecryptException $e) {
-			return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-		}
 		return $this->view('emailVerification', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
 	}
 }

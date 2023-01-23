@@ -19,6 +19,8 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Mail;
 use Throwable;
 
@@ -161,37 +163,40 @@ class UserController extends Controller
 				$column_value = $user->id;
 				$table="USER_VALIDATION_TOKEN";
 				$json = $this->userService->getRow($table, $column_name, $column_value);
-
-				if ($json->VAL_TOKEN == $validated['confirmation_code']) {
-
-					$user->email_verified_at = Carbon::now();
-					$user->save();
-
-					$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
-
+				try {
+					$original_code= Crypt::decrypt($json->VAL_TOKEN);
+					if ($original_code == $validated['confirmation_code']) {
+						$user->email_verified_at = Carbon::now();
+						$user->save();
+						$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
 					if($resgitered){
 
-						return response()->json([
-							'status' => true,
-							'message' => 'Email user confirmed',
-						], 200);
+							return response()->json([
+								'status' => true,
+								'message' => 'Email user confirmed',
+							], 200);
 
+						}else{
+
+							return response()->json([
+								'status' => false,
+								'message' => 'Internal server problem, please try again later'
+							], 503);
+				
+						}
+						
 					}else{
-
+						
 						return response()->json([
 							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
-			
+							'message' => 'Bad confirmation code'
+						], 400);
 					}
-					
-				}else{
-					
+				} catch (DecryptException $e) {
 					return response()->json([
 						'status' => false,
-						'message' => 'Bad confirmation code'
+						'message' => 'Decryption error: ' . $e->getMessage()
 					], 400);
-
 				}
 
 			}else{
