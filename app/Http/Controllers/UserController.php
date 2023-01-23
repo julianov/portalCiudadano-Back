@@ -246,8 +246,8 @@ class UserController extends Controller
 
 						$token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
 
-						//a solo modo informativo se envia que expira en 7 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
-						$timestamp = now()->addDays(7);
+						//a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
+						$timestamp = now()->addDays(1);
 						$expires_at = date('M d, Y H:i A', strtotime($timestamp));
 	
 						$column_name = "USER_ID";
