@@ -24,7 +24,7 @@ class EmailConfirmation extends Mailable
 			//$this->hash = Crypt::encrypt($hash);
 			//$this->cuil = Crypt::encrypt($user->cuil);
 			$this->mixto = Crypt::encrypt($user->cuil . '/'.$hash);
-		} catch (EncryptException $e){
+		} catch (DecryptException $e){
 			return redirect()->back()->withErrors(['error' => $e->getMessage()]);
 		}
 	}
