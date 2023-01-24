@@ -55,7 +55,7 @@
                         <h1>{{$user->name }} {{$user->last_name}}</h1>
                         <h2>PARA CAMBIAR LA CONTRASEÑA PRESIONE EL SIGUIENTE ENLACE</h2>
                         <br>
-                        <a id="btn_cambiar_pass" href="{{'https://ciudadano-digital-er.web.app/reiniciarcontraseña?code=' . $hash ."&cuil=" . $cuil  }}">
+                        <a id="btn_cambiar_pass" href="{{'https://ciudadano-digital-er.web.app/reiniciarcontraseña?token=' . $mixto  }}">
                             <p id="btn_validar_email_txt">CAMBIAR PASSWORD</p>
                         </a> 
                         <br>
