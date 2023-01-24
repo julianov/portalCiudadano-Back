@@ -153,19 +153,22 @@ class UserController extends Controller
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
 		try {
-
 			$validated = $request->validated();
-			$user = User::where('cuil', $validated['cuil'])->first();
-
+			$aux= Crypt::decrypt($validated['token']);
+			$cuil=explode('/' ,$aux)[0];
+			$token= explode('/' ,$aux)[1];
+			$user = User::where('cuil', $cuil)->first();
+			
 			if($user){
 
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table="USER_VALIDATION_TOKEN";
 				$json = $this->userService->getRow($table, $column_name, $column_value);
+
 				try {
-					$original_code= Crypt::decrypt($json->VAL_TOKEN);
-					if ($original_code == $validated['confirmation_code']) {
+
+					if ($json->VAL_TOKEN == $token) {
 						$user->email_verified_at = Carbon::now();
 						$user->save();
 						$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
@@ -182,7 +185,6 @@ class UserController extends Controller
 								'status' => false,
 								'message' => 'Internal server problem, please try again later'
 							], 503);
-				
 						}
 						
 					}else{
@@ -200,14 +202,11 @@ class UserController extends Controller
 				}
 
 			}else{
-
 				return response()->json([
 					'status' => false,
 					'message' => 'User not found'
 				], 404);
-
 			}
-			
 		} catch (Throwable $th) {
 
 			return response()->json([
@@ -215,7 +214,6 @@ class UserController extends Controller
 				'code' => $th->getCode(),
 				'message' => $th->getMessage()
 			], 500);
-
 		}
 	}
 

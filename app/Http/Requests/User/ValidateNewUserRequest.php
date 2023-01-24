@@ -24,20 +24,15 @@ class ValidateNewUserRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'cuil' => 'required|min:11|max:11',
-			'confirmation_code' => 'required|min:4|max:4',
+			'token' => 'required',
 		];
 	}
 
 	public function messages()
 	{
 		return [
-			'cuil.required' => 'El campo CUIL es obligatorio',
-			'cuil.min' => 'El campo CUIL debe tener 11 caracteres',
-			'cuil.max' => 'El campo CUIL debe tener 11 caracteres',
-			'confirmation_code.required' => 'El campo Código de confirmación es obligatorio',
-			'confirmation_code.min' => 'El campo Código de confirmación debe tener 6 caracteres',
-			'confirmation_code.max' => 'El campo Código de confirmación debe tener 6 caracteres',
+			'token.required' => 'El campo TOKEN es obligatorio',
+			
 		];
 	}
 }
