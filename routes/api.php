@@ -30,4 +30,6 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::delete('/', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
 });
 
+Route::get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
+
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
