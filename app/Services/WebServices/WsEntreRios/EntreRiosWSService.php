@@ -48,4 +48,17 @@ class EntreRiosWSService
 			->get($this->baseUrl.$url);
 		return new BduActorEntidadResponse($response->json()[0]);
 	}
+    
+    public function getERLocations()
+	{
+
+		$url ="consultaLocalidades/null/null/'entre%20rios'/null";
+		$response = Http::withHeaders([
+			'Authorization' => $this->authToken,
+			'forwarded' => '45.82.73.74',
+			'Accept' => 'application/json, text/plain, */*'
+		])->get($this->baseUrl.$url);
+
+		return $response->json();
+	}
 }
