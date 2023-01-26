@@ -27,7 +27,10 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'passwordResetValidation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'passwordReset']);
     Route::middleware(['auth:authentication','scope:level_1'])->post('/personal/data', [Controllers\UserController::class,'personalData']);
-	Route::delete('/', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
+	Route::delete('/delete/user', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
+
+	Route::get('/resend/email/verification', [Controllers\UserController::class, 'resendEmailVerificacion']);
+
 });
 
 Route::get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
