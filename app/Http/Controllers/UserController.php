@@ -491,31 +491,42 @@ class UserController extends Controller
 
 		if($user){
 
-			$code = random_int(1000, 9999);
+			if ($user->email_verified_at==null){
 
-			$table_name = "USER_VALIDATION_TOKEN";
-			$columns = "USER_ID, VAL_TOKEN, UPDATED_AT";
-			$values = $user->id.','.$code.',sysdate';
-			$result = $this->userService->updateFila($table_name, $columns, $values);
+				$code = random_int(1000, 9999);
 
-			if ($result){
+				$table_name = "USER_VALIDATION_TOKEN";
+				$columns = "USER_ID, VAL_TOKEN, UPDATED_AT";
+				$values = $user->id.','.$code.',sysdate';
+				$result = $this->userService->updateFila($table_name, $columns, $values);
 
-				Mail::to($user->email)
-				->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-					'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+				if ($result){
+
+					Mail::to($user->email)
+					->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
+						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+						
+					return response()->json([
+						'status' => true,
+						'message' => 'Email sent',
+					], 201);
+
+				}else{
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
+				}
 					
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);
-
 			}else{
 
 				return response()->json([
 					'status' => false,
-					'message' => 'Internal server problem, please try again later'
-				], 503);
+					'message' => 'Email alredy verified'
+				], 401);
 			}
+			
 
 		}else{
 
