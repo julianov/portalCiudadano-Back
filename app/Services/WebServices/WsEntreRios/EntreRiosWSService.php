@@ -4,7 +4,8 @@ namespace App\Services\WebServices\WsEntreRios;
 
 use App\Services\WebServices\WsEntreRios\Contracts\{BduActorEntidadResponse,
 	CheckUserCuilResponse,
-	PersonaFisicaResponse};
+	PersonaFisicaResponse
+};
 use Http;
 
 class EntreRiosWSService
@@ -19,24 +20,21 @@ class EntreRiosWSService
 		$this->authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o";
 	}
 
-	public function checkUserCuil(string $dni)
+	/**
+	 * @param  string  $dni
+	 * @return array
+	 */
+	public function checkUserCuil(string $dni): array
 	{
-
 		$persona = $this->getPersonaFisica($dni);
-
-		if ($persona != "bad cuil"){
-			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
-			$response = new CheckUserCuilResponse(true, $persona, $actor);
-			return $response->toArray();
-		}else{
-
-			return response()->json([
-                'status' => false,
-                'message' => 'Bad client request'
-            ], 400);
-		}
-
-		
+		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
+		$response = new CheckUserCuilResponse(true, $persona, $actor);
+		return [
+			"fullName" => $response->getUser()->getFullName(),
+			"Cuil" => $response->getUser()->getCuil(),
+			"Nombres" => $response->getUser()->getNombres(),
+			"Apellido" => $response->getUser()->getApellido()
+		];
 	}
 
 	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
@@ -47,11 +45,11 @@ class EntreRiosWSService
 			->get($this->baseUrl.$url);
 
 			if(array_key_exists(0, $response->json())){
-				
+
 				return new PersonaFisicaResponse($response->json()[0]);
 
 			}else{
-				
+
 				return "bad cuil";
 				// Handle error
 			}
@@ -68,15 +66,15 @@ class EntreRiosWSService
 			->get($this->baseUrl.$url);
 
 			if(array_key_exists(0, $response->json())){
-				
+
 				return new BduActorEntidadResponse($response->json()[0]);
 
 			}else{
-				
+
 				return "bad cuil";
 			}
 	}
-    
+
     public function getERLocations()
 	{
 
