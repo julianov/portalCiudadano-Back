@@ -95,35 +95,42 @@ class UserController extends Controller
 
 				$user = $this->userService->signup($validated);
 
-				$code = random_int(1000, 9999);
+				if($user instanceof User){
 
-				$table_name = "USER_VALIDATION_TOKEN";
-				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-				$values = $user->id.','.$code.',sysdate';
-				$result = $this->userService->insertarFila($table_name, $columns, $values);
+					$code = random_int(1000, 9999);
 
-				if ($result) {
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+					$values = $user->id.','.$code.',sysdate';
+					$result = $this->userService->insertarFila($table_name, $columns, $values);
 
-					Mail::to($user->email)
+					if ($result){
+
+						Mail::to($user->email)
 						->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 							'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
 
-					return response()->json([
-						'status' => true,
-						'message' => 'Email sent',
-					], 201);
+						return response()->json([
+							'status' => true,
+							'message' => 'Email sent',
+						], 201);
+
+					}else{
+
+						$user->delete();
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+					}
 
 				} else {
 
-					$user->delete();
+					//users in this case is a json with error type
+					return $user;
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
 				}
-
-
 			}
 
 		} catch (Throwable $th) {
@@ -470,9 +477,8 @@ class UserController extends Controller
 
 		}
 	}
-    
-    
-    public function resendEmailVerificacion(CheckUserCuilRequest $request): JsonResponse
+
+	public function resendEmailVerificacion(CheckUserCuilRequest $request): JsonResponse
 	{
 		$validated = $request->validated();
 		$cuil = $validated['cuil'];
@@ -494,10 +500,11 @@ class UserController extends Controller
 					Mail::to($user->email)
 					->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-						
+
 					return response()->json([
 						'status' => true,
 						'message' => 'Email sent',
+						'email' => $user->email,
 					], 201);
 
 				}else{
@@ -507,7 +514,7 @@ class UserController extends Controller
 						'message' => 'Internal server problem, please try again later'
 					], 503);
 				}
-					
+
 			}else{
 
 				return response()->json([
@@ -515,7 +522,7 @@ class UserController extends Controller
 					'message' => 'Email alredy verified'
 				], 401);
 			}
-			
+
 
 		}else{
 

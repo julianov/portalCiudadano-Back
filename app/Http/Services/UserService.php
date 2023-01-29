@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserAuth;
 use App\Models\UserContactInformation;
 use App\Repositories\UserRepository;
+use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
@@ -17,28 +18,59 @@ class UserService
 	/**
 	 * @param  UserRepository  $userRepository
 	 */
-	public function __construct(
-		private readonly UserRepository $userRepository,
-	)
+	private EntreRiosWSService $wsService;
+
+	public function __construct(private readonly UserRepository $userRepository, EntreRiosWSService $wsService)
 	{
+		$this->wsService = $wsService;
+
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	public function signup(array $request): User
+	public function signup(array $request)
 	{
 		try {
 
-			$user = new User();
-			$user->cuil = $request['cuil'];
-			$user->prs_id = $request['prs_id'];
-			$user->name = $request['nombre'];
-			$user->last_name = $request['apellido'];
-			$user->email = $request['email'];
-			$user->password = bcrypt($request['password']);
-			$user->save();
-			return $user;
+			$dni = substr($request['cuil'], 2, -1);
+
+			if (str_starts_with($request['cuil'], "0")) {
+				$dni = substr($request['cuil'], 1);
+			}
+
+			$rs = $this->wsService->checkUserCuil($dni);
+
+			if (is_array($rs) ) {
+				// es una persona más actor
+				if ($rs['user']['id'] == $request['prs_id']){
+
+					$user = new User();
+					$user->cuil = $request['cuil'];
+					$user->prs_id = $request['prs_id'];
+					$user->name = $request['nombre'];
+					$user->last_name = $request['apellido'];
+					$user->email = $request['email'];
+					$user->password = bcrypt($request['password']);
+					$user->save();
+					return $user;
+
+				}else{
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Data inconsistency'
+					], 422);
+
+				}
+					
+			} else {
+				// es una respuesta JSON
+				return response()->json([
+					'status' => false,
+					'message' => 'Internal server problem or bad cuil'
+				], 503);
+			}
 
 		} catch (Throwable $th) {
 			throw new Exception("User creation failed ".$th, $th->getCode());
@@ -126,38 +158,6 @@ class UserService
 	
 		return $json;
 	}
-
-	/*public function getFilaUserValidationToken(string $column_name, string $column_value): mixed{
-
-			$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_VALIDATION_TOKEN(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-			$json = json_decode($result[0]->result);
-
-			return $json;
-	}
-
-	public function getFilaUserContact(string $column_name, string $column_value): mixed{
-
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_CONTACT(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-		$json = json_decode($result[0]->result);
-
-		return $json;
-	}
-
-	public function getFilaUserAutentication(string $column_name, string $column_value): mixed{
-
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_USER_AUTHENTICATION(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-		$json = json_decode($result[0]->result);
-
-		return $json;
-	}
-
-	public function getFilaAutenticationType(string $column_name, string $column_value): mixed{
-
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_AUTHENTICATION_TYPES(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-		$json = json_decode($result[0]->result);
-
-		return $json;
-	}*/
 
 	public function updateFila(string $table_name, string $columns, string $values): mixed{
 			$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.MODIFICAR_FILAR(:p_nombre_tabla, :p_valores_columnas, :p_clausula_where); END;",

@@ -37,26 +37,44 @@ class EntreRiosWSService
 		];
 	}
 
-	private function getPersonaFisica(string $dni): PersonaFisicaResponse
+	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
 	{
 		$url = "consultaPF/".$dni;
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
 
-		return new PersonaFisicaResponse($response->json()[0]);
+			if(array_key_exists(0, $response->json())){
+
+				return new PersonaFisicaResponse($response->json()[0]);
+
+			}else{
+
+				return "bad cuil";
+				// Handle error
+			}
+
+
 	}
 
-	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse
+	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse|string
 	{
 		$sexo_var = "'".$sexo;
 		$url = "consultaBduActorEntidad/".$dni."/".$sexo_var."'";
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
-		return new BduActorEntidadResponse($response->json()[0]);
+
+			if(array_key_exists(0, $response->json())){
+
+				return new BduActorEntidadResponse($response->json()[0]);
+
+			}else{
+
+				return "bad cuil";
+			}
 	}
-    
+
     public function getERLocations()
 	{
 
