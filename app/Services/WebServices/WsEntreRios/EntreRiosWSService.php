@@ -4,7 +4,8 @@ namespace App\Services\WebServices\WsEntreRios;
 
 use App\Services\WebServices\WsEntreRios\Contracts\{BduActorEntidadResponse,
 	CheckUserCuilResponse,
-	PersonaFisicaResponse};
+	PersonaFisicaResponse
+};
 use Http;
 
 class EntreRiosWSService
@@ -19,14 +20,21 @@ class EntreRiosWSService
 		$this->authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o";
 	}
 
+	/**
+	 * @param  string  $dni
+	 * @return array
+	 */
 	public function checkUserCuil(string $dni): array
 	{
-
 		$persona = $this->getPersonaFisica($dni);
-
 		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
 		$response = new CheckUserCuilResponse(true, $persona, $actor);
-		return $response->toArray();
+		return [
+			"fullName" => $response->getUser()->getFullName(),
+			"Cuil" => $response->getUser()->getCuil(),
+			"Nombres" => $response->getUser()->getNombres(),
+			"Apellido" => $response->getUser()->getApellido()
+		];
 	}
 
 	private function getPersonaFisica(string $dni): PersonaFisicaResponse

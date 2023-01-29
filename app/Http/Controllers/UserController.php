@@ -12,19 +12,16 @@ use App\Http\Services\UserService;
 use App\Mail\ChangePasswordUrl;
 use App\Mail\EmailConfirmation;
 use App\Models\User;
-use App\Models\UserValidationToken;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Validation\ValidationException;
 use Mail;
 use Throwable;
-
-use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -64,27 +61,19 @@ class UserController extends Controller
 		$user = User::where('cuil', $cuil)->first();
 
 		if ($user) {
-
 			return response()->json([
 				'status' => false,
 				'message' => 'User already registered'
 			], 409);
 
-		}else{
-
+		} else {
 			$dni = substr($validated['cuil'], 2, -1);
-
 			if (str_starts_with($validated['cuil'], "0")) {
 				$dni = substr($validated['cuil'], 1);
 			}
-
 			$rs = $this->wsService->checkUserCuil($dni);
-
 			return response()->json($rs);
-
 		}
-
-		
 	}
 
 	public function singup(CreateUserRequest $request): JsonResponse
@@ -102,7 +91,7 @@ class UserController extends Controller
 					'message' => 'User already registered'
 				], 409);
 
-			}else{
+			} else {
 
 				$user = $this->userService->signup($validated);
 
@@ -113,18 +102,18 @@ class UserController extends Controller
 				$values = $user->id.','.$code.',sysdate';
 				$result = $this->userService->insertarFila($table_name, $columns, $values);
 
-				if ($result){
+				if ($result) {
 
 					Mail::to($user->email)
-					->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-						
+						->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
+							'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+
 					return response()->json([
 						'status' => true,
 						'message' => 'Email sent',
 					], 201);
 
-				}else{
+				} else {
 
 					$user->delete();
 
@@ -134,9 +123,9 @@ class UserController extends Controller
 					], 503);
 				}
 
-				
+
 			}
-			
+
 		} catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
@@ -154,16 +143,16 @@ class UserController extends Controller
 	{
 		try {
 			$validated = $request->validated();
-			$aux= Crypt::decrypt($validated['token']);
-			$cuil=explode('/' ,$aux)[0];
-			$token= explode('/' ,$aux)[1];
+			$aux = Crypt::decrypt($validated['token']);
+			$cuil = explode('/', $aux)[0];
+			$token = explode('/', $aux)[1];
 			$user = User::where('cuil', $cuil)->first();
-			
-			if($user){
+
+			if ($user) {
 
 				$column_name = "USER_ID";
 				$column_value = $user->id;
-				$table="USER_VALIDATION_TOKEN";
+				$table = "USER_VALIDATION_TOKEN";
 				$json = $this->userService->getRow($table, $column_name, $column_value);
 
 				try {
@@ -172,23 +161,23 @@ class UserController extends Controller
 						$user->email_verified_at = Carbon::now();
 						$user->save();
 						$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
-					if($resgitered){
+						if ($resgitered) {
 
 							return response()->json([
 								'status' => true,
 								'message' => 'Email user confirmed',
 							], 200);
 
-						}else{
+						} else {
 
 							return response()->json([
 								'status' => false,
 								'message' => 'Internal server problem, please try again later'
 							], 503);
 						}
-						
-					}else{
-						
+
+					} else {
+
 						return response()->json([
 							'status' => false,
 							'message' => 'Bad confirmation code'
@@ -197,11 +186,11 @@ class UserController extends Controller
 				} catch (DecryptException $e) {
 					return response()->json([
 						'status' => false,
-						'message' => 'Decryption error: ' . $e->getMessage()
+						'message' => 'Decryption error: '.$e->getMessage()
 					], 400);
 				}
 
-			}else{
+			} else {
 				return response()->json([
 					'status' => false,
 					'message' => 'User not found'
@@ -237,32 +226,32 @@ class UserController extends Controller
 						'message' => 'email validation still pending'
 					], 400);
 
-				}else{
+				} else {
 
 					$column_name = "USER_ID";
 					$column_value = $user->id;
-					$table="USER_AUTHENTICATION";
-					$user_auth = $this->userService->getRow($table,$column_name, $column_value);
+					$table = "USER_AUTHENTICATION";
+					$user_auth = $this->userService->getRow($table, $column_name, $column_value);
 
 
-					if (!empty($user_auth)){
+					if (!empty($user_auth)) {
 
 						$token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
 
 						//a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
 						$timestamp = now()->addDays(1);
 						$expires_at = date('M d, Y H:i A', strtotime($timestamp));
-	
+
 						$column_name = "USER_ID";
 						$column_value = $user->id;
-						$table="USER_CONTACT";
-						$user_data = $this->userService->getRow($table,$column_name, $column_value);
-	
+						$table = "USER_CONTACT";
+						$user_data = $this->userService->getRow($table, $column_name, $column_value);
+
 						$user_data = [
 							"user" => $user,
 							"user_contact" => $user_data
 						];
-	
+
 						return response()->json([
 							'status' => true,
 							'message' => 'Login successful',
@@ -272,7 +261,7 @@ class UserController extends Controller
 							'user_data' => $user_data
 						]);
 
-					}else{
+					} else {
 
 						//enviar error de nivel de autenticación
 						return response()->json([
@@ -282,7 +271,7 @@ class UserController extends Controller
 
 					}
 				}
-			}else{
+			} else {
 
 				return response()->json([
 					'status' => false,
@@ -290,7 +279,7 @@ class UserController extends Controller
 				], 400);
 
 			}
-			
+
 
 		} catch (Exception $e) {
 			return response()->json([
@@ -307,16 +296,16 @@ class UserController extends Controller
 			$validated = $request->validated();
 
 			$user = $this->userService->getUser($validated['cuil']);
-			
-			if ($user){
+
+			if ($user) {
 
 				$res_user_contact = $this->userService->setUserContact($user, $validated);
-				
-				if ($res_user_contact){
+
+				if ($res_user_contact) {
 
 					$res_user_auth = $this->userService->setAuthType($user, "REGISTRADO", "level_2");
-					
-					if($res_user_auth){
+
+					if ($res_user_auth) {
 
 						return response()->json([
 							'status' => true,
@@ -324,7 +313,7 @@ class UserController extends Controller
 							'token' => $user->createToken("user_token", ['level_2'])->accessToken
 						]);
 
-					}else{
+					} else {
 
 						return response()->json([
 							'status' => false,
@@ -332,14 +321,14 @@ class UserController extends Controller
 						], 503);
 
 					}
-				}else{
+				} else {
 
 					return response()->json([
 						'status' => false,
 						'message' => 'Internal server problem, please try again later'
 					], 503);
 				}
-			}else{
+			} else {
 
 				return response()->json([
 					'status' => false,
@@ -347,7 +336,7 @@ class UserController extends Controller
 				], 404);
 
 			}
-		}catch (Throwable $th) {
+		} catch (Throwable $th) {
 
 			return response()->json([
 				'status' => false,
@@ -372,66 +361,66 @@ class UserController extends Controller
 
 		$code = random_int(1000, 9999);
 
-        $column_name = "USER_ID";
+		$column_name = "USER_ID";
 		$column_value = $user->id;
-		$table="USER_VALIDATION_TOKEN";
+		$table = "USER_VALIDATION_TOKEN";
 		$json = $this->userService->getRow($table, $column_name, $column_value);
 
-        if (empty($json)){
+		if (empty($json)) {
 
-            $table_name = "USER_VALIDATION_TOKEN";
-            $columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-            $values = $user->id.','.$code.',sysdate';
+			$table_name = "USER_VALIDATION_TOKEN";
+			$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+			$values = $user->id.','.$code.',sysdate';
 
-			$result= $this->userService->insertarFila($table_name, $columns, $values);
+			$result = $this->userService->insertarFila($table_name, $columns, $values);
 
-            if ($result){
+			if ($result) {
 
-                Mail::to($user->email)
-                ->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-                    'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+				Mail::to($user->email)
+					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
+						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
 
 				return response()->json([
 					'status' => true,
 					'message' => 'Email sent',
 				], 201);
 
-            }else{
+			} else {
 
-                return response()->json([
+				return response()->json([
 					'status' => false,
 					'message' => 'Internal server problem, please try again later'
 				], 503);
-                
-            }
 
-        }else{
+			}
 
-            $table_name= "USER_VALIDATION_TOKEN";
-			$columns= 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
-			$values= 'USER_ID ='.$user->id;
-			$res= $this->userService->updateFila($table_name, $columns, $values);
+		} else {
 
-            if ($res){
+			$table_name = "USER_VALIDATION_TOKEN";
+			$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+			$values = 'USER_ID ='.$user->id;
+			$res = $this->userService->updateFila($table_name, $columns, $values);
 
-                Mail::to($user->email)
-                ->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-                    'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
-    
+			if ($res) {
+
+				Mail::to($user->email)
+					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
+						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+
 				return response()->json([
 					'status' => true,
 					'message' => 'Email sent',
 				], 201);
 
-            }else{
+			} else {
 
-                return response()->json([
+				return response()->json([
 					'status' => false,
 					'message' => 'Internal server problem, please try again later'
 				], 503);
-            }
+			}
 
-        }
+		}
 
 	}
 
@@ -442,37 +431,37 @@ class UserController extends Controller
 	{
 
 		$validated = $request->validated();
-		$aux= Crypt::decrypt($validated['token']);
-		$cuil=explode('/' ,$aux)[0];
-		$token= explode('/' ,$aux)[1];
+		$aux = Crypt::decrypt($validated['token']);
+		$cuil = explode('/', $aux)[0];
+		$token = explode('/', $aux)[1];
 		$user = User::where('cuil', $cuil)->first();
-        $column_name = "USER_ID";
+		$column_name = "USER_ID";
 		$column_value = $user->id;
-		$table="USER_VALIDATION_TOKEN";
+		$table = "USER_VALIDATION_TOKEN";
 		$json = $this->userService->getRow($table, $column_name, $column_value);
 
-		if (!empty($json)){
-			
+		if (!empty($json)) {
+
 			if ($json->VAL_TOKEN == $token) {
 
 				$user->password = bcrypt($validated['new_password']);
 				$user->save();
-	
+
 				return response()->json([
 					'status' => true,
 					'message' => 'Password changed',
 				], 201);
-	
-			}else{
-				
+
+			} else {
+
 				return response()->json([
 					'status' => false,
 					'message' => 'Bad validation code',
 				], 201);
-	
+
 			}
 
-		}else{
+		} else {
 
 			return response()->json([
 				'status' => false,
@@ -573,24 +562,24 @@ class UserController extends Controller
 		//
 	}
 
-    public function eliminarUser(CheckUserCuilRequest $request): JsonResponse{
-    		$validated = $request->validated();
-    		$cuil = $validated['cuil'];
-    		$user = User::where('cuil', $cuil)->first();
+	public function eliminarUser(CheckUserCuilRequest $request): JsonResponse
+	{
+		$validated = $request->validated();
+		$cuil = $validated['cuil'];
+		$user = User::where('cuil', $cuil)->first();
 
-    		if ($user) {
-    				$user->delete();
+		if ($user) {
+			$user->delete();
 
-    				return response()->json([
-    						'status' => true,
-    						'message' => 'User removed'
-    				], 201);
-    		}
-    		else{
-    				return response()->json([
-    						'status' => false,
-    						'message' => 'there is not that user'
-    				], 409);
-    		}
-    	}
+			return response()->json([
+				'status' => true,
+				'message' => 'User removed'
+			], 201);
+		} else {
+			return response()->json([
+				'status' => false,
+				'message' => 'there is not that user'
+			], 409);
+		}
+	}
 }
