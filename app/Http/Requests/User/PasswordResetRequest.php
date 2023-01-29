@@ -24,18 +24,17 @@ class PasswordResetRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'cuil' => 'required',
+			'token' => 'required',
 			'new_password' => 'required',
-			'verification_code' => 'required',
+	
 		];
 	}
 
 	public function messages()
 	{
 		return [
-			'cuil.required' => 'El cuil es requerido',
+			'token.required' => 'El token es requerido',
 			'new_password.required' => 'La nueva contraseña es requerida',
-			'verification_code.required' => 'El código de verificación es requerido',
 		];
 	}
 }
