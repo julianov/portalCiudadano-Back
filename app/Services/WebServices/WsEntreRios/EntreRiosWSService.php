@@ -19,34 +19,62 @@ class EntreRiosWSService
 		$this->authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o";
 	}
 
-	public function checkUserCuil(string $dni): array
+	public function checkUserCuil(string $dni)
 	{
 
 		$persona = $this->getPersonaFisica($dni);
 
-		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
-		$response = new CheckUserCuilResponse(true, $persona, $actor);
-		return $response->toArray();
+		if ($persona != "bad cuil"){
+			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
+			$response = new CheckUserCuilResponse(true, $persona, $actor);
+			return $response->toArray();
+		}else{
+
+			return response()->json([
+                'status' => false,
+                'message' => 'Bad client request'
+            ], 400);
+		}
+
+		
 	}
 
-	private function getPersonaFisica(string $dni): PersonaFisicaResponse
+	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
 	{
 		$url = "consultaPF/".$dni;
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
 
-		return new PersonaFisicaResponse($response->json()[0]);
+			if(array_key_exists(0, $response->json())){
+				
+				return new PersonaFisicaResponse($response->json()[0]);
+
+			}else{
+				
+				return "bad cuil";
+				// Handle error
+			}
+
+
 	}
 
-	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse
+	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse|string
 	{
 		$sexo_var = "'".$sexo;
 		$url = "consultaBduActorEntidad/".$dni."/".$sexo_var."'";
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
-		return new BduActorEntidadResponse($response->json()[0]);
+
+			if(array_key_exists(0, $response->json())){
+				
+				return new BduActorEntidadResponse($response->json()[0]);
+
+			}else{
+				
+				return "bad cuil";
+			}
 	}
     
     public function getERLocations()
