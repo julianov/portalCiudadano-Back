@@ -41,9 +41,9 @@ class UserService
 
 			$rs = $this->wsService->checkUserCuil($dni);
 
-			if (is_array($rs) ) {
+			if ($rs->getData()->status === true) {
 				// es una persona más actor
-				if ($rs['user']['id'] == $request['prs_id']){
+				if ($rs->getData()->prs_id == $request['prs_id']){
 
 					$user = new User();
 					$user->cuil = $request['cuil'];

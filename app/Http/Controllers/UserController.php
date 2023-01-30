@@ -72,7 +72,7 @@ class UserController extends Controller
 				$dni = substr($validated['cuil'], 1);
 			}
 			$rs = $this->wsService->checkUserCuil($dni);
-			return response()->json($rs);
+			return $rs;
 		}
 	}
 
