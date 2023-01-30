@@ -24,20 +24,28 @@ class EntreRiosWSService
 	 * @param  string  $dni
 	 * @return array
 	 */
-	public function checkUserCuil(string $dni): array
-	{
+	public function checkUserCuil(string $dni): JsonResponse
+		{
 		$persona = $this->getPersonaFisica($dni);
-		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
-		$response = new CheckUserCuilResponse(true, $persona, $actor);
-		return [
-			"fullName" => $response->getUser()->getFullName(),
-			"prs_id" => $response->getUser()->getid(),
-			"Cuil" => $response->getUser()->getCuil(),
-			"Nombres" => $response->getUser()->getNombres(),
-			"Apellido" => $response->getUser()->getApellido()
-		];
+		if ($persona != "bad cuil"){
+			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
+			$response = new CheckUserCuilResponse(true, $persona, $actor);
+			return response()->json([
+				"status" => true,
+				"fullName" => $response->getUser()->getFullName(),
+				"prs_id" => $response->getUser()->getid(),
+				"Cuil" => $response->getUser()->getCuil(),
+				"Nombres" => $response->getUser()->getNombres(),
+				"Apellido" => $response->getUser()->getApellido()
+			]);
+		}else{
+			return response()->json([
+			'status' => false,
+			'message' => 'Bad Cuil'
+			], 422);
+		}
 	}
-
+	
 	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
 	{
 		$url = "consultaPF/".$dni;
@@ -54,8 +62,6 @@ class EntreRiosWSService
 				return "bad cuil";
 				// Handle error
 			}
-
-
 	}
 
 	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse|string
