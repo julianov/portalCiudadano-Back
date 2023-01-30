@@ -24,7 +24,7 @@ class EntreRiosWSService
 	 * @param  string  $dni
 	 * @return array
 	 */
-	public function checkUserCuil(string $dni): JsonResponse
+	public function checkUserCuil(string $dni)
 		{
 		$persona = $this->getPersonaFisica($dni);
 		if ($persona != "bad cuil"){
