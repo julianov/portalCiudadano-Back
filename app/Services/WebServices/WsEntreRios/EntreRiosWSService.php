@@ -31,6 +31,7 @@ class EntreRiosWSService
 		$response = new CheckUserCuilResponse(true, $persona, $actor);
 		return [
 			"fullName" => $response->getUser()->getFullName(),
+			"prs_id" => $response->getUser()->getid(),
 			"Cuil" => $response->getUser()->getCuil(),
 			"Nombres" => $response->getUser()->getNombres(),
 			"Apellido" => $response->getUser()->getApellido()
