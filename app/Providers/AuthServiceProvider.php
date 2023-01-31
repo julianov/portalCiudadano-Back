@@ -35,8 +35,9 @@ class AuthServiceProvider extends ServiceProvider
 		//Niveles de autenticación de usuarios
 		Passport::tokensCan([
 			'level_1' => 'nivel de acceso básico',
-			'level_2' => 'nivel de validación de identidad por aplicación',
-			'level_3' => 'nivel de validación de identidad presencial',
+			'level_2' => 'nivel de validación de identidad por datos personales',
+			'level_3' => 'nivel de validación de identidad por aplicación',
+			'level_4' => 'nivel de validación de identidad de actor',
 		]);
 
 

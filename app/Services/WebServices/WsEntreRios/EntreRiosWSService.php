@@ -36,7 +36,8 @@ class EntreRiosWSService
 				"prs_id" => $response->getUser()->getid(),
 				"Cuil" => $response->getUser()->getCuil(),
 				"Nombres" => $response->getUser()->getNombres(),
-				"Apellido" => $response->getUser()->getApellido()
+				"Apellido" => $response->getUser()->getApellido(), 
+				"Actor" => $response->getActor()->getEntId()
 			]);
 		}else{
 			return response()->json([
