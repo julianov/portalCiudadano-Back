@@ -67,10 +67,11 @@ class UserController extends Controller
 			], 409);
 
 		} else {
-			$dni = substr($validated['cuil'], 2, -1);
+			/*$dni = substr($validated['cuil'], 2, -1);
 			if (str_starts_with($validated['cuil'], "0")) {
 				$dni = substr($validated['cuil'], 1);
-			}
+			}*/
+			$dni= $this->wsService->getDniFromCuil($validated['cuil']);
 			$rs = $this->wsService->checkUserCuil($dni);
 			return $rs;
 		}
@@ -93,44 +94,9 @@ class UserController extends Controller
 
 			} else {
 
-				$user = $this->userService->signup($validated);
+				$singupUserServices = $this->userService->signup($validated);
 
-				if($user instanceof User){
-
-					$code = random_int(1000, 9999);
-
-					$table_name = "USER_VALIDATION_TOKEN";
-					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-					$values = $user->id.','.$code.',sysdate';
-					$result = $this->userService->insertarFila($table_name, $columns, $values);
-
-					if ($result){
-
-						Mail::to($user->email)
-						->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-							'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-
-						return response()->json([
-							'status' => true,
-							'message' => 'Email sent',
-						], 201);
-
-					}else{
-
-						$user->delete();
-
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
-					}
-
-				} else {
-
-					//users in this case is a json with error type
-					return $user;
-
-				}
+				return $singupUserServices;
 			}
 
 		} catch (Throwable $th) {
@@ -165,9 +131,17 @@ class UserController extends Controller
 				try {
 
 					if ($json->VAL_TOKEN == $token) {
+
 						$user->email_verified_at = Carbon::now();
 						$user->save();
-						$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
+						
+						$resgitered=false;
+						if($json->VAL_TOKEN > 9999) {
+							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_4");
+						}else{
+							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
+						}
+
 						if ($resgitered) {
 
 							return response()->json([
@@ -488,7 +462,20 @@ class UserController extends Controller
 
 			if ($user->email_verified_at==null){
 
-				$code = random_int(1000, 9999);
+				$column_name = "USER_ID";
+				$column_value = $user->id;
+				$table = "USER_VALIDATION_TOKEN";
+				$json = $this->userService->getRow($table, $column_name, $column_value);
+
+				if($json->VAL_TOKEN>9999){
+
+					$code = random_int(10000, 99999);
+
+				}else{
+
+					$code = random_int(1000, 9999);
+
+				}
 
 				$table_name = "USER_VALIDATION_TOKEN";
 				$columns = "USER_ID, VAL_TOKEN, UPDATED_AT";
@@ -522,7 +509,6 @@ class UserController extends Controller
 					'message' => 'Email alredy verified'
 				], 401);
 			}
-
 
 		}else{
 

@@ -7,10 +7,12 @@ use App\Models\UserAuth;
 use App\Models\UserContactInformation;
 use App\Repositories\UserRepository;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
+use App\Mail\EmailConfirmation;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Mail;
 
 class UserService
 {
@@ -22,6 +24,7 @@ class UserService
 
 	public function __construct(private readonly UserRepository $userRepository, EntreRiosWSService $wsService)
 	{
+		
 		$this->wsService = $wsService;
 
 	}
@@ -29,20 +32,34 @@ class UserService
 	/**
 	 * @throws Exception
 	 */
+	public function getDniFromCuil($cuil){
+
+		$dni = substr($cuil, 2, -1);
+
+		if (str_starts_with($cuil, "0")) {
+			$dni = substr($cuil, 1);
+		}
+
+		return $dni;
+
+	}
+
 	public function signup(array $request)
 	{
 		try {
 
-			$dni = substr($request['cuil'], 2, -1);
+			/*$dni = substr($request['cuil'], 2, -1);
 
 			if (str_starts_with($request['cuil'], "0")) {
 				$dni = substr($request['cuil'], 1);
-			}
+			}*/
+
+			$dni = self::getDniFromCuil($request['cuil']);
 
 			$rs = $this->wsService->checkUserCuil($dni);
 
 			if ($rs->getData()->status === true) {
-				// es una persona más actor
+				// es una persona válida
 				if ($rs->getData()->prs_id == $request['prs_id']){
 
 					$user = new User();
@@ -53,7 +70,42 @@ class UserService
 					$user->email = $request['email'];
 					$user->password = bcrypt($request['password']);
 					$user->save();
-					return $user;
+
+
+					//corroboro si el user es un actor
+					$code=1; 
+					if($rs->getData()->Actor){
+						$code = random_int(10000, 99999);
+					}else{
+						$code = random_int(1000, 9999);
+					}
+
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+					$values = $user->id.','.$code.',sysdate';
+					$result = self::insertarFila($table_name, $columns, $values);
+
+					if ($result){
+
+						Mail::to($user->email)
+						->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
+							'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Email sent',
+						], 201);
+
+					}else{
+
+						$user->delete();
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+
+					}
 
 				}else{
 
@@ -65,11 +117,12 @@ class UserService
 				}
 					
 			} else {
-				// es una respuesta JSON
+
 				return response()->json([
 					'status' => false,
 					'message' => 'Internal server problem or bad cuil'
 				], 503);
+
 			}
 
 		} catch (Throwable $th) {
@@ -160,12 +213,14 @@ class UserService
 	}
 
 	public function updateFila(string $table_name, string $columns, string $values): mixed{
+
 			$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.MODIFICAR_FILAR(:p_nombre_tabla, :p_valores_columnas, :p_clausula_where); END;",
             [
                 'p_nombre_tabla' => $table_name,
                 'p_valores_columnas' => $columns,
                 'p_clausula_where' => $values,
             ]);
+
 		return $res;
 	}
 }

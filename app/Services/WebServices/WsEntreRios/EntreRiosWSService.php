@@ -30,6 +30,10 @@ class EntreRiosWSService
 		if ($persona != "bad cuil"){
 			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
 			$response = new CheckUserCuilResponse(true, $persona, $actor);
+			$is_actor=false; 
+			if ($response->getActor()->getEntId()!=null){
+				$is_actor=true;
+			}
 			return response()->json([
 				"status" => true,
 				"fullName" => $response->getUser()->getFullName(),
@@ -37,7 +41,7 @@ class EntreRiosWSService
 				"Cuil" => $response->getUser()->getCuil(),
 				"Nombres" => $response->getUser()->getNombres(),
 				"Apellido" => $response->getUser()->getApellido(), 
-				"Actor" => $response->getActor()->getEntId()
+				"Actor" => $is_actor
 			]);
 		}else{
 			return response()->json([
