@@ -71,7 +71,7 @@ class UserController extends Controller
 			if (str_starts_with($validated['cuil'], "0")) {
 				$dni = substr($validated['cuil'], 1);
 			}*/
-			$dni= $this->wsService->getDniFromCuil($validated['cuil']);
+			$dni= $this->userService->getDniFromCuil($validated['cuil']);
 			$rs = $this->wsService->checkUserCuil($dni);
 			return $rs;
 		}
