@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthGetTokenAutenticarRequest;
 use GuzzleHttp\Exception\GuzzleException;
 
 class AuthController extends Controller
@@ -13,34 +14,27 @@ class AuthController extends Controller
     public function getToken(AuthGetTokenAutenticarRequest $request): \Illuminate\Http\JsonResponse
     {
         $request->validated();
+        $cuil = $request->cuil;
+        $code = $request->code;
 
         $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', config("autenticar.base_url") . 'protocol/openid-connect/token', [
+        $url = config("autenticar.base_url_api");
+        $response = $client->request('POST', $url."/protocol/openid-connect/token", [
             'form_params' => [
                 "grant_type" => config('autenticar.grant_type'),
                 "client_id" => config('autenticar.client_id'),
-                "client_secret" => $request->client_secret,
-                "code" => $request->code,
+                "client_secret" => config('autenticar.secret'),
+                "code" => $code,
                 "redirect_uri" => config('autenticar.redirect_uri'),
             ]
         ]);
-        return response()->json(json_decode($response->getBody()->getContents(), true));
-    }
+        $data = json_decode($response->getBody()->getContents(), true);
+        $accessToken = $data['access_token'];
+        $refreshToken = $data['refresh_token'];
 
-    public function getUrl(\Request $request): \Illuminate\Http\JsonResponse
-    {
-        $url = config("autenticar.base_url_api");
-        $client = new \GuzzleHttp\Client();
-
-        $response = $client->request("GET", $url."protocol/openid-connect/auth", [
-            "query" => [
-                "response_type" => "code",
-                "client_id" => "appentrerios",
-                "redirect_uri" => config('autenticar.redirect_uri'),
-                "scope" => "openid",
-            ]
+        return response()->json([
+            "access_token" => $accessToken,
+            "refresh_token" => $refreshToken,
         ]);
-
-        return response()->json(json_decode($response->getBody()->getContents(), true));
     }
 }

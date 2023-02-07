@@ -24,7 +24,7 @@ class AuthGetTokenAutenticarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "client_secret" => "required|string|min:36",
+            "cuil" => "required|min:11|max:11",
             "code" => "required|string",
         ];
     }
