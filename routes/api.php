@@ -37,6 +37,6 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 Route::middleware(['auth:authentication', 'scope:*'])->get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
 Route::middleware(['auth:authentication', 'scope:*'])->get('/v0/er/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
 
-Route::get('/v0/get-token-afip', [Controllers\AuthController::class, 'getToken']);
+Route::get('/v0/getTokenAfip/{cuil}/', [Controllers\AuthController::class, 'getToken']);
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
