@@ -6,6 +6,7 @@
 - [Bloques de funcionalidad](#bloques-de-funcionalidad)
     - [Autenticación](#autenticación)
         - [Registro](#registro-de-usuarios)
+        - [Confirmación de email](#confirmación-de-email)
 
 # Introducción
 
@@ -148,4 +149,43 @@ Ante cualquier error, el backend envía la respuesta predefinida por el framewor
 1. Usuario ya registrado
 1. CUIL inválido
 1. Datos inconsistentes
+1. Error interno del servidor
+
+# Confirmación de email
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+
+### Definición
+
+Se valida el token
+
+### Validaciones
+
+- token:
+    - Requerido: sí [Error: "El campo TOKEN es obligatorio"]
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con **ErrorDeValidacion** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se busca el usuario en la base de datos en funcion de su CUIL
+    - El usuario no existe: Responde con el error **Usuario no encontrado**
+    - El usuario existe: Continúa con el flujo
+1. Se verifica que el token provisto es el mismo que el almacenado en la base de datos
+    - El token no es válido: Responde con el error **Error token de confirmación (token inválido)**
+    - El token es válido: Continúa con el flujo
+1. Se actualiza el estado del usuario a "confirmado" y se le asigna un nivel de acceso (1 o 4)
+1. Se responde con el mensaje **Email de usuario confirmado**
+
+### Errores
+
+1. Error de validación
+1. Usuario no encontrado
+1. Error token de confirmación (token invalido)
 1. Error interno del servidor
