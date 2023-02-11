@@ -1,5 +1,7 @@
 # Documentación funcional
 
+Documentación funcional del proyecto. Entiéndase como la documentación no-técnica que provee amplia información sobre el funcionamiento de la aplicación pero nunca sobre su implementación detallada de dicho proceso. Si se desea conocer la implementación detallada de un proceso en particular, éste no es el lugar correcto y deberá dirigirse a la documentación técnica.
+
 ## Índice
 
 - [Introducción](#introducción)
@@ -8,6 +10,8 @@
         - [Registro](#registro-de-usuarios)
         - [Confirmación de email](#confirmación-de-email)
         - [Inicio de sesión](#inicio-de-sesión)
+        - [Solicitud de reinicio de contraseña](#solicitud-de-reinicio-de-contraseña)
+        - [Reinicio de contraseña](#reinicio-de-contraseña)
 
 # Introducción
 
@@ -15,6 +19,9 @@ Este documento debe ser leído por cualquier persona que quiera entender el func
 
 # Bloques de funcionalidad
 
+Los bloques de funcionalidad son las funcionalidades que componen la aplicación. Cada bloque de funcionalidad tiene su propia sección en este documento. Seguidamente se listan dichos bloques para mayor comodidad:
+
+- [Autenticación](#autenticación)
 # Autenticación
 
 Esta sección consta de 4 funcionalidades:
@@ -22,7 +29,8 @@ Esta sección consta de 4 funcionalidades:
 1. [Registro de usuarios](#registro-de-usuarios)
 1. [Confirmación de email](#confirmación-de-email)
 1. [Inicio de sesión](#inicio-de-sesión)
-1. [Recuperación de contraseña](#recuperación-de-contraseña)
+1. [Solicitud de reinicio de contraseña](#solicitud-de-reinicio-de-contraseña)
+1. [Reinicio de contraseña](#reinicio-de-contraseña)
 
 # Registro de usuarios
 
@@ -93,11 +101,11 @@ XXX - A completar
 
 ### Definición
 
-El backend se encarga de recibir los datos del formulario y validarlos. Si los datos son válidos, se crea un usuario en la base de datos y se envía un email de confirmación al usuario. Si los datos no son válidos, se envía un mensaje de error al frontend.
+El *backend* se encarga de recibir los datos del formulario y validarlos. Si los datos son válidos, se crea un usuario en la base de datos y se envía un email de confirmación al usuario. Si los datos no son válidos, se envía un mensaje de error al frontend.
 
 ### Validaciones
 
-Las validaciones se realizan en el backend y se envían al frontend en caso de que no se cumplan. Las validaciones son las siguientes:
+Las validaciones se realizan en el *backend* y se envían al frontend en caso de que no se cumplan. Las validaciones son las siguientes:
 
 - cuil: 
     - Requerido: sí [Error: "El campo CUIL es obligatorio"]
@@ -121,7 +129,7 @@ Las validaciones se realizan en el backend y se envían al frontend en caso de q
     - Requerido: sí [Error: "El campo Contraseña es obligatorio"]
     - Otras validaciones: ????????????
 
-Ante cualquier error, el backend envía el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+Ante cualquier error, el *backend* envía el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
 
 ### Flujo
 1. Recepción de datos del formulario
@@ -212,7 +220,7 @@ El usuario se valida con su CUIL y contraseña. Si los datos son correctos, (XXX
 - password:
     - Requerido: sí [Error: "El campo Contraseña es obligatorio"]
 
-Cualquier error, el backend responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+Cualquier error, el *backend* responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
 
 ### Flujo
 
@@ -239,3 +247,42 @@ Cualquier error, el backend responde con el error **Datos inválidos**, la respu
 1. Email no confirmado
 1. Error interno del sistema
 
+# Reinicio de contraseña
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+
+### Definición
+
+Cambia la contraseña del usuario si el token para dicho proceso es válido.
+
+### Validaciones
+
+- token:
+    - Requerido: sí [Error: "El campo TOKEN es obligatorio"]
+- new_password:
+    - Requerido: sí [Error: "El campo Nueva Contraseña es obligatorio"]
+
+Cualquier error, el *backend* responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se busca el usuario en la base de datos en funcion de su CUIL y se obtiene sus datos de autenticación
+1. Se verifica que el token provisto por el usuario es el mismo que el generado por el sistema
+    - El token no es válido: Responde con el error **Token inválido**
+    - El token es válido: Continúa con el flujo
+1. Se actualiza la contraseña del usuario
+1. Se responde con el mensaje **Contraseña actualizada**
+
+### Errores
+
+1. Datos inválidos
+1. Token inválido
+1. Error interno del sistema
