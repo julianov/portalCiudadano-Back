@@ -7,6 +7,7 @@
     - [Autenticación](#autenticación)
         - [Registro](#registro-de-usuarios)
         - [Confirmación de email](#confirmación-de-email)
+        - [Inicio de sesión](#inicio-de-sesión)
 
 # Introducción
 
@@ -16,7 +17,7 @@ Este documento debe ser leído por cualquier persona que quiera entender el func
 
 # Autenticación
 
-Esta sección consta de 4 etapas:
+Esta sección consta de 4 funcionalidades:
 
 1. [Registro de usuarios](#registro-de-usuarios)
 1. [Confirmación de email](#confirmación-de-email)
@@ -120,12 +121,12 @@ Las validaciones se realizan en el backend y se envían al frontend en caso de q
     - Requerido: sí [Error: "El campo Contraseña es obligatorio"]
     - Otras validaciones: ????????????
 
-Ante cualquier error, el backend envía la respuesta predefinida por el framework Laravel con el formato correspondiente.
+Ante cualquier error, el backend envía el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
 
 ### Flujo
 1. Recepción de datos del formulario
 1. Validación de datos
-    - Datos inválidos: Responde con *ErrorDeValidacion* (error predefinido por el framework Laravel)
+    - Datos inválidos: Responde con error de **DatosInvalidos** (error predefinido por el framework Laravel)
     - Datos válidos: Continúa con el flujo
 1. Verificar si el usuario ya existe en la base de datos
     - El usuario ya existe: Responde con el error **Usuario ya registrado**
@@ -145,7 +146,7 @@ Ante cualquier error, el backend envía la respuesta predefinida por el framewor
 
 ### Errores
 
-1. Error de validación
+1. Datos inválidos
 1. Usuario ya registrado
 1. CUIL inválido
 1. Datos inconsistentes
@@ -189,3 +190,52 @@ Se valida el token
 1. Usuario no encontrado
 1. Error token de confirmación (token invalido)
 1. Error interno del servidor
+
+# Inicio de sesión
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+
+### Definición
+
+El usuario se valida con su CUIL y contraseña. Si los datos son correctos, (XXX - A completar).
+
+### Validaciones
+
+- cuil: 
+    - Requerido: sí [Error: "El campo CUIL es obligatorio"]
+    - Longitud: 11 [Error: "El CUIL debe tener 11 dígitos"]
+    - Tipo: texto (numérico) [Error: "El CUIL debe ser de tipo texto (numérico)"]
+- password:
+    - Requerido: sí [Error: "El campo Contraseña es obligatorio"]
+
+Cualquier error, el backend responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se intenta autenticar al usuario
+    - El usuario no puede ser autenticado: Responde con el error **Credenciales erróneas**
+    - El usuario existe: Continúa con el flujo
+1. Se verifica que el usuario haya realizado el proceso de confirmación de registro mediante confirmación de email
+    - El usuario no ha confirmado su email: Responde con el error **Email no confirmado**
+    - El usuario ha confirmado su email: Continúa con el flujo
+1. Se obtiene el nivel de acceso del usuario
+    - El usuario no tiene nivel de acceso asignado: Responde con el error **Error interno del sistema** 
+    - El usuario tiene nivel de acceso: Continúa con el flujo
+1. Se genera un token de acceso en base al nivel de acceso del usuario con vencimiento de 1 (un) día
+1. Se responde con el token de acceso y la data necesaria en el *frontend*
+
+### Errores
+
+1. Datos inválidos
+1. Credenciales erróneas
+1. Email no confirmado
+1. Error interno del sistema
+
