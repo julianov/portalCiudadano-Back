@@ -1,7 +1,5 @@
 # Documentación funcional
 
-Documentación funcional del proyecto. Entiéndase como la documentación no-técnica que provee amplia información sobre el funcionamiento de la aplicación pero nunca sobre su implementación detallada de dicho proceso. Si se desea conocer la implementación detallada de un proceso en particular, éste no es el lugar correcto y deberá dirigirse a la documentación técnica.
-
 ## Índice
 
 - [Introducción](#introducción)
@@ -15,7 +13,7 @@ Documentación funcional del proyecto. Entiéndase como la documentación no-té
 
 # Introducción
 
-Este documento debe ser leído por cualquier persona que quiera entender el funcionamiento de la aplicación, de ser posible en su totalidad.
+Documentación funcional del proyecto. Entiéndase como la documentación **no-técnica** que provee amplia información sobre el funcionamiento de la aplicación pero bajo nignún concepto provee información detallada sobre su implementación. Si se desea conocer la implementación detallada de un proceso en particular, éste no es el lugar correcto y deberá dirigirse a la documentación **técnica** en su sección pertinente.
 
 # Bloques de funcionalidad
 
