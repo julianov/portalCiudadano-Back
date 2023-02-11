@@ -11,6 +11,7 @@ use App\Mail\EmailConfirmation;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Mail;
 
@@ -44,97 +45,126 @@ class UserService
 
 	}
 
-	public function signup(array $request)
-	{
-		try {
+	public function createUser(array $request){
+		$user = new User();
+		$user->cuil = $request['cuil'];
 
-			/*$dni = substr($request['cuil'], 2, -1);
-
-			if (str_starts_with($request['cuil'], "0")) {
-				$dni = substr($request['cuil'], 1);
-			}*/
-
-			$dni = self::getDniFromCuil($request['cuil']);
-
-			$rs = $this->wsService->checkUserCuil($dni);
-
-			if ($rs->getData()->status === true) {
-				// es una persona válida
-				if ($rs->getData()->prs_id == $request['prs_id']){
-
-					$user = new User();
-					$user->cuil = $request['cuil'];
-					$user->prs_id = $request['prs_id'];
-					$user->name = $request['nombre'];
-					$user->last_name = $request['apellido'];
-					$user->email = $request['email'];
-					$user->password = bcrypt($request['password']);
-					$user->save();
-
-
-					//corroboro si el user es un actor
-					$code=1; 
-					if($rs->getData()->Actor){
-						$code = random_int(10000, 99999);
-					}else{
-						$code = random_int(1000, 9999);
-					}
-
-					$table_name = "USER_VALIDATION_TOKEN";
-					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-					$values = $user->id.','.$code.',sysdate';
-					$result = self::insertarFila($table_name, $columns, $values);
-
-					if ($result){
-
-						Mail::to($user->email)
-						->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-							'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-
-						return response()->json([
-							'status' => true,
-							'message' => 'Email sent',
-						], 201);
-
-					}else{
-
-						$user->delete();
-
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
-
-					}
-
-				}else{
-
-					return response()->json([
-						'status' => false,
-						'message' => 'Data inconsistency'
-					], 422);
-
-				}
-					
-			} else {
-
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem or bad cuil'
-				], 503);
-
-			}
-
-		} catch (Throwable $th) {
-			throw new Exception("User creation failed ".$th, $th->getCode());
+		if ($request['prs_id'] != "NOTFOUND"){
+			$user->prs_id = $request['prs_id'];
 		}
+
+		$user->name = $request['nombre'];
+		$user->last_name = $request['apellido'];
+		$user->email = $request['email'];
+		$user->password = bcrypt($request['password']);
+		$user->save();
+		return $user;
 	}
 
 	public function getUser(string $cuil): User
 	{
 		$user = User::where('cuil', $cuil)->first();
 		return $user;
+	}
 
+	public function saveUserValToken(int $userId, bool $actor): int
+	{
+		$code=1; 
+		if($actor){
+			$code = random_int(10000, 99999);
+		}else{
+			$code = random_int(1000, 9999);
+		}
+
+		$table_name = "USER_VALIDATION_TOKEN";
+		$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+		$values = $userId.','.$code.',sysdate';
+		$result = self::insertarFila($table_name, $columns, $values);
+		if ($result){
+			return $code;
+		}else{
+			return 0;
+		}
+	}
+
+
+	public function signup(array $request)
+	{
+		try {
+
+			if ($request['prs_id'] == "NOTFOUND" ){
+
+				$user = self::createUser($request);
+
+				//$code = random_int(1000, 9999);
+				
+				$result_code = self::saveUserValToken($user->id, false);
+		
+				if ($result_code!=0){
+
+					Mail::to($user->email)
+					->queue((new EmailConfirmation($user, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
+						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+
+					return response()->json([
+						'status' => true,
+						'message' => 'Email sent',
+					], 201);
+
+				}else{
+
+					$user->delete();
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
+
+				}
+			}else{
+
+				$dni = self::getDniFromCuil($request['cuil']);
+				$rs = $this->wsService->checkUserCuil($dni);
+	
+				if ($rs->getData()->status === true) {
+					// es una persona válida
+					if ($rs->getData()->prs_id == $request['prs_id']){
+	
+						$user = self::createUser($request);
+				     	//corroboro si el user es un actor
+
+						$result_code = self::saveUserValToken($user->id, $rs->getData()->Actor);
+
+						if ($result_code!=0){
+							Mail::to($user->email)
+							->queue((new EmailConfirmation($user, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
+								'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
+							return response()->json([
+								'status' => true,
+								'message' => 'Email sent',
+							], 201);
+						}else{
+							$user->delete();
+							return response()->json([
+								'status' => false,
+								'message' => 'Internal server problem, please try again later'
+							], 503);
+						}
+					}else{
+						return response()->json([
+							'status' => false,
+							'message' => 'Data inconsistency'
+						], 422);
+					}
+				} else {
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem or bad cuil'
+					], 503);
+				}
+			}
+		} catch (Throwable $th) {
+			throw new Exception("User creation failed ".$th, $th->getCode());
+		}
 	}
 
 	public function setAuthType(User $user, string $auth_type, string $auth_level): bool
