@@ -11,7 +11,7 @@ Documentación funcional del proyecto. Entiéndase como la documentación no-té
         - [Confirmación de email](#confirmación-de-email)
         - [Inicio de sesión](#inicio-de-sesión)
         - [Solicitud de reinicio de contraseña](#solicitud-de-reinicio-de-contraseña)
-        - [Reinicio de contraseña](#reinicio-de-contraseña)
+        - [Reinicio de contraseña](#Reinicio-de-contraseña)
 
 # Introducción
 
@@ -246,6 +246,49 @@ Cualquier error, el *backend* responde con el error **Datos inválidos**, la res
 1. Credenciales erróneas
 1. Email no confirmado
 1. Error interno del sistema
+
+# Solicitud de reinicio de contraseña
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+
+### Definición
+
+Se valida el CUIL y se envía un email con un token para el reinicio de contraseña.
+
+### Validaciones
+
+- cuil: 
+    - Requerido: sí [Error: "El campo CUIL es obligatorio"]
+    - Longitud: 11 [Error: "El CUIL debe tener 11 dígitos"]
+    - Tipo: texto (numérico) [Error: "El CUIL debe ser de tipo texto (numérico)"]
+
+Cualquier error, el *backend* responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se busca el usuario y sus datos de autenticación en la base de datos en funcion de su CUIL
+1. Verificación de existencia previa de un token de reinicio de contraseña
+    - Existe un token de reinicio de contraseña: 
+        - Actualiza el token de reinicio de contraseña
+        - Continua con el flujo
+    - No existe un token de reinicio de contraseña: 
+        - Genera uno nuevo
+        - Continua con el flujo
+1. Envío de email con el token de reinicio de contraseña
+1. Responde con el mensaje **Email de reinicio de contraseña enviado**
+
+### Errores
+
+1. Datos inválidos
+1. Error interno del servidor
 
 # Reinicio de contraseña
 
