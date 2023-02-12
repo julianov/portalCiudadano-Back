@@ -8,12 +8,15 @@ use App\Models\UserContactInformation;
 use App\Repositories\UserRepository;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use App\Mail\EmailConfirmation;
+use App\Mail\ChangePasswordUrl;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Mail;
+use Illuminate\Support\Facades\Cache;
+
 
 class UserService
 {
@@ -87,6 +90,58 @@ class UserService
 		}
 	}
 
+	public function sendEmail(User $user, $result_code, string $type)
+	{
+		// Obtén la hora en que se envió el último correo electrónico al destinatario
+		$lastSentAt = Cache::get("last_email_sent_at_{$user->email}", 0);
+
+		// Configura un intervalo de tiempo (en segundos) para el envío de correos electrónicos
+		$interval = 300;
+
+		// Verifica si ha pasado el intervalo de tiempo desde el último envío de correo electrónico
+		if ( time() - $lastSentAt < $interval) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Email already sent. Wait ' . date("i:s", $interval - (time() - $lastSentAt)),
+			], 400);
+		}else{
+			// Envía el correo electrónico
+
+			if($type == "EmailVerification"){
+				// Tipo de correo para verficiar email
+
+				Mail::to($user->email)
+				->queue((new EmailConfirmation($user, $result_code))
+					->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+					->subject('Validación de correo e-mail'));
+
+				// Actualiza la hora en que se envió el último correo electrónico al destinatario
+				Cache::put("last_email_sent_at_{$user->email}", time(), 1440);
+
+				return response()->json([
+					'status' => true,
+					'message' => 'Email sent',
+					'email' => $user->email,
+				], 201);
+
+			}else{
+				// Tipo de correo para restaurar password 
+
+				Mail::to($user->email)
+					->queue((new ChangePasswordUrl($user, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
+						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+
+				Cache::put("last_email_sent_at_{$user->email}", time(), 1440);
+
+				return response()->json([
+					'status' => true,
+					'message' => 'Email sent',
+				], 201);
+			}		
+
+		}
+	}
+
 
 	public function signup(array $request)
 	{
@@ -102,14 +157,7 @@ class UserService
 		
 				if ($result_code!=0){
 
-					Mail::to($user->email)
-					->queue((new EmailConfirmation($user, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-
-					return response()->json([
-						'status' => true,
-						'message' => 'Email sent',
-					], 201);
+					return self::sendEmail($user, $result_code, "EmailVerification" );
 
 				}else{
 
@@ -135,13 +183,9 @@ class UserService
 						$result_code = self::saveUserValToken($user->id, $rs->getData()->Actor);
 
 						if ($result_code!=0){
-							Mail::to($user->email)
-							->queue((new EmailConfirmation($user, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
-								'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-							return response()->json([
-								'status' => true,
-								'message' => 'Email sent',
-							], 201);
+
+							return self::sendEmail($user, $result_code, "EmailVerification" );
+							
 						}else{
 							$user->delete();
 							return response()->json([
