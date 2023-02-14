@@ -6,10 +6,14 @@
 - [Bloques de funcionalidad](#bloques-de-funcionalidad)
     - [Autenticación](#autenticación)
         - [Registro](#registro-de-usuarios)
+        - [Autocomplete de Registro](#autocomplete-de-registro-de-usuarios)
         - [Confirmación de email](#confirmación-de-email)
+        - [Reenvío de email de confirmación](#reenvío-de-email-de-confirmación)
         - [Inicio de sesión](#inicio-de-sesión)
         - [Solicitud de reinicio de contraseña](#solicitud-de-reinicio-de-contraseña)
         - [Reinicio de contraseña](#Reinicio-de-contraseña)
+    - [Usuarios](#usuarios)
+        - [Verificación de CUIL](#verificación-de-cuil)
 
 # Introducción
 
@@ -20,82 +24,34 @@ Documentación funcional del proyecto. Entiéndase como la documentación **no-t
 Los bloques de funcionalidad son las funcionalidades que componen la aplicación. Cada bloque de funcionalidad tiene su propia sección en este documento. Seguidamente se listan dichos bloques para mayor comodidad:
 
 - [Autenticación](#autenticación)
+- [Usuarios](#usuarios)
 # Autenticación
 
-Esta sección consta de 4 funcionalidades:
+Esta sección consta de las siguientes funcionalidades:
 
 1. [Registro de usuarios](#registro-de-usuarios)
+1. [Autocomplete de Registro de usuarios](#autocomplete-de-registro-de-usuarios)
 1. [Confirmación de email](#confirmación-de-email)
+1. [Reenvío de email de confirmación](#reenvío-de-email-de-confirmación)
 1. [Inicio de sesión](#inicio-de-sesión)
 1. [Solicitud de reinicio de contraseña](#solicitud-de-reinicio-de-contraseña)
 1. [Reinicio de contraseña](#reinicio-de-contraseña)
 
 # Registro de usuarios
 
+
 ## Frontend
 
 ### Definición
 
-El proceso de registro consta de un formulario con los siguientes campos y condiciones:
-
-- CUIL: 
-    - Requerido: sí
-    - Tipo: texto
-    - Placeholder: "11000000001"
-    - Nombre del formulario: cuil
-    - Validaciones:
-        - Longitud: 11
-        - Tipo: numérico
-    - Mensaje de error: "El CUIL debe tener 11 dígitos"
-- (XXX - A completar): 
-    - Requerido: sí
-    - Tipo: texto
-    - Placeholder: (XXX - A completar)
-    - Nombre del formulario: prs_id
-    - Validaciones:
-        - (XXX - A completar)
-        - (XXX - A completar)
-    - Mensaje de error: (XXX - A completar)
-- Nombre: 
-    - Requerido: sí
-    - Tipo: texto
-    - Placeholder: "Juan"
-    - Nombre del formulario: nombre
-    - Validaciones:
-        - Longitud: (XXX - A completar)
-        - Tipo: alfabético
-    - Mensaje de error: (XXX - A completar)
-- Apellido: 
-    - Requerido: sí
-    - Tipo: texto
-    - Placeholder: "Perez"
-    - Nombre del formulario: apellido
-    - Validaciones:
-        - Longitud: (XXX - A completar)
-        - Tipo: alfabético
-    - Mensaje de error: (XXX - A completar)
-- Email: 
-    - Requerido: sí
-    - Tipo: email
-    - Placeholder: "ejemplo@ejemplo.com"
-    - Nombre del formulario: email
-    - Validaciones:
-        - Tipo: email
-    - Mensaje de error: (XXX - A completar)
-- Contraseña: 
-    - Requerido: sí
-    - Tipo: contraseña
-    - Placeholder: ""
-    - Nombre del formulario: password
-    - Validaciones:
-        - Longitud: (XXX - A completar)
-        - Tipo: texto
+XXX - A completar
 
 ### Flujo
 
 XXX - A completar
 
 ## Backend
+<!-- signup -->
 
 ### Definición
 
@@ -107,25 +63,16 @@ Las validaciones se realizan en el *backend* y se envían al frontend en caso de
 
 - cuil: 
     - Requerido: sí [Error: "El campo CUIL es obligatorio"]
-    - Longitud: 11 [Error: "El CUIL debe tener 11 dígitos"]
-    - Tipo: texto (numérico) [Error: "El CUIL debe ser de tipo texto (numérico)"]
 - prs_id: 
     - Requerido: sí [Error: "El campo prs_id es obligatorio"]
-    - Otras validaciones: ?????
 - nombre:
     - Requerido: sí [Error: "El campo Nombre es obligatorio"]
-    - Tipo: texto (alfabético) [Error: "El Nombre debe ser de tipo texto (alfabético)"]
-    - Otras validaciones: ????????????
 - apellido:
     - Requerido: sí [Error: "El campo Apellido es obligatorio"]
-    - Tipo: texto (alfabético) [Error: "El Apellido debe ser de tipo texto (alfabético)"]
-    - Otras validaciones: ????????????
 - email:
     - Requerido: sí [Error: "El campo Email es obligatorio"]
-    - Tipo: email [Error: "El Email debe ser de tipo email"]
 - password:
     - Requerido: sí [Error: "El campo Contraseña es obligatorio"]
-    - Otras validaciones: ????????????
 
 Ante cualquier error, el *backend* envía el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
 
@@ -158,6 +105,50 @@ Ante cualquier error, el *backend* envía el error **Datos inválidos**, la resp
 1. Datos inconsistentes
 1. Error interno del servidor
 
+# Autocomplete de Registro de usuarios
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+<!-- checkUserCuil -->
+### Definición
+
+Obtiene los datos personales del usuario en base a un CUIL del servicio de información de Entre Ríos.
+
+### Validaciones
+
+- cuil:
+    - Requerido: sí [Error: "El campo CUIL es obligatorio"]
+    - Longitud min: 11 [Error: "El CUIL debe tener 11 dígitos"]
+    - Longitud max: 11 [Error: "El CUIL debe tener 11 dígitos"]
+
+Cualquier error, el *backend* responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Verifico preexistencia de usuario con ese CUIL
+    - existe el usuario: error **Usuario registrado/existente**
+    - no existe el usuario => continua el flujo
+1. Se intenta buscar los campos en con el servicio de Entre Rios
+    - No existe una persona con ese CUIL: error **CUIL erroneo**
+    - Si existe una persona con ese CUIL: Continua el flujo
+1. Verifico si es Actor (actor significa funcionario público)
+    - No es actor: Retorna los datos y "actor:false"
+    - Si es actor: Retorna los datos y "actor:true"
+
+### Errores
+
+1. Datos inválidos
+1. Usuario registrado/existente
+1. CUIL erroneo
+1. Error interno del sistema
+
 # Confirmación de email
 
 ## Frontend
@@ -165,6 +156,7 @@ Ante cualquier error, el *backend* envía el error **Datos inválidos**, la resp
 XXX - A Completar
 
 ## Backend
+<!-- validateNewUser -->
 
 ### Definición
 
@@ -179,7 +171,7 @@ Se valida el token
 
 1. Recepción de datos del formulario
 1. Validación de datos
-    - Datos inválidos: Responde con **ErrorDeValidacion** (error predefinido por el framework Laravel)
+    - Datos inválidos: Responde con **Datos inválidos** (error predefinido por el framework Laravel)
     - Datos válidos: Continúa con el flujo
 1. Se busca el usuario en la base de datos en funcion de su CUIL
     - El usuario no existe: Responde con el error **Usuario no encontrado**
@@ -192,10 +184,46 @@ Se valida el token
 
 ### Errores
 
-1. Error de validación
+1. Datos inválidos
 1. Usuario no encontrado
 1. Error token de confirmación (token invalido)
 1. Error interno del servidor
+
+# Reenvío de email de confirmación
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+<!-- resendEmailVerification -->
+
+### Definición
+
+Se verifica que el usuario no esté confirmado y se envía un nuevo email de confirmación. Intervalo entre reenvíos: 5 minutos.
+
+### Validaciones
+
+- cuil:
+    - Requerido: sí [Error: "El campo CUIL es obligatorio"]
+    - Longitud min: 11 [Error: "El CUIL debe tener 11 dígitos"]
+    - Longitud max: 11 [Error: "El CUIL debe tener 11 dígitos"]
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se busca el usuario en la base de datos en funcion de su CUIL
+    - El usuario no existe: Responde con el error **Cuil inválido**
+    - El usuario existe: Continúa con el flujo
+1. Se verifica que el usuario no esté confirmado
+    - El usuario está confirmado: Responde con **El usuario ya está confirmado**
+    - El usuario no está confirmado: Continúa con el flujo
+1. Se verifica el tipo de usuario y se genera un token de confirmación
+1. Se guarda el token en la base de datos
+1. Se envía un email de confirmación al usuario
 
 # Inicio de sesión
 
@@ -204,6 +232,7 @@ Se valida el token
 XXX - A Completar
 
 ## Backend
+<!-- login -->
 
 ### Definición
 
@@ -248,10 +277,10 @@ Cualquier error, el *backend* responde con el error **Datos inválidos**, la res
 # Solicitud de reinicio de contraseña
 
 ## Frontend
-
 XXX - A Completar
 
 ## Backend
+<!-- passwordResetValidation -->
 
 ### Definición
 
@@ -295,6 +324,7 @@ Cualquier error, el *backend* responde con el error **Datos inválidos**, la res
 XXX - A Completar
 
 ## Backend
+<!-- passwordReset -->
 
 ### Definición
 
@@ -327,3 +357,58 @@ Cualquier error, el *backend* responde con el error **Datos inválidos**, la res
 1. Datos inválidos
 1. Token inválido
 1. Error interno del sistema
+
+# Usuarios
+
+Esta sección consta de las siguientes funcionalidades:
+
+1. [Obtención de los datos personales](#obtención-de-los-datos-personales)
+1. [Eliminar cuenta](#eliminar-cuenta)
+
+# Actualización de los datos personales
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+<!-- personalData -->
+
+### Definición
+
+Verifica si el CUIL provisto por el usuario es válido.
+
+### Validaciones
+
+- cuil:
+    - Requerido: sí [Error: "El campo CUIL es obligatorio"]
+    - Tipo: texto (numérico) [Error: "El CUIL debe ser de tipo texto (numérico)"]
+    - Longitud: 11 [Error: "El CUIL debe tener 11 dígitos"]
+
+Cualquier error, el *backend* responde con el error **Datos inválidos**, la respuesta predefinida por el framework Laravel con el formato correspondiente.
+
+### Flujo
+
+1. Recepción de datos del formulario
+1. Validación de datos
+    - Datos inválidos: Responde con error **Datos inválidos** (error predefinido por el framework Laravel)
+    - Datos válidos: Continúa con el flujo
+1. Se verifica que el CUIL provisto por el usuario sea válido
+
+### Errores
+
+1. Datos inválidos
+1. Error interno del sistema
+
+# Eliminar usuario
+
+## Frontend
+
+XXX - A Completar
+
+## Backend
+<!-- eliminarUser -->
+
+### Definición
+
+Elimina la cuenta del usuario. (Esta funcionalidad es unicamente para **TESTING** y deberá ser eliminada en producción)
