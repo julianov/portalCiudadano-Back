@@ -30,7 +30,7 @@ class EntreRiosWSService
 		if ($persona != "bad cuil"){
 			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
 			$response = new CheckUserCuilResponse(true, $persona, $actor);
-			$is_actor=false; 
+			$is_actor=false;
 			if ($response->getActor()->getEntId()!=null){
 				$is_actor=true;
 			}
@@ -40,7 +40,7 @@ class EntreRiosWSService
 				"prs_id" => $response->getUser()->getid(),
 				"Cuil" => $response->getUser()->getCuil(),
 				"Nombres" => $response->getUser()->getNombres(),
-				"Apellido" => $response->getUser()->getApellido(), 
+				"Apellido" => $response->getUser()->getApellido(),
 				"Actor" => $is_actor
 			]);
 		}else{
@@ -50,7 +50,7 @@ class EntreRiosWSService
 			], 422);
 		}
 	}
-	
+
 	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
 	{
 		$url = "consultaPF/".$dni;
@@ -71,8 +71,7 @@ class EntreRiosWSService
 
 	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse|string
 	{
-		$sexo_var = "'".$sexo;
-		$url = "consultaBduActorEntidad/".$dni."/".$sexo_var."'";
+		$url = "consultaBduActorEntidad/$dni./'$sexo'";
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
