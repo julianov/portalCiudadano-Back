@@ -15,9 +15,9 @@ class EntreRiosWSService
 	private readonly string $authToken;
 
 	public function __construct()
-	{
-		$this->baseUrl = "https://apps.entrerios.gov.ar/wsEntreRios/";
-		$this->authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c3VhcmlvIjoid3NVVE4iLCJpYXQiOjE2NzE2Mzc1NjAsImV4cCI6MTcwMzE3MzU2MCwic2lzdGVtYSI6IjIyIn0.7Ta6rtdsURlo2ccUk15WpYd5tX60If2mBcpsr2Kx5_o";
+	{ 
+		$this->baseUrl = env('BASEURL_ERWS');
+		$this->authToken = env('AUTHTOKEN_ERWS');
 	}
 
 	/**
