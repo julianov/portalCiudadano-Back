@@ -132,7 +132,7 @@ class UserController extends Controller
 
 						$user->email_verified_at = Carbon::now();
 						$user->save();
-						
+
 						$resgitered=false;
 						if($json->VAL_TOKEN > 9999) {
 							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_4");
