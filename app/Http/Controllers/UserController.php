@@ -338,7 +338,9 @@ class UserController extends Controller
 
 		$user = User::where('cuil', $validated['cuil'])->first();
 
-		$code = random_int(1000, 9999);
+		if ($user) {
+
+			$code = random_int(1000, 9999);
 
 		$column_name = "USER_ID";
 		$column_value = $user->id;
@@ -356,16 +358,6 @@ class UserController extends Controller
 			if ($result) {
 
 				return $this->userService->sendEmail($user, $code, "PasswordReset" );
-
-
-				/*Mail::to($user->email)
-					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
-
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);*/
 
 			} else {
 
@@ -387,16 +379,6 @@ class UserController extends Controller
 
 				return $this->userService->sendEmail($user, $code, "PasswordReset" );
 
-
-			/*	Mail::to($user->email)
-					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
-
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);*/
-
 			} else {
 
 				return response()->json([
@@ -406,6 +388,16 @@ class UserController extends Controller
 			}
 
 		}
+
+		}else {
+
+			return response()->json([
+				'status' => false,
+				'message' => 'User not found'
+			], 404);
+
+		}
+		
 
 	}
 
