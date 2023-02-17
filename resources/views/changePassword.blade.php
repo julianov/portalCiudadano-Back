@@ -5,7 +5,7 @@
         <meta name="description" content="Our first page">
         <meta name="keywords" content="html tutorial template">
          <style>
-            #btn_validar_email{
+            #btn_cambiar_pass{
                 border:solid 1px #799f4f;
                 background:#799f4f;
                 border-radius: 50px;
@@ -55,7 +55,7 @@
                         <h1>{{$user->name }} {{$user->last_name}}</h1>
                         <h2>PARA CAMBIAR LA CONTRASEÑA PRESIONE EL SIGUIENTE ENLACE</h2>
                         <br>
-                        <a id="btn_cambiar_pass" href="{{'https://ciudadano-digital-er.web.app/reiniciarcontraseña?token=' . $mixto  }}">
+                        <a id="btn_cambiar_pass" href="{{'https://ciudadano-digital-er.web.app/passwordreset?token=' . $mixto  }}">
                             <p id="btn_validar_email_txt">CAMBIAR PASSWORD</p>
                         </a> 
                         <br>
