@@ -412,6 +412,7 @@ class UserController extends Controller
 		$cuil = explode('/', $aux)[0];
 		$token = explode('/', $aux)[1];
 		$user = User::where('cuil', $cuil)->first();
+		
 		$column_name = "USER_ID";
 		$column_value = $user->id;
 		$table = "USER_VALIDATION_TOKEN";
