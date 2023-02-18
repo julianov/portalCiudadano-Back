@@ -150,7 +150,7 @@ return [
 
 	'oracle' => [
 		'driver' => 'oracle',
-		'tns' => env('DB_TNS', ''),
+		'tns' => env('DB_TNS', '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=database)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=portal)))'),
 		'host' => env('DB_HOST', 'oracle_db'),
 		'port' => env('DB_PORT', '1521'),
 		'database' => env('DB_DATABASE', 'XEPDB1'),

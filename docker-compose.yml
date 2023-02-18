@@ -32,19 +32,15 @@ services:
             app-network:
     database:
         restart: always
-        build:
-            context: Dockerfiles/oracle
-            dockerfile: Dockerfile
         container_name: oracle-db
-        environment:
-            ORACLE_PASSWORD: oracle
-            ORACLE_ALLOW_REMOTE: true
-            ORACLE_DISABLE_ASYNCH_IO: true
-            ORACLE_ENABLE_XDB: true
+        image: gvenzl/oracle-xe
         ports:
-            - "1521:1521"
-            - "5500:5500"
-            - "8081:8080"
+          - "1523:1521"
+        environment:
+          - ORACLE_PASSWORD=oracle123
+          - ORACLE_DATABASE=portal
+          - APP_USER=portalDba
+          - APP_USER_PASSWORD=portalDba123
         volumes:
             - oracle-data:/opt/oracle/oradata
         networks:
