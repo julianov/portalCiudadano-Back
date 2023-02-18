@@ -9,8 +9,6 @@ use App\Http\Requests\User\PasswordResetRequest;
 use App\Http\Requests\User\PersonalDataRequest;
 use App\Http\Requests\User\ValidateNewUserRequest;
 use App\Http\Services\UserService;
-use App\Mail\ChangePasswordUrl;
-use App\Mail\EmailConfirmation;
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
@@ -134,7 +132,7 @@ class UserController extends Controller
 
 						$user->email_verified_at = Carbon::now();
 						$user->save();
-						
+
 						$resgitered=false;
 						if($json->VAL_TOKEN > 9999) {
 							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_4");
@@ -340,7 +338,9 @@ class UserController extends Controller
 
 		$user = User::where('cuil', $validated['cuil'])->first();
 
-		$code = random_int(1000, 9999);
+		if ($user) {
+
+			$code = random_int(1000, 9999);
 
 		$column_name = "USER_ID";
 		$column_value = $user->id;
@@ -357,14 +357,7 @@ class UserController extends Controller
 
 			if ($result) {
 
-				Mail::to($user->email)
-					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
-
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);
+				return $this->userService->sendEmail($user, $code, "PasswordReset" );
 
 			} else {
 
@@ -384,14 +377,7 @@ class UserController extends Controller
 
 			if ($res) {
 
-				Mail::to($user->email)
-					->queue((new ChangePasswordUrl($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
-
-				return response()->json([
-					'status' => true,
-					'message' => 'Email sent',
-				], 201);
+				return $this->userService->sendEmail($user, $code, "PasswordReset" );
 
 			} else {
 
@@ -402,6 +388,16 @@ class UserController extends Controller
 			}
 
 		}
+
+		}else {
+
+			return response()->json([
+				'status' => false,
+				'message' => 'User not found'
+			], 404);
+
+		}
+		
 
 	}
 
@@ -416,6 +412,7 @@ class UserController extends Controller
 		$cuil = explode('/', $aux)[0];
 		$token = explode('/', $aux)[1];
 		$user = User::where('cuil', $cuil)->first();
+		
 		$column_name = "USER_ID";
 		$column_value = $user->id;
 		$table = "USER_VALIDATION_TOKEN";
@@ -468,13 +465,9 @@ class UserController extends Controller
 				$json = $this->userService->getRow($table, $column_name, $column_value);
 
 				if($json->VAL_TOKEN>9999){
-
 					$code = random_int(10000, 99999);
-
 				}else{
-
 					$code = random_int(1000, 9999);
-
 				}
 
 				$table_name = "USER_VALIDATION_TOKEN";
@@ -484,7 +477,9 @@ class UserController extends Controller
 
 				if ($result){
 
-					Mail::to($user->email)
+					return $this->userService->sendEmail($user, $code, "EmailVerification" );
+
+					/*Mail::to($user->email)
 					->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
 						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
 
@@ -493,7 +488,7 @@ class UserController extends Controller
 						'message' => 'Email sent',
 						'email' => $user->email,
 					], 201);
-
+*/
 				}else{
 
 					return response()->json([
