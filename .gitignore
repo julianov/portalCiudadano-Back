@@ -18,3 +18,4 @@ yarn-error.log
 /_ide_helper.php
 /bootstrap/cache/*.php
 composer.lock
+Dockerfiles/vpn/config
