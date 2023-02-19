@@ -15,7 +15,10 @@ RUN apt-get update && apt-get install -y \
     unzip \
     vim \
     libaio1 \
-    libaio-dev
+    libaio-dev \
+    iputils-ping \
+    openconnect \
+    openvpn
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
