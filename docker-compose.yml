@@ -24,10 +24,11 @@ services:
             context: Dockerfiles/php
             dockerfile: Dockerfile
         container_name: backend
+        network_mode: service:vpn-forti
         volumes:
             - ./:/var/www
             - ./Dockerfiles/php/php.ini:/usr/local/etc/php/conf.d/local.ini
-
+            - ./Dockerfiles/vpn/config:/etc/openconnect/config
         networks:
             app-network:
     database:
@@ -45,6 +46,21 @@ services:
             - oracle-data:/opt/oracle/oradata
         networks:
             app-network:
+    vpn-forti:
+        restart: always
+        container_name: vpn-forti
+        privileged: true
+        env_file:
+            - .env
+        build:
+            context: ./Dockerfiles/vpn
+            dockerfile: Dockerfile
+        command:
+            - /bin/bash
+            - -c
+            - "sleep 5 && echo $OPENCONNECT_PASSWORD | openconnect -u=${OPENCONNECT_USER} --protocol=fortinet portal1.entrerios.gov.ar:10443 --passwd-on-stdin"
+        networks:
+            - app-network
 networks:
     app-network:
 
