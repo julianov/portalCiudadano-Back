@@ -48,17 +48,18 @@ services:
             app-network:
     vpn-forti:
         restart: always
-        container_name: vpn-forti
         privileged: true
-        env_file:
-            - .env
+        container_name: vpn-forti
         build:
-            context: ./Dockerfiles/vpn
+            context: Dockerfiles/vpn
             dockerfile: Dockerfile
+        tty: true
         command:
-            - /bin/bash
+            - /bin/sh
             - -c
-            - "sleep 5 && echo $OPENCONNECT_PASSWORD | openconnect -u=${OPENCONNECT_USER} --protocol=fortinet portal1.entrerios.gov.ar:10443 --passwd-on-stdin"
+            - "openfortivpn -c /etc/openfortivpn/config"
+        volumes:
+            - ./Dockerfiles/vpn/config:/etc/openfortivpn/config
         networks:
             - app-network
 networks:

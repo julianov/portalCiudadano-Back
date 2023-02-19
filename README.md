@@ -74,3 +74,12 @@ Levantar servidor
 ```bash 
 docker compose exec backend php artisan serve
 ```
+
+## Conección a la base de datos mediante la VPN
+
+* Para conectarse a la base de datos mediante la VPN, tenemos que ejecutar el siguiente comando
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose-vpn.yml up -d
+```
+
