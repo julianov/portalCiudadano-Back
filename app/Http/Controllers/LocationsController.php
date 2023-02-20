@@ -16,7 +16,7 @@ class LocationsController extends Controller
 		$this->wsService = $wsService;
 	}
 
-    public function getLocations():JsonResponse
+    public function getLocations()
     {
             
         $rs = $this->wsService->getERLocations();

@@ -142,6 +142,36 @@ class UserService
 		}
 	}
 
+	public function sendEmailForNewEmail(User $user, $result_code, string $newEmail){
+
+		$lastSentAt = Cache::get("last_email_sent_at_{$user->email}", 0);
+
+		// Configura un intervalo de tiempo (en segundos) para el envío de correos electrónicos
+		$interval = 300;
+
+		// Verifica si ha pasado el intervalo de tiempo desde el último envío de correo electrónico
+		if ( time() - $lastSentAt < $interval) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Email already sent. Wait ' . date("i:s", $interval - (time() - $lastSentAt)),
+			], 400);
+		}else{
+
+			Mail::to($user->email)
+			->queue((new ChangeUserEmail($user, $newEmail, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
+				'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+
+			Cache::put("last_email_sent_at_{$user->email}", time(), 1440);
+
+			return response()->json([
+				'status' => true,
+				'message' => 'Email sent',
+			], 201);
+		}
+		
+	}
+
+
 
 	public function signup(array $request)
 	{

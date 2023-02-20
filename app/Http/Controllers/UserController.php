@@ -479,16 +479,6 @@ class UserController extends Controller
 
 					return $this->userService->sendEmail($user, $code, "EmailVerification" );
 
-					/*Mail::to($user->email)
-					->queue((new EmailConfirmation($user, $code))->from('ciudadanodigital@entrerios.gov.ar',
-						'Ciudadano Digital - Provincia de Entre Ríos')->subject('Validación de correo e-mail'));
-
-					return response()->json([
-						'status' => true,
-						'message' => 'Email sent',
-						'email' => $user->email,
-					], 201);
-*/
 				}else{
 
 					return response()->json([
@@ -514,6 +504,126 @@ class UserController extends Controller
 
 		}
 
+	}
+
+
+
+
+	public function changeNewEmailValidation (ChangeUserEmailValidation $request): JsonResponse
+	{
+
+		$validated = $request->validated();
+
+
+		$user = User::where('cuil', $validated['cuil'])->first();
+
+		if ($user) {
+
+			$code = random_int(1000, 9999);
+
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+			$table = "USER_VALIDATION_TOKEN";
+			$json = $this->userService->getRow($table, $column_name, $column_value);
+
+			if (empty($json)) {
+
+				$table_name = "USER_VALIDATION_TOKEN";
+				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+				$values = $user->id.','.$code.',sysdate';
+
+				$result = $this->userService->insertarFila($table_name, $columns, $values);
+
+				if ($result) {
+
+					return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+
+				} else {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
+
+				}
+
+			} else {
+
+				$table_name = "USER_VALIDATION_TOKEN";
+				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+				$values = 'USER_ID ='.$user->id;
+				$res = $this->userService->updateFila($table_name, $columns, $values);
+
+				if ($res) {
+
+					return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+
+				} else {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
+				}
+
+			}
+
+			}else {
+
+				return response()->json([
+					'status' => false,
+					'message' => 'User not found'
+				], 404);
+
+			}
+		
+	}
+
+
+	public function changeEmail(PasswordResetRequest $request): JsonResponse
+	{
+
+		$validated = $request->validated();
+		$aux = Crypt::decrypt($validated['token']);
+		$cuil = explode('/', $aux)[0];
+		$new_email = explode('/', $aux)[1];
+		$token = explode('/', $aux)[2];
+		$user = User::where('cuil', $cuil)->first();
+		
+		$column_name = "USER_ID";
+		$column_value = $user->id;
+		$table = "USER_VALIDATION_TOKEN";
+		$json = $this->userService->getRow($table, $column_name, $column_value);
+
+		if (!empty($json)) {
+
+			if ($json->VAL_TOKEN == $token) {
+
+				$user->email = $new_email;
+				$user->save();
+
+				return response()->json([
+					'status' => true,
+					'message' => 'Email changed',
+				], 201);
+
+			} else {
+
+				return response()->json([
+					'status' => false,
+					'message' => 'Bad validation code',
+				], 201);
+
+			}
+
+		} else {
+
+			return response()->json([
+				'status' => false,
+				'message' => 'Internal server problem, please try again later'
+			], 503);
+
+		}
 	}
 
 

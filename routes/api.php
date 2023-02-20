@@ -31,6 +31,10 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 
 	Route::get('/resend/email/verification', [Controllers\UserController::class, 'resendEmailVerificacion']);
 
+	Route::get('/change/email/validation', [Controllers\UserController::class, 'changeNewEmailValidation']);
+	Route::post('/change/email/', [Controllers\UserController::class, 'changeEmail']);
+
+
 });
 
 
