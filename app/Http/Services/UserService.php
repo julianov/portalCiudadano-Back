@@ -286,12 +286,32 @@ class UserService
 
 		//$fecha = explode("/", $request['birthday']);
 
-		$table_name = "USER_CONTACT";
-		$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
-		$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
-		$res= self::insertarFila($table_name, $columns, $values);
+		$column_name = "USER_ID";
+		$column_value = $user->id;
+		$table = "USER_CONTACT";
+		$json_user_contact= self::getRow($table, $column_name, $column_value);
 
-		return $res;
+
+		if(empty($json_user_contact)){
+
+			$table_name = "USER_CONTACT";
+			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
+			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
+			$res= self::insertarFila($table_name, $columns, $values);
+	
+			return $res;
+
+		}else{
+
+			$table_name = "USER_CONTACT";
+			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
+			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
+			$res= self::updateFila($table_name, $columns, $values);
+
+			return $res;
+
+		}
+
 
 	}
 
