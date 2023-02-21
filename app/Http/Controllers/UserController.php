@@ -280,7 +280,7 @@ class UserController extends Controller
 
 				$res_user_contact = $this->userService->setUserContact($user, $validated);
 
-				if ($res_user_contact) {
+				if ($res_user_contact =="inserted") {
 
 					$res_user_auth = $this->userService->setAuthType($user, "REGISTRADO", "level_2");
 
@@ -300,6 +300,13 @@ class UserController extends Controller
 						], 503);
 
 					}
+				}else if($res_user_contact =="updated"){
+
+					return response()->json([
+						'status' => true,
+						'message' => 'User contact data saved'
+					]);
+
 				} else {
 
 					return response()->json([
@@ -506,9 +513,6 @@ class UserController extends Controller
 
 	}
 
-
-
-
 	public function changeNewEmailValidation (ChangeUserEmailValidation $request): JsonResponse
 	{
 
@@ -578,7 +582,6 @@ class UserController extends Controller
 			}
 		
 	}
-
 
 	public function changeEmail(PasswordResetRequest $request): JsonResponse
 	{

@@ -298,8 +298,14 @@ class UserService
 			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
 			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
 			$res= self::insertarFila($table_name, $columns, $values);
+
+			if($res){
+				return "inserted";
+			}else{
+				return "DB internal problem";
+			}
 	
-			return $res;
+			//return $res;
 
 		}else{
 
@@ -309,7 +315,12 @@ class UserService
 
 			$res= self::updateFila($table_name, $columns, $values);
 
-			return $res;
+			//return $res;
+			if($res){
+				return "updated";
+			}else{
+				return "DB internal problem";
+			}
 
 		}
 
