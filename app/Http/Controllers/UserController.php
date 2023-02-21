@@ -342,52 +342,52 @@ class UserController extends Controller
 
 			$code = random_int(1000, 9999);
 
-		$column_name = "USER_ID";
-		$column_value = $user->id;
-		$table = "USER_VALIDATION_TOKEN";
-		$json = $this->userService->getRow($table, $column_name, $column_value);
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+			$table = "USER_VALIDATION_TOKEN";
+			$json = $this->userService->getRow($table, $column_name, $column_value);
 
-		if (empty($json)) {
+			if (empty($json)) {
 
-			$table_name = "USER_VALIDATION_TOKEN";
-			$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-			$values = $user->id.','.$code.',sysdate';
+				$table_name = "USER_VALIDATION_TOKEN";
+				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+				$values = $user->id.','.$code.',sysdate';
 
-			$result = $this->userService->insertarFila($table_name, $columns, $values);
+				$result = $this->userService->insertarFila($table_name, $columns, $values);
 
-			if ($result) {
+				if ($result) {
 
-				return $this->userService->sendEmail($user, $code, "PasswordReset" );
+					return $this->userService->sendEmail($user, $code, "PasswordReset" );
 
-			} else {
+				} else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem, please try again later'
-				], 503);
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
 
-			}
-
-		} else {
-
-			$table_name = "USER_VALIDATION_TOKEN";
-			$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
-			$values = 'USER_ID ='.$user->id;
-			$res = $this->userService->updateFila($table_name, $columns, $values);
-
-			if ($res) {
-
-				return $this->userService->sendEmail($user, $code, "PasswordReset" );
+				}
 
 			} else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem, please try again later'
-				], 503);
-			}
+				$table_name = "USER_VALIDATION_TOKEN";
+				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+				$values = 'USER_ID ='.$user->id;
+				$res = $this->userService->updateFila($table_name, $columns, $values);
 
-		}
+				if ($res) {
+
+					return $this->userService->sendEmail($user, $code, "PasswordReset" );
+
+				} else {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Internal server problem, please try again later'
+					], 503);
+				}
+
+			}
 
 		}else {
 
