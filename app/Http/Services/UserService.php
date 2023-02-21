@@ -281,7 +281,7 @@ class UserService
 
 	}
 
-	public function setUserContact(User $user, array $request): bool
+	public function setUserContact(User $user, array $request): string
 	{
 
 		//$fecha = explode("/", $request['birthday']);
