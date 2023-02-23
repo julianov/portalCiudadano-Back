@@ -26,17 +26,22 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::post('/login', [Controllers\UserController::class, 'login']);
 	Route::get('/password/reset/validation', [Controllers\UserController::class, 'passwordResetValidation']);
 	Route::post('/password/reset', [Controllers\UserController::class, 'passwordReset']);
-    Route::middleware(['auth:authentication','scope:*'])->post('/personal/data', [Controllers\UserController::class,'personalData']);
+    Route::middleware(['auth:authentication'])->post('/personal/data', [Controllers\UserController::class,'personalData']);
 	Route::delete('/delete/user', [Controllers\UserController::class, 'eliminarUser']); //solo para testing.
 
 	Route::get('/resend/email/verification', [Controllers\UserController::class, 'resendEmailVerificacion']);
 
+	Route::middleware(['auth:authentication'])->get('/change/email/validation', [Controllers\UserController::class, 'changeNewEmailValidation']);
+	Route::middleware(['auth:authentication'])->post('/change/email/', [Controllers\UserController::class, 'changeEmail']);
+
+
 });
 
 
-Route::middleware(['auth:authentication', 'scope:*'])->get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
-Route::middleware(['auth:authentication', 'scope:*'])->get('/v0/er/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
+Route::middleware(['auth:authentication'])->get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
+Route::middleware(['auth:authentication'])->get('/v0/er/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
 
 Route::get('/v0/getTokenAfip/{cuil}/', [Controllers\AuthController::class, 'getToken']);
+
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);

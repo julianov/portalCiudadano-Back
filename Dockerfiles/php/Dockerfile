@@ -72,5 +72,6 @@ USER ${USER}
 COPY --chown=${USER}:${GROUP} . .
 
 EXPOSE 9000
+EXPOSE 8000
 
 CMD ["php-fpm"]

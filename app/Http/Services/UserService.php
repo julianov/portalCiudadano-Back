@@ -142,6 +142,36 @@ class UserService
 		}
 	}
 
+	public function sendEmailForNewEmail(User $user, $result_code, string $newEmail){
+
+		$lastSentAt = Cache::get("last_email_sent_at_{$user->email}", 0);
+
+		// Configura un intervalo de tiempo (en segundos) para el envío de correos electrónicos
+		$interval = 300;
+
+		// Verifica si ha pasado el intervalo de tiempo desde el último envío de correo electrónico
+		if ( time() - $lastSentAt < $interval) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Email already sent. Wait ' . date("i:s", $interval - (time() - $lastSentAt)),
+			], 400);
+		}else{
+
+			Mail::to($user->email)
+			->queue((new ChangeUserEmail($user, $newEmail, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
+				'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+
+			Cache::put("last_email_sent_at_{$user->email}", time(), 1440);
+
+			return response()->json([
+				'status' => true,
+				'message' => 'Email sent',
+			], 201);
+		}
+		
+	}
+
+
 
 	public function signup(array $request)
 	{
@@ -251,17 +281,49 @@ class UserService
 
 	}
 
-	public function setUserContact(User $user, array $request): bool
+	public function setUserContact(User $user, array $request): string
 	{
 
-		$fecha = explode("/", $request['birthday']);
+		//$fecha = explode("/", $request['birthday']);
 
-		$table_name = "USER_CONTACT";
-		$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
-		$values = $user->id.",'". $fecha[0]."-".$fecha[1]."-".$fecha[2]."','".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
-		$res= self::insertarFila($table_name, $columns, $values);
+		$column_name = "USER_ID";
+		$column_value = $user->id;
+		$table = "USER_CONTACT";
+		$json_user_contact= self::getRow($table, $column_name, $column_value);
 
-		return $res;
+
+		if(empty($json_user_contact)){
+
+			$table_name = "USER_CONTACT";
+			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
+			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
+			$res= self::insertarFila($table_name, $columns, $values);
+
+			if($res){
+				return "inserted";
+			}else{
+				return "DB internal problem";
+			}
+	
+			//return $res;
+
+		}else{
+
+			$table_name = "USER_CONTACT";		
+			$columns = "BIRTHDAY = TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'), CELLPHONE_NUMBER = '".$request['cellphone_number']."', DEPARTMENT_ID = '".$request['department_id']."', LOCALITY_ID = '".$request['locality_id']."', ADDRESS_STREET = '".$request['address_street']."', ADDRESS_NUMBER = '".$request['address_number']."', APARTMENT = '".$request['apartment']."', UPDATED_AT = SYSDATE";
+			$values = "USER_ID = ".$user->id;
+
+			$res= self::updateFila($table_name, $columns, $values);
+
+			//return $res;
+			if($res){
+				return "updated";
+			}else{
+				return "DB internal problem";
+			}
+
+		}
+
 
 	}
 

@@ -4,7 +4,7 @@ namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CheckUserCuilRequest extends FormRequest
+class ChangeUserEmailValidation extends FormRequest
 {
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -25,6 +25,7 @@ class CheckUserCuilRequest extends FormRequest
 	{
 		return [
 			'cuil' => 'required|min:11|max:11',
+            'new_email' => 'required'
 		];
 	}
 	/**
@@ -36,6 +37,7 @@ class CheckUserCuilRequest extends FormRequest
 			'cuil.required' => 'El CUIL es requerido',
 			'cuil.min' => 'El CUIL debe tener 11 caracteres',
 			'cuil.max' => 'El CUIL debe tener 11 caracteres',
+            'new_email.required' => 'El nuevo email es requerido',
 		];
 	}
 }
