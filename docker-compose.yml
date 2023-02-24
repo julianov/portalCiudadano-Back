@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+    webserver:
+        image: nginx:latest
+        container_name: webserver
+        restart: always
+        depends_on:
+            - backend
+        ports:
+            - "8443:8443"
+        volumes:
+            - ./:/var/www
+            - ./Dockerfiles/nginx:/etc/nginx/conf.d
+            - /etc/letsencrypt:/etc/letsencrypt # Agregando este volumen para usar los certificados SSL/TLS
+        networks:
+            app-network:
+
+    backend:
+        restart: always
+        depends_on:
+            - database
+        build:
+            context: Dockerfiles/php
+            dockerfile: Dockerfile
+        container_name: backend
+        volumes:
+            - ./:/var/www
+            - ./Dockerfiles/php/php.ini:/usr/local/etc/php/conf.d/local.ini
+
+        networks:
+            app-network:
+    database:
+        restart: always
+        build:
+            context: Dockerfiles/oracle
+            dockerfile: Dockerfile
+        container_name: oracle-db
+        environment:
+            ORACLE_PASSWORD: oracle
+            ORACLE_ALLOW_REMOTE: true
+            ORACLE_DISABLE_ASYNCH_IO: true
+            ORACLE_ENABLE_XDB: true
+        ports:
+            - "1521:1521"
+            - "5500:5500"
+            - "8081:8080"
+        volumes:
+            - oracle-data:/opt/oracle/oradata
+        networks:
+            app-network:
+networks:
+    app-network:
+
+volumes:
+    app-data:
+    oracle-data:
