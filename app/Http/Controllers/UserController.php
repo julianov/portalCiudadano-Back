@@ -425,6 +425,7 @@ class UserController extends Controller
 		$table = "USER_VALIDATION_TOKEN";
 		$json = $this->userService->getRow($table, $column_name, $column_value);
 
+		dd($json->VAL_TOKEN."-".$token);
 		if (!empty($json)) {
 
 			if ($json->VAL_TOKEN == $token) {
