@@ -8,6 +8,8 @@ use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\PasswordResetRequest;
 use App\Http\Requests\User\PersonalDataRequest;
 use App\Http\Requests\User\ValidateNewUserRequest;
+use App\Http\Requests\User\ChangeUserEmailValidationRequest;
+use App\Http\Requests\User\ChangeUserEmailRequest;
 use App\Http\Services\UserService;
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
@@ -414,47 +416,57 @@ class UserController extends Controller
 	public function passwordReset(PasswordResetRequest $request): JsonResponse
 	{
 
-		$validated = $request->validated();
-		$aux = Crypt::decrypt($validated['token']);
-		$cuil = explode('/', $aux)[0];
-		$token = explode('/', $aux)[1];
-		$user = User::where('cuil', $cuil)->first();
-		
-		$column_name = "USER_ID";
-		$column_value = $user->id;
-		$table = "USER_VALIDATION_TOKEN";
-		$json = $this->userService->getRow($table, $column_name, $column_value);
+		try {
+			$validated = $request->validated();
+			$aux = Crypt::decrypt($validated['token']);
+			$cuil = explode('/', $aux)[0];
+			$token = explode('/', $aux)[1];
+			$user = User::where('cuil', $cuil)->first();
+			
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+			$table = "USER_VALIDATION_TOKEN";
+			$json = $this->userService->getRow($table, $column_name, $column_value);
 
-		dd($json->VAL_TOKEN."-".$token);
-		if (!empty($json)) {
+			dd($json->VAL_TOKEN."-".$token);
+			if (!empty($json)) {
 
-			if ($json->VAL_TOKEN == $token) {
+				if ($json->VAL_TOKEN == $token) {
 
-				$user->password = bcrypt($validated['new_password']);
-				$user->save();
+					$user->password = bcrypt($validated['new_password']);
+					$user->save();
 
-				return response()->json([
-					'status' => true,
-					'message' => 'Password changed',
-				], 201);
+					return response()->json([
+						'status' => true,
+						'message' => 'Password changed',
+					], 201);
+
+				} else {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Bad validation code',
+					], 201);
+
+				}
 
 			} else {
 
 				return response()->json([
 					'status' => false,
-					'message' => 'Bad validation code',
-				], 201);
+					'message' => 'Internal server problem, please try again later'
+				], 503);
 
 			}
 
-		} else {
-
+		}catch (DecryptException $e) {
 			return response()->json([
 				'status' => false,
-				'message' => 'Internal server problem, please try again later'
-			], 503);
-
+				'message' => 'Invalid token',
+			], 400);
 		}
+
+		
 	}
 
 	public function resendEmailVerificacion(CheckUserCuilRequest $request): JsonResponse
@@ -514,7 +526,7 @@ class UserController extends Controller
 
 	}
 
-	public function changeNewEmailValidation (ChangeUserEmailValidation $request): JsonResponse
+	public function changeNewEmailValidation (ChangeUserEmailValidationRequest $request): JsonResponse
 	{
 
 		$validated = $request->validated();
@@ -584,50 +596,60 @@ class UserController extends Controller
 		
 	}
 
-	public function changeEmail(PasswordResetRequest $request): JsonResponse
+	public function changeEmail(ChangeUserEmailRequest $request): JsonResponse
 	{
+		try{
 
-		$validated = $request->validated();
-		$aux = Crypt::decrypt($validated['token']);
-		$cuil = explode('/', $aux)[0];
-		$new_email = explode('/', $aux)[1];
-		$token = explode('/', $aux)[2];
-		$user = User::where('cuil', $cuil)->first();
-		
-		$column_name = "USER_ID";
-		$column_value = $user->id;
-		$table = "USER_VALIDATION_TOKEN";
-		$json = $this->userService->getRow($table, $column_name, $column_value);
+			$validated = $request->validated();
+			$aux = Crypt::decrypt($validated['token']);
+			$cuil = explode('/', $aux)[0];
+			$new_email = explode('/', $aux)[1];
+			$token = explode('/', $aux)[2];
+			$user = User::where('cuil', $cuil)->first();
+			
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+			$table = "USER_VALIDATION_TOKEN";
+			$json = $this->userService->getRow($table, $column_name, $column_value);
 
-		if (!empty($json)) {
+			if (!empty($json)) {
 
-			if ($json->VAL_TOKEN == $token) {
+				if ($json->VAL_TOKEN == $token) {
 
-				$user->email = $new_email;
-				$user->save();
+					$user->email = $new_email;
+					$user->save();
 
-				return response()->json([
-					'status' => true,
-					'message' => 'Email changed',
-				], 201);
+					return response()->json([
+						'status' => true,
+						'message' => 'Email changed',
+					], 201);
+
+				} else {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Bad validation code',
+					], 201);
+
+				}
 
 			} else {
 
 				return response()->json([
 					'status' => false,
-					'message' => 'Bad validation code',
-				], 201);
+					'message' => 'Internal server problem, please try again later'
+				], 503);
 
 			}
 
-		} else {
-
+		}catch (DecryptException $e) {
 			return response()->json([
 				'status' => false,
-				'message' => 'Internal server problem, please try again later'
-			], 503);
-
+				'message' => 'Invalid token',
+			], 400);
 		}
+
+		
 	}
 
 
