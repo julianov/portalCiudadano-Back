@@ -143,7 +143,7 @@ class UserService
 		}
 	}
 
-	public function sendEmailForNewEmail(User $user, $result_code, string $newEmail){
+	public function sendEmailForNewEmail(User $user, string $newEmail, $result_code){
 
 		$lastSentAt = Cache::get("last_email_sent_at_{$user->email}", 0);
 
@@ -158,9 +158,9 @@ class UserService
 			], 400);
 		}else{
 
-			Mail::to($user->email)
+			Mail::to($newEmail)
 			->queue((new ChangeUserEmail($user, $newEmail, $result_code))->from('ciudadanodigital@entrerios.gov.ar',
-				'Ciudadano Digital - Provincia de Entre Ríos')->subject('Restaurar contraseña'));
+				'Ciudadano Digital - Provincia de Entre Ríos')->subject('Cambio de email'));
 
 			Cache::put("last_email_sent_at_{$user->email}", time(), 1440);
 

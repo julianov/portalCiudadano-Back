@@ -56,7 +56,7 @@
                         <h2>PARA CAMBIAR EL EMAIL PRESIONE EL SIGUIENTE ENLACE</h2>
                         <br>
                         <a id="btn_cambiar_pass" href="{{'https://ciudadano-digital-er.web.app/changeNewEmail?token=' . $mixto  }}">
-                            <p id="btn_validar_email_txt">CAMBIAR PASSWORD</p>
+                            <p id="btn_validar_email_txt">CAMBIAR EMAIL</p>
                         </a> 
                         <br>
                         <br>
