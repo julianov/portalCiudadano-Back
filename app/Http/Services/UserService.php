@@ -9,6 +9,7 @@ use App\Repositories\UserRepository;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use App\Mail\EmailConfirmation;
 use App\Mail\ChangePasswordUrl;
+use App\Mail\ChangeUserEmail;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
