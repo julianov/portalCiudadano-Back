@@ -31,7 +31,6 @@ class PersonalDataRequest extends FormRequest
 			'locality_id' => 'required',
 			'address_street' => 'required',
 			'address_number' => 'required',
-			'apartment' => 'required',
 		];
 	}
 
@@ -45,7 +44,6 @@ class PersonalDataRequest extends FormRequest
 			'locality_id.required' => 'La localidad es requerida',
 			'address_street.required' => 'La calle es requerida',
 			'address_number.required' => 'El número de calle es requerido',
-			'apartment.required' => 'El departamento es requerido',
 		];
 	}
 }
