@@ -30,25 +30,6 @@ services:
 
         networks:
             app-network:
-    database:
-        restart: always
-        build:
-            context: Dockerfiles/oracle
-            dockerfile: Dockerfile
-        container_name: oracle-db
-        environment:
-            ORACLE_PASSWORD: oracle
-            ORACLE_ALLOW_REMOTE: true
-            ORACLE_DISABLE_ASYNCH_IO: true
-            ORACLE_ENABLE_XDB: true
-        ports:
-            - "1521:1521"
-            - "5500:5500"
-            - "8081:8080"
-        volumes:
-            - oracle-data:/opt/oracle/oradata
-        networks:
-            app-network:
 networks:
     app-network:
 
