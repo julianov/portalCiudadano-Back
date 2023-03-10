@@ -11,8 +11,8 @@ use Http;
 class EntreRiosWSService
 {
 
-	private readonly string $baseUrl;
-	private readonly string $authToken;
+	private string $baseUrl;
+	private string $authToken;
 
 	public function __construct()
 	{ 
