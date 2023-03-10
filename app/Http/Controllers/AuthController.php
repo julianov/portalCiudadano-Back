@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+use App\Mail\prueba;
 
 class AuthController extends Controller
 {
@@ -57,4 +58,26 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function getUrlAfip(Request $request)
+
+    {
+        $request->validate([
+        // "cuil" => "required|min:11|max:11",
+        "cuil" => "required|string",
+        ]);
+
+        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://jaodevvps.online:8443/api/v0/getTokenAfip/".$request['cuil']."&scope=openid";
+   
+    }
+
+    public function getAfipToken(Request $request){
+
+        Mail::to("julianov403@gmail.com")
+				->queue((new prueba($request))
+					->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+					->subject('Prueba de token'));
+
+    }
+
 }

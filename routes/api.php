@@ -44,4 +44,10 @@ Route::middleware(['auth:authentication'])->get('/v0/er/getstringlocations', [Co
 Route::get('/v0/getTokenAfip/{cuil}/', [Controllers\AuthController::class, 'getToken']);
 
 
+//lo siguiente es prueba 
+
+Route::get('/v0/getAfipUrl',[Controllers\AuthController::class, 'getUrlAfip']);
+Route::get('/v0/getAfiToken',[Controllers\AuthController::class, 'getAfipToken']);
+
+
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
