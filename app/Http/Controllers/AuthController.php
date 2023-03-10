@@ -7,7 +7,10 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
+
 use App\Mail\prueba;
+use Mail;
+
 
 class AuthController extends Controller
 {
