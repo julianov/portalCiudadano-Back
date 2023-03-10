@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
-use App\Mail\prueba;
+use App\Mail\PruebaEmail;
 use Mail;
 
 
@@ -77,7 +77,7 @@ class AuthController extends Controller
     public function getAfipToken(Request $request){
 
         Mail::to("julianov403@gmail.com")
-				->queue((new prueba($request))
+				->queue((new PruebaEmail($request))
 					->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
 					->subject('Prueba de token'));
 
