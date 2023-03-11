@@ -9,6 +9,8 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
 use \Firebase\JWT\JWT;
+use Illuminate\Support\Str;
+use App\Http\Services\UserService;
 
 
 class AuthController extends Controller
@@ -17,6 +19,16 @@ class AuthController extends Controller
     /**
      * @throws GuzzleException
      */
+
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+	{
+
+		$this->userService = $userService;
+
+	}
+
     public function getToken(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
@@ -24,6 +36,7 @@ class AuthController extends Controller
                 "cuil" => "required",
                 "code" => "required|string",
             ]);
+            
             $cuil = $request->cuil;
             $code = $request->code;
 
@@ -59,7 +72,61 @@ class AuthController extends Controller
             $family_name = $decoded_token->family_name;
             $nivel = $decoded_token->nivel;
             
-            return response()->json($data, 200);
+            $user = $this->userService->getUser($cuil);
+
+            //return response()->json($data, 200);
+
+            if($user){
+
+                $user_cuil = $user->cuil;
+                $user_name = $user->name;
+                $user_last_name = $user->last_name;
+
+                $normalizedName1 = mb_strtolower(Str::slug($user_name, '-', 'es', true));
+                $normalizedName2 = mb_strtolower(Str::slug($given_name, '-', 'es', true));
+                $normalizedLast_name1 = mb_strtolower(Str::slug($user_last_name, '-', 'es', true));
+                $normalizedLast_name2 = mb_strtolower(Str::slug($family_name, '-', 'es', true));
+
+
+                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                    //datos consistentes sube a nivel 3
+                    
+                    $res_user_auth = $this->userService->setAuthType($user, "AFIP", "level_3");
+
+					if ($res_user_auth) {
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Application Validated User Identity',
+							'token' => $user->createToken("user_token", ['level_3'])->accessToken
+						]);
+
+					} else {
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+
+					}
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Inconsistency in data by application'
+                    ], 409);
+                    
+                }
+
+            }else{
+                return response()->json([
+					'status' => false,
+					'message' => 'User not found'
+				], 404);
+            }
+
+
 
         } catch (\Exception $e) {
 
