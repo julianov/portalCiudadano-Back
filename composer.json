@@ -11,7 +11,8 @@
         "laravel/passport": "^11.8",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "yajra/laravel-oci8": "^9.0"
+        "yajra/laravel-oci8": "^9.0",
+        "firebase/php-jwt": "^6.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

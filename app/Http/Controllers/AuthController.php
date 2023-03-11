@@ -8,8 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
-use App\Mail\PruebaEmail;
-use Mail;
+use \Firebase\JWT\JWT;
 
 
 class AuthController extends Controller
@@ -27,6 +26,7 @@ class AuthController extends Controller
             ]);
             $cuil = $request->cuil;
             $code = $request->code;
+
             $client = new \GuzzleHttp\Client();
 
             $url = config("autenticar.base_url_api")."protocol/openid-connect/token";
@@ -48,7 +48,19 @@ class AuthController extends Controller
             ]);
             $data = json_decode($response->getBody()->getContents(), true);
 
+            $access_token = $data['access_token'];
+            $decoded_token = JWT::decode($access_token, $secret_key, array('HS256'));
+            
+            $cuit = $decoded_token->cuit;
+            $tipo_persona = $decoded_token->tipo_persona;
+            $proveedor = $decoded_token->proveedor;
+            $preferred_username = $decoded_token->preferred_username;
+            $given_name = $decoded_token->given_name;
+            $family_name = $decoded_token->family_name;
+            $nivel = $decoded_token->nivel;
+            
             return response()->json($data, 200);
+
         } catch (\Exception $e) {
 
             if ($e instanceof BadResponseException) {
