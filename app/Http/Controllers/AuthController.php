@@ -114,7 +114,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         'status' => false,
-                        'message' => 'User not found'
+                        'message' => 'Inconsistency in data by application'
                     ], 409);
                     
                 }
