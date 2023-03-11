@@ -97,7 +97,7 @@ class AuthController extends Controller
 
 						return response()->json([
 							'status' => true,
-							'message' => 'User contact data saved',
+							'message' => 'Application Validated User Identity',
 							'token' => $user->createToken("user_token", ['level_3'])->accessToken
 						]);
 
