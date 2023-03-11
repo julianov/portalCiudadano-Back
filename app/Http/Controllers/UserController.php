@@ -438,7 +438,7 @@ class UserController extends Controller
 					return response()->json([
 						'status' => true,
 						'message' => 'Password changed',
-					], 201);
+					], 200);
 
 				} else {
 
