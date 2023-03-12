@@ -42,7 +42,7 @@ Route::middleware(['auth:authentication'])->get('/v0/er/locations', [Controllers
 Route::middleware(['auth:authentication'])->get('/v0/er/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
 
 Route::get('/v0/getAfipUrl',[Controllers\AuthController::class, 'getUrlAfip']);
-Route::get('/v0/getTokenAfip/', [Controllers\AuthController::class, 'getToken']);
+Route::get('/v0/getTokenAfip/', [Controllers\AuthController::class, 'getValidationAfip']);
 
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
