@@ -17,3 +17,8 @@ yarn-error.log
 /.env
 /_ide_helper.php
 /bootstrap/cache/*.php
+
+Dockerfile/
+docker-compose.yml 
+docker-compose.dev.yml 
+Querys.sql
