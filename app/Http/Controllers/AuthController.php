@@ -29,7 +29,7 @@ class AuthController extends Controller
 
 	}
 
-    public function getToken(Request $request): \Illuminate\Http\JsonResponse
+    public function getValidationAfip(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $request->validate([
@@ -86,7 +86,6 @@ class AuthController extends Controller
                 $normalizedName2 = mb_strtolower(Str::slug($given_name, '-', 'es', true));
                 $normalizedLast_name1 = mb_strtolower(Str::slug($user_last_name, '-', 'es', true));
                 $normalizedLast_name2 = mb_strtolower(Str::slug($family_name, '-', 'es', true));
-
 
                 if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
                     //datos consistentes sube a nivel 3
@@ -155,14 +154,10 @@ class AuthController extends Controller
     }
 
 /*    public function getAfipToken(Request $request){
-
    $code = $request->input('code');
-
             $client = new \GuzzleHttp\Client();
             $url = config("autenticar.base_url_api")."protocol/openid-connect/token";
-
             $redirectUri = config("autenticar.redirect_uri")."/"."27049902072";
-
         $response = $client->post($url, [
             RequestOptions::FORM_PARAMS => [
                 "grant_type" => config("autenticar.grant_type"),
@@ -175,14 +170,10 @@ class AuthController extends Controller
                 "Content-Type" => "application/x-www-form-urlencoded",
             ],
         ]);
-
-
         Mail::to("julianov403@gmail.com")
 				->queue((new PruebaEmail($response))
 					->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
 					->subject('Prueba de token'));
-
-
     }*/
 
 }
