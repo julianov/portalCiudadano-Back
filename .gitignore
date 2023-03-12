@@ -22,3 +22,4 @@ Dockerfile/
 docker-compose.yml 
 docker-compose.dev.yml 
 Querys.sql
+README.md
