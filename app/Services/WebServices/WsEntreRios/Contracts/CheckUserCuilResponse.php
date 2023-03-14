@@ -4,9 +4,9 @@ namespace App\Services\WebServices\WsEntreRios\Contracts;
 
 class CheckUserCuilResponse
 {
-	public readonly bool $status;
-	public readonly PersonaFisicaResponse $user;
-	public readonly BduActorEntidadResponse $actor;
+	public bool $status;
+	public PersonaFisicaResponse $user;
+	public BduActorEntidadResponse $actor;
 
 	public function __construct(bool $status, PersonaFisicaResponse $user, BduActorEntidadResponse $actor)
 	{
