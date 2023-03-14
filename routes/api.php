@@ -44,7 +44,7 @@ Route::prefix("/v0/authentication")->controller(Controllers\AuthController::clas
 	Route::get('/afip/getUrl',[Controllers\AuthController::class, 'getUrlAfip']);
 	Route::get('/afip/getToken', [Controllers\AuthController::class, 'getValidationAfip']);
 
-	Route::post('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
+	Route::get('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
 	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
 
 });
