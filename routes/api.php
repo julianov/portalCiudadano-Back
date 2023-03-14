@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-});
+	
+});*/
 
 Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(function () {
 	Route::get('/check/cuil', [Controllers\UserController::class, 'checkUserCuil']);
@@ -38,14 +39,21 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 });
 
 
-Route::middleware(['auth:authentication'])->get('/v0/er/locations', [Controllers\LocationsController::class, 'getLocations']);
-Route::middleware(['auth:authentication'])->get('/v0/er/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
+Route::prefix("/v0/authentication")->controller(Controllers\AuthController::class)->group(function () {
 
-Route::get('/v0/getAfipUrl',[Controllers\AuthController::class, 'getUrlAfip']);
-Route::get('/v0/getTokenAfip/', [Controllers\AuthController::class, 'getValidationAfip']);
+	Route::get('/afip/getUrl',[Controllers\AuthController::class, 'getUrlAfip']);
+	Route::get('/afip/getToken', [Controllers\AuthController::class, 'getValidationAfip']);
 
+	Route::post('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
+	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
 
-Route::post('/v0/validate/face-to-face/citizen/', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
+});
 
+Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->group(function () {
+
+	Route::middleware(['auth:authentication'])->get('/locations', [Controllers\LocationsController::class, 'getLocations']);
+	Route::middleware(['auth:authentication'])->get('/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
+
+});
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);

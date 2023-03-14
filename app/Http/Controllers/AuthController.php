@@ -155,6 +155,62 @@ class AuthController extends Controller
    
     }
 
+    public function validateFaceToFaceGetData(Request $request)
+    {
+        
+        $request->validate([
+            "cuil_actor" => "required",
+            "cuil_citizen" => "required|string",
+        ]);
+
+        $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
+		$rs = $this->wsService->checkUserCuil($dni);
+        if ($rs->getData()->status === true) {
+            if($rs->getData()->Actor=== true){
+
+                $user = $this->userService->getUser($request['cuil_citizen']);
+
+                if ($user){
+
+                    $column_name = "USER_ID";
+					$column_value = $user->id;
+					$table = "USER_CONTACT";
+					$user_data = $this->userService->getRow($table, $column_name, $column_value);
+
+					$user_data = [
+						"user" => $user,
+						"user_contact" => $user_data
+					];
+
+					return response()->json([
+						'status' => true,
+						'message' => 'User found',
+						'user_data' => $user_data
+					]);
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User not found'
+                    ], 404);
+
+                }
+
+
+            }else{
+
+                return response()->json([
+					'status' => false,
+					'message' => 'No actor request'
+				], 404);
+
+            }
+        }
+
+    }
+
+
 
     public function validateFaceToFaceCitizen(Request $request)
     {
