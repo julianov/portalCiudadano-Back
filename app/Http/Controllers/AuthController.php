@@ -21,11 +21,13 @@ class AuthController extends Controller
      */
 
     protected UserService $userService;
+	private EntreRiosWSService $wsService;
 
     public function __construct(UserService $userService)
 	{
 
 		$this->userService = $userService;
+        $this->wsService = $wsService;
 
 	}
 
@@ -153,27 +155,65 @@ class AuthController extends Controller
    
     }
 
-/*    public function getAfipToken(Request $request){
-   $code = $request->input('code');
-            $client = new \GuzzleHttp\Client();
-            $url = config("autenticar.base_url_api")."protocol/openid-connect/token";
-            $redirectUri = config("autenticar.redirect_uri")."/"."27049902072";
-        $response = $client->post($url, [
-            RequestOptions::FORM_PARAMS => [
-                "grant_type" => config("autenticar.grant_type"),
-                "code" => $code,
-                "redirect_uri" => $redirectUri,
-                "client_id" => config("autenticar.client_id"),
-                "client_secret" => config("autenticar.secret"),
-            ],
-            "headers" => [
-                "Content-Type" => "application/x-www-form-urlencoded",
-            ],
+
+    public function validateFaceToFaceCitizen(Request $request)
+    {
+
+        $request->validate([
+            "cuil_actor" => "required",
+            "cuil_citizen" => "required|string",
         ]);
-        Mail::to("julianov403@gmail.com")
-				->queue((new PruebaEmail($response))
-					->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-					->subject('Prueba de token'));
-    }*/
+
+        $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
+		$rs = $this->wsService->checkUserCuil($dni);
+        if ($rs->getData()->status === true) {
+            if($rs->getData()->Actor=== true){
+
+                //aca valido que es un usuario nivel 3 ahora
+
+                $user = $this->userService->getUser($request['cuil_citizen']);
+
+                if ($user){
+
+                    $res_user_auth = $this->userService->setAuthType($user, "PRESENCIAL", "level_3");
+
+                    if ($res_user_auth) {
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Presential Validated User Identity',
+						]);
+
+					} else {
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+
+					}
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User not found'
+                    ], 404);
+
+                }
+
+
+            }else{
+
+                return response()->json([
+					'status' => false,
+					'message' => 'No actor request'
+				], 404);
+
+            }
+        }
+        
+    }
+
 
 }

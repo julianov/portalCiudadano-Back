@@ -45,4 +45,7 @@ Route::get('/v0/getAfipUrl',[Controllers\AuthController::class, 'getUrlAfip']);
 Route::get('/v0/getTokenAfip/', [Controllers\AuthController::class, 'getValidationAfip']);
 
 
+Route::post('/v0/validate/face-to-face/citizen/', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
+
+
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
