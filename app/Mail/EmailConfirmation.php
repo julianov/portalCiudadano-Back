@@ -36,6 +36,9 @@ class EmailConfirmation extends Mailable
 	 */
 	public function build()
 	{	
-		return $this->view('emailVerification', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos'])->header('Content-Type', 'image/jpeg');
+		return $this->view('emailVerification', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos'])
+		->withSwiftMessage(function ($message) {
+			$message->setContentType('image/jpeg');
+		});
 	}
 }
