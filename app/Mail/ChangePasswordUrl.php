@@ -36,6 +36,7 @@ class ChangePasswordUrl extends Mailable
 	 */
 	public function build()
 	{
-		return $this->view('changePassword', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
+		return $this->view('changePassword', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos'])
+					->header('Content-Type', 'image/jpeg');
 	}
 }
