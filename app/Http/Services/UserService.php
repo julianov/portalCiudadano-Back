@@ -284,6 +284,7 @@ class UserService
 
 	}
 
+
 	public function setUserContact(User $user, array $request): string
 	{
 

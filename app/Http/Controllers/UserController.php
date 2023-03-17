@@ -270,7 +270,7 @@ class UserController extends Controller
 		}
 	}
 
-	public function personalData(PersonalDataRequest $request)
+	public function contactPersonalData(PersonalDataRequest $request)
 	{
 		try {
 
@@ -334,10 +334,61 @@ class UserController extends Controller
 		}
 	}
 
-	/**
-	 * @throws ValidationException
-	 * @throws Exception
-	 */
+	
+	public function personalNames (ChangeNamesRequest $request): JsonResponse{
+
+		$validated = $request->validated();
+		$user = $this->userService->getUser($validated['cuil']);
+
+		if($user){
+
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+     		$table = "USER_AUTHENTICATION";
+			$json_auth_types = $this->userService->getRow($table, $column_name, $column_value);
+			
+			if($json_auth_types){
+
+				if($json_auth_types->AUTH_LEVEL!="level_3"){
+
+					$user->name = $request['name'];
+					$user->last_name = $request['last_name'];
+					$user->save();
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Data changed'
+					], 200);
+
+				}else{
+
+					return response()->json([
+						'status' => false,
+						'message' => 'Not enabled to change the names'
+					], 403);
+
+				}
+
+			}else{
+
+				return response()->json([
+					'status' => false,
+					'message' => 'Internal server problem - Code:01'
+				], 404);
+
+			}
+
+		}else{
+
+			return response()->json([
+				'status' => false,
+				'message' => 'User not found'
+			], 404);
+
+		}
+
+	}
+
 	public function passwordResetValidation(CheckUserCuilRequest $request): JsonResponse
 	{
 

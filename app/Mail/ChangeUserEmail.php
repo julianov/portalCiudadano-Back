@@ -38,6 +38,9 @@ class ChangeUserEmail extends Mailable
 	 */
 	public function build()
 	{
-		return $this->view('changeNewEmail', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos']);
+		return $this->view('changeNewEmail', ['name' => 'Portal Ciudadano - Provincia de Entre Ríos'])
+		->withSwiftMessage(function ($message) {
+			$message->setContentType('image/jpeg');
+		});
 	}
 }
