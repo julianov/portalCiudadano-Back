@@ -282,40 +282,11 @@ class UserService
 
 	}
 
-	public function setUserNameAndLastName(User $user, array $request)
-	{
-		if (array_key_exists('name', $request) && array_key_exists('last_name', $request)) {
-			$user->name = $request['name'];
-			$user->last_name = $request['last_name'];
-			$user->save();
-			return true;
-		} else if (array_key_exists('name', $request)) {
-			$user->name = $request['name'];
-			$user->save();
-			return true;
-		} else if (array_key_exists('last_name', $request)) {
-			$user->last_name = $request['last_name'];
-			$user->save();
-			return true;
-		} else {
-			// Ningún nombre ni apellido proporcionados
-			return false;
-		}
-	}
 
 	public function setUserContact(User $user, array $request): string
 	{
 
 		//$fecha = explode("/", $request['birthday']);
-
-		if(array_key_exists('name', $request) || array_key_exists('last_name', $request)  ){
-
-			$res= self::setUserNameAndLastName($user, $request);
-			if(!$res){
-				return "DB internal problem";
-			}
-
-		}
 
 		$column_name = "USER_ID";
 		$column_value = $user->id;
