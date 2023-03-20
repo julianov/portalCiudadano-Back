@@ -10,6 +10,7 @@ use App\Http\Requests\User\PersonalDataRequest;
 use App\Http\Requests\User\ValidateNewUserRequest;
 use App\Http\Requests\User\ChangeUserEmailValidationRequest;
 use App\Http\Requests\User\ChangeUserEmailRequest;
+use App\Http\Requests\User\ChangeNamesRequest;
 use App\Http\Services\UserService;
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
