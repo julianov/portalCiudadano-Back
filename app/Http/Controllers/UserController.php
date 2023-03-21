@@ -544,9 +544,9 @@ class UserController extends Controller
 				}
 
 				$table_name = "USER_VALIDATION_TOKEN";
-				$columns = "USER_ID, VAL_TOKEN, UPDATED_AT";
-				$values = $user->id.','.$code.',sysdate';
-				$result = $this->userService->updateFila($table_name, $columns, $values);
+				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+				$values = 'USER_ID ='.$user->id;
+				$res = $this->userService->updateFila($table_name, $columns, $values);
 
 				if ($result){
 
