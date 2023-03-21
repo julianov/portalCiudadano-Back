@@ -38,8 +38,8 @@ class ChangeNamesRequest extends FormRequest
 			'cuil.required' => 'El CUIL es requerido',
 			'cuil.min' => 'El CUIL debe tener 11 caracteres',
 			'cuil.max' => 'El CUIL debe tener 11 caracteres',
-            'name.required' => 'El nuevo email es requerido',
-            'last_name.required' => 'El nuevo email es requerido',
+            'name.required' => 'El nuevo nombre es requerido',
+            'last_name.required' => 'El nuevo apellido es requerido',
 
 		];
 	}
