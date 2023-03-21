@@ -288,8 +288,6 @@ class UserService
 	public function setUserContact(User $user, array $request): string
 	{
 
-		//$fecha = explode("/", $request['birthday']);
-
 		$column_name = "USER_ID";
 		$column_value = $user->id;
 		$table = "USER_CONTACT";
@@ -309,8 +307,6 @@ class UserService
 				return "DB internal problem";
 			}
 	
-			//return $res;
-
 		}else{
 
 			$table_name = "USER_CONTACT";		
@@ -327,8 +323,6 @@ class UserService
 			}
 
 		}
-
-
 	}
 
 	public function insertarFila(string $table_name, string $columns, string $values): bool{
