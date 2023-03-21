@@ -530,6 +530,8 @@ class UserController extends Controller
 
 			if ($user->email_verified_at==null){
 
+				$code = random_int(1000, 9999);
+
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
