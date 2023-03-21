@@ -296,74 +296,33 @@ class UserService
 
 		if(empty($json_user_contact)){
 
-			
 			$table_name = "USER_CONTACT";
-			if (array_key_exists('apartment', $request)){
+			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
+			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
+			$res= self::insertarFila($table_name, $columns, $values);
 
-				$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
-				$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
-				$res= self::insertarFila($table_name, $columns, $values);
-
-				if($res){
-					return "inserted";
-				}else{
-					return "DB internal problem";
-				}
-
+			if($res){
+				return "inserted";
 			}else{
-
-				$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, CREATED_AT";
-				$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','"."',sysdate";
-				$res= self::insertarFila($table_name, $columns, $values);
-
-				if($res){
-					return "inserted";
-				}else{
-					return "DB internal problem";
-				}
-
+				return "DB internal problem";
 			}
-			
 	
 			//return $res;
 
 		}else{
 
-                         
+			$table_name = "USER_CONTACT";		
+			$columns = "BIRTHDAY = TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'), CELLPHONE_NUMBER = '".$request['cellphone_number']."', DEPARTMENT_ID = '".$request['department_id']."', LOCALITY_ID = '".$request['locality_id']."', ADDRESS_STREET = '".$request['address_street']."', ADDRESS_NUMBER = '".$request['address_number']."', APARTMENT = '".$request['apartment']."', UPDATED_AT = SYSDATE";
+			$values = "USER_ID = ".$user->id;
 
-			if (array_key_exists('apartment', $request)){
+			$res= self::updateFila($table_name, $columns, $values);
 
-				$table_name = "USER_CONTACT";		
-				$columns = "BIRTHDAY = TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'), CELLPHONE_NUMBER = '".$request['cellphone_number']."', DEPARTMENT_ID = '".$request['department_id']."', LOCALITY_ID = '".$request['locality_id']."', ADDRESS_STREET = '".$request['address_street']."', ADDRESS_NUMBER = '".$request['address_number']."', APARTMENT = '".$request['apartment']."', UPDATED_AT = SYSDATE";
-				$values = "USER_ID = ".$user->id;
-
-				$res= self::updateFila($table_name, $columns, $values);
-
-				//return $res;
-				if($res){
-					return "updated";
-				}else{
-					return "DB internal problem";
-				}
-
+			//return $res;
+			if($res){
+				return "updated";
 			}else{
-
-				$table_name = "USER_CONTACT";		
-				$columns = "BIRTHDAY = TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'), CELLPHONE_NUMBER = '".$request['cellphone_number']."', DEPARTMENT_ID = '".$request['department_id']."', LOCALITY_ID = '".$request['locality_id']."', ADDRESS_STREET = '".$request['address_street']."', ADDRESS_NUMBER = '".$request['address_number']."', UPDATED_AT = SYSDATE";
-				$values = "USER_ID = ".$user->id;
-
-				$res= self::updateFila($table_name, $columns, $values);
-
-				//return $res;
-				if($res){
-					return "updated";
-				}else{
-					return "DB internal problem";
-				}
-
+				return "DB internal problem";
 			}
-
-			
 
 		}
 

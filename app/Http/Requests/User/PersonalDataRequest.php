@@ -31,6 +31,7 @@ class PersonalDataRequest extends FormRequest
 			'locality_id' => 'required',
 			'address_street' => 'required',
 			'address_number' => 'required',
+			'apartment' => 'nullable',
 		];
 	}
 
@@ -47,3 +48,4 @@ class PersonalDataRequest extends FormRequest
 		];
 	}
 }
+
