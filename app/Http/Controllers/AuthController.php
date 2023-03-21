@@ -176,7 +176,7 @@ class AuthController extends Controller
                     '_tk' => $request['token']
                 ];
 
-                $response = $client->request('POST', '/ruta_de_la_peticion', [
+                $response = $client->request('POST', $host, [
                     'headers' => [
                         'Content-Type' => 'application/json'
                     ],
@@ -258,7 +258,7 @@ class AuthController extends Controller
                     '_tk' => $request['token']
                 ];
 
-                $response = $client->request('POST', '/ruta_de_la_peticion', [
+                $response = $client->request('POST', $host, [
                     'headers' => [
                         'Content-Type' => 'application/json'
                     ],
