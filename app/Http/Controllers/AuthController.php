@@ -31,6 +31,18 @@ class AuthController extends Controller
 
 	}
 
+    public function getUrlAfip(Request $request)
+
+    {
+        $request->validate([
+        // "cuil" => "required|min:11|max:11",
+        "cuil" => "required|string",
+        ]);
+
+        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://jaodevvps.online:8443/api/v0/getTokenAfip/".$request['cuil']."&scope=openid";
+   
+    }
+
     public function getValidationAfip(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
@@ -47,7 +59,6 @@ class AuthController extends Controller
             $url = config("autenticar.base_url_api")."protocol/openid-connect/token";
 
             $redirectUri = config("autenticar.redirect_uri");
-
 
             $response = $client->post($url, [
                 RequestOptions::FORM_PARAMS => [
@@ -143,17 +154,7 @@ class AuthController extends Controller
         }
     }
 
-    public function getUrlAfip(Request $request)
 
-    {
-        $request->validate([
-        // "cuil" => "required|min:11|max:11",
-        "cuil" => "required|string",
-        ]);
-
-        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://jaodevvps.online:8443/api/v0/getTokenAfip/".$request['cuil']."&scope=openid";
-   
-    }
 
     public function validateFaceToFaceGetData(Request $request)
     {
@@ -161,6 +162,7 @@ class AuthController extends Controller
         $request->validate([
             "cuil_actor" => "required",
             "cuil_citizen" => "required|string",
+            "token" => "required|string",
         ]);
 
         $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
@@ -168,35 +170,58 @@ class AuthController extends Controller
         if ($rs->getData()->status === true) {
             if($rs->getData()->Actor=== true){
 
-                $user = $this->userService->getUser($request['cuil_citizen']);
+                $host = env('BASEUR_ER_WS_TOKEN');
 
-                if ($user){
+                $data = [
+                    '_tk' => $request['token']
+                ];
 
-                    $column_name = "USER_ID";
-					$column_value = $user->id;
-					$table = "USER_CONTACT";
-					$user_data = $this->userService->getRow($table, $column_name, $column_value);
+                $response = $client->request('POST', '/ruta_de_la_peticion', [
+                    'headers' => [
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => $data
+                ]);
 
-					$user_data = [
-						"user" => $user,
-						"user_contact" => $user_data
-					];
+                if($response == 0) {
 
-					return response()->json([
-						'status' => true,
-						'message' => 'User found',
-						'user_data' => $user_data
-					]);
+                    $user = $this->userService->getUser($request['cuil_citizen']);
+
+                    if ($user){
+    
+                        $column_name = "USER_ID";
+                        $column_value = $user->id;
+                        $table = "USER_CONTACT";
+                        $user_data = $this->userService->getRow($table, $column_name, $column_value);
+    
+                        $user_data = [
+                            "user" => $user,
+                            "user_contact" => $user_data
+                        ];
+    
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'User found',
+                            'user_data' => $user_data
+                        ]);
+    
+                    }else{
+    
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'User not found'
+                        ], 404);
+    
+                    }
 
                 }else{
 
                     return response()->json([
                         'status' => false,
-                        'message' => 'User not found'
-                    ], 404);
+                        'message' => 'Bad token'
+                    ], 401);
 
                 }
-
 
             }else{
 
@@ -218,6 +243,8 @@ class AuthController extends Controller
         $request->validate([
             "cuil_actor" => "required",
             "cuil_citizen" => "required|string",
+            "token" => "required|string",
+
         ]);
 
         $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
@@ -225,9 +252,22 @@ class AuthController extends Controller
         if ($rs->getData()->status === true) {
             if($rs->getData()->Actor=== true){
 
-                //aca valido que es un usuario nivel 3 ahora
+                $host = env('BASEUR_ER_WS_TOKEN');
 
-                $user = $this->userService->getUser($request['cuil_citizen']);
+                $data = [
+                    '_tk' => $request['token']
+                ];
+
+                $response = $client->request('POST', '/ruta_de_la_peticion', [
+                    'headers' => [
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => $data
+                ]);
+
+                if($response == 0) {
+
+                    $user = $this->userService->getUser($request['cuil_citizen']);
 
                 if ($user){
 
@@ -258,6 +298,14 @@ class AuthController extends Controller
 
                 }
 
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Bad token'
+                    ], 401);
+
+                }
 
             }else{
 
