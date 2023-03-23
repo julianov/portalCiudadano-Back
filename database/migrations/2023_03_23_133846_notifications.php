@@ -29,7 +29,7 @@ return new class extends Migration
             $table->datetime("notification_date_to"); 
             $table->boolean('send_by_email')->default(false);
 
-            $table->timestamps(); //fixed
+            $table->timestamps(); 
 
             $table->softDeletes();
         });
