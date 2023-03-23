@@ -17,11 +17,11 @@ return new class extends Migration
 
             $table->id()->primary();
             $table->string('recipients');
-            $table->boolean('send_to_both')->default(true); //if notifications goes to both o
+            $table->Integer('send_to_both')->default(0); //if notifications goes to both o
             $table->Integer('age_from')->unique();
             $table->Integer("age_to");
-            $table->string('department');
-            $table->string('locality');
+            $table->Integer('department');
+            $table->Integer('locality');
             $table->string('message_title'); 
             $table->string('message_body'); 
             $table->binary("attachments"); 
@@ -42,7 +42,7 @@ return new class extends Migration
      */
     public function down()
     {
-        
+
         Schema::dropIfExists('notifications');
 
     }
