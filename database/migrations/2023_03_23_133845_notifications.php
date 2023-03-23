@@ -13,23 +13,26 @@ return new class extends Migration
      */
     public function up()
     {
-        $table->id()->primary();
-        $table->string('recipients');
-        $table->boolean('send_to_both')->default(true);
-        $table->Integer('age_from')->unique();
-        $table->Integer("age_to");
-        $table->string('department');
-        $table->string('locality');
-        $table->string('message_title'); 
-        $table->string('message_body'); 
-        $table->binary("attachments"); 
-        $table->datetime("notification_date_from");
-        $table->datetime("notification_date_to"); 
-        $table->boolean('send_by_email')->default(false);
+        $a = Schema::create('notifications', function (Blueprint $table) {
 
-        $table->timestamps(); //fixed
+            $table->id()->primary();
+            $table->string('recipients');
+            $table->boolean('send_to_both')->default(true); //if notifications goes to both o
+            $table->Integer('age_from')->unique();
+            $table->Integer("age_to");
+            $table->string('department');
+            $table->string('locality');
+            $table->string('message_title'); 
+            $table->string('message_body'); 
+            $table->binary("attachments"); 
+            $table->datetime("notification_date_from");
+            $table->datetime("notification_date_to"); 
+            $table->boolean('send_by_email')->default(false);
 
-        $table->softDeletes();
+            $table->timestamps(); //fixed
+
+            $table->softDeletes();
+        });
     }
 
     /**
@@ -39,6 +42,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        
+        Schema::dropIfExists('notifications');
+
     }
 };
