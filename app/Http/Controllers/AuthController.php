@@ -39,8 +39,9 @@ class AuthController extends Controller
         // "cuil" => "required|min:11|max:11",
         "cuil" => "required|string",
         ]);
+        $redirectUri = config("autenticar.redirect_uri");
 
-        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://sistemasdesa.entrerios.gov.ar/cdig/node/AutenticarToken&scope=openid";
+        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
    
     }
 
