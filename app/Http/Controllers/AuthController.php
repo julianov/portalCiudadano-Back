@@ -40,7 +40,7 @@ class AuthController extends Controller
         "cuil" => "required|string",
         ]);
 
-        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://sistemasdesa.entrerios.gov.ar/cdig/html/ciudadanoDigital_Back/public/api/v0/getTokenAfip/".$request['cuil']."&scope=openid";
+        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://sistemasdesa.entrerios.gov.ar/cdig/node/AutenticarToken".$request['cuil']."&scope=openid";
    
     }
 
