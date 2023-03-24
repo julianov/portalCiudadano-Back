@@ -27,7 +27,7 @@ class EntreRiosWSService
 	public function checkUserCuil(string $dni)
 		{
 		$persona = $this->getPersonaFisica($dni);
-		if ($persona != "bad cuil"){
+		if ($persona != "Cuil not existing in DB"){
 			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
 			$response = new CheckUserCuilResponse(true, $persona, $actor);
 			$is_actor=false;
@@ -46,7 +46,7 @@ class EntreRiosWSService
 		}else{
 			return response()->json([
 			'status' => false,
-			'message' => 'Bad Cuil'
+			'message' => 'Cuil not existing in DB'
 			], 422);
 		}
 	}
@@ -64,7 +64,7 @@ class EntreRiosWSService
 
 			}else{
 
-				return "bad cuil";
+				return "Cuil not existing in DB";
 				// Handle error
 			}
 	}
@@ -82,7 +82,7 @@ class EntreRiosWSService
 
 			}else{
 
-				return "bad cuil";
+				return "Cuil not existing in DB";
 			}
 	}
 

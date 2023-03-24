@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use \Firebase\JWT\JWT;
 use Illuminate\Support\Str;
 use App\Http\Services\UserService;
+use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
 
 class AuthController extends Controller
