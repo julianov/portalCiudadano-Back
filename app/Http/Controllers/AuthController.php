@@ -24,7 +24,7 @@ class AuthController extends Controller
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService)
 	{
 
 		$this->userService = $userService;
