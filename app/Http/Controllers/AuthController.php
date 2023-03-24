@@ -9,6 +9,7 @@ use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
 use \Firebase\JWT\JWT;
+
 use Illuminate\Support\Str;
 use App\Http\Services\UserService;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
@@ -24,7 +25,7 @@ class AuthController extends Controller
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService)
 	{
 
 		$this->userService = $userService;
@@ -39,8 +40,9 @@ class AuthController extends Controller
         // "cuil" => "required|min:11|max:11",
         "cuil" => "required|string",
         ]);
+        $redirectUri = config("autenticar.redirect_uri");
 
-        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=https://jaodevvps.online:8443/api/v0/getTokenAfip/".$request['cuil']."&scope=openid";
+        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
    
     }
 
@@ -76,19 +78,22 @@ class AuthController extends Controller
             $data = json_decode($response->getBody()->getContents(), true);
 
             $access_token = $data['access_token'];
-            $decoded_token = JWT::decode($access_token, $secret_key, array('HS256'));
-            
-            $cuit = $decoded_token->cuit;
-            $tipo_persona = $decoded_token->tipo_persona;
-            $proveedor = $decoded_token->proveedor;
-            $preferred_username = $decoded_token->preferred_username;
-            $given_name = $decoded_token->given_name;
-            $family_name = $decoded_token->family_name;
-            $nivel = $decoded_token->nivel;
+
+/*            $decoded_token = base64_decode($access_token);*/
+
+            list($header, $payload, $signature) = explode('.', $access_token);
+            $jsonToken = base64_decode($payload);
+            $decoded_token = json_decode($jsonToken, true);
+                        
+            $cuit = $decoded_token['cuit'];
+            $tipo_persona = $decoded_token['tipo_persona'];
+            $proveedor = $decoded_token['proveedor'];
+            $preferred_username = $decoded_token['preferred_username'];
+            $given_name = $decoded_token['given_name'];
+            $family_name = $decoded_token['family_name'];
+            $nivel = $decoded_token['nivel'];
             
             $user = $this->userService->getUser($cuil);
-
-            //return response()->json($data, 200);
 
             if($user){
 
@@ -319,6 +324,5 @@ class AuthController extends Controller
         }
         
     }
-
 
 }
