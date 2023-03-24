@@ -101,10 +101,10 @@ class AuthController extends Controller
                 $user_name = $user->name;
                 $user_last_name = $user->last_name;
 
-                $normalizedName1 = mb_strtolower(Str::slug($user_name, '-', 'es', true));
-                $normalizedName2 = mb_strtolower(Str::slug($given_name, '-', 'es', true));
-                $normalizedLast_name1 = mb_strtolower(Str::slug($user_last_name, '-', 'es', true));
-                $normalizedLast_name2 = mb_strtolower(Str::slug($family_name, '-', 'es', true));
+                $normalizedName1 = mb_strtolower(strtolower($user_name));
+                $normalizedName2 = mb_strtolower(strtolower($given_name));
+                $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
+                $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
 
                 if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
                     //datos consistentes sube a nivel 3
