@@ -17,7 +17,6 @@ return new class extends Migration
 
             $table->id()->primary();
             $table->enum('recipients', ['citizen', 'actor', 'both'])->default('both'); // Se agrega el método default() con el valor "both"
-            $table->integer('send_to_both')->default(0);
             $table->integer('age_from')->nullable(); // se agrega nullable() para hacerlo opcional
             $table->integer("age_to")->nullable(); // se agrega nullable() para hacerlo opcional
             $table->integer('department')->nullable(); // se agrega nullable() para hacerlo opcional
