@@ -166,18 +166,13 @@ class AuthController extends Controller
     {
         
         $request->validate([
-            "cuil_actor" => "required",
             "cuil_citizen" => "required|string",
             "token" => "required|string",
         ]);
 
-        $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
 		
-        $rs = $this->wsService->checkUserCuil($dni);
        
-        if ($rs->getData()->status === true) {
             
-            if($rs->getData()->Actor=== true){
 
              
                 $host = env('BASEUR_ER_WS_TOKEN');
@@ -226,17 +221,7 @@ class AuthController extends Controller
                         'message' => 'Bad token'
                     ], 401);
 
-                }
-
-            }else{
-
-                return response()->json([
-					'status' => false,
-					'message' => 'No actor request'
-				], 404);
-
-            }
-        }
+                }       
 
     }
 
@@ -246,24 +231,19 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            "cuil_actor" => "required",
             "cuil_citizen" => "required|string",
             "token" => "required|string",
 
         ]);
 
-        $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
-		$rs = $this->wsService->checkUserCuil($dni);
-        if ($rs->getData()->status === true) {
-            if($rs->getData()->Actor=== true){
 
-                $host = env('BASEUR_ER_WS_TOKEN');
+            $host = env('BASEUR_ER_WS_TOKEN');
                
-                $response = Http::post($host, [
+            $response = Http::post($host, [
                     '_tk' => $request['token'],
-                ]);
+            ]);
 
-                $responseBody = $response->body();
+            $responseBody = $response->body();
 
 
                 if($responseBody == 1) {
@@ -308,15 +288,8 @@ class AuthController extends Controller
 
                 }
 
-            }else{
-
-                return response()->json([
-					'status' => false,
-					'message' => 'No actor request'
-				], 404);
-
-            }
-        }
+            
+        
         
     }
 
