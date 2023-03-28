@@ -178,23 +178,16 @@ class AuthController extends Controller
             
             if($rs->getData()->Actor=== true){
 
+             
                 $host = env('BASEUR_ER_WS_TOKEN');
-
-                $client = new \GuzzleHttp\Client();
-
-
-                $data = [
-                    '_tk' => $request['token']
-                ];
-
-                $response = $client->request('POST', $host, [
-                    'headers' => [
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => $data
+               
+                $response = Http::post($host, [
+                    '_tk' => $request['token'],
                 ]);
 
-                if($response == 0) {
+                $responseBody = $response->body();
+
+                if($responseBody == 0) {
 
                     $user = $this->userService->getUser($request['cuil_citizen']);
 
@@ -264,20 +257,15 @@ class AuthController extends Controller
             if($rs->getData()->Actor=== true){
 
                 $host = env('BASEUR_ER_WS_TOKEN');
-                $client = new \GuzzleHttp\Client();
-
-                $data = [
-                    '_tk' => $request['token']
-                ];
-
-                $response = $client->request('POST', $host, [
-                    'headers' => [
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => $data
+               
+                $response = Http::post($host, [
+                    '_tk' => $request['token'],
                 ]);
 
-                if($response == 0) {
+                $responseBody = $response->body();
+
+
+                if($responseBody == 0) {
 
                     $user = $this->userService->getUser($request['cuil_citizen']);
 
