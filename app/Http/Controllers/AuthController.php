@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use App\Http\Services\UserService;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
