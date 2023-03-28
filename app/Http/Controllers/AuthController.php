@@ -169,59 +169,60 @@ class AuthController extends Controller
             "cuil_citizen" => "required|string",
             "token" => "required|string",
         ]);
-
-		
-       
-            
-
              
-                $host = env('BASEUR_ER_WS_TOKEN');
+        $host = env('BASEUR_ER_WS_TOKEN');
                
-                $response = Http::post($host, [
-                    '_tk' => $request['token'],
+        $response = Http::post($host, [
+            '_tk' => $request['token'],
+        ]);
+
+        $responseBody = $response->body();
+
+        if($responseBody == 1) {
+
+            $user = $this->userService->getUser($request['cuil_citizen']);
+
+            if ($user){
+    
+                $column_name = "USER_ID";
+                $column_value = $user->id;
+                $table = "USER_CONTACT";
+                $user_data = $this->userService->getRow($table, $column_name, $column_value);
+
+                $column_name = "USER_ID";
+				$column_value = $user->id;
+				$table = "USER_AUTHENTICATION";
+				$user_auth = $this->userService->getRow($table, $column_name, $column_value);
+    
+                $user_data = [
+                    "user" => $user,
+                    "user_contact" => $user_data,
+                    "user_leves_auth" => $user_auth->AUTH_LEVEL
+                ];
+    
+                return response()->json([
+                    'status' => true,
+                    'message' => 'User found',
+                    'user_data' => $user_data
                 ]);
-
-                $responseBody = $response->body();
-
-                if($responseBody == 1) {
-
-                    $user = $this->userService->getUser($request['cuil_citizen']);
-
-                    if ($user){
     
-                        $column_name = "USER_ID";
-                        $column_value = $user->id;
-                        $table = "USER_CONTACT";
-                        $user_data = $this->userService->getRow($table, $column_name, $column_value);
+            }else{
     
-                        $user_data = [
-                            "user" => $user,
-                            "user_contact" => $user_data
-                        ];
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found'
+                ], 404);
     
-                        return response()->json([
-                            'status' => true,
-                            'message' => 'User found',
-                            'user_data' => $user_data
-                        ]);
-    
-                    }else{
-    
-                        return response()->json([
-                            'status' => false,
-                            'message' => 'User not found'
-                        ], 404);
-    
-                    }
+                }
 
-                }else{
+        }else{
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Bad token'
-                    ], 401);
+            return response()->json([
+                'status' => false,
+                'message' => 'Bad token'
+            ], 401);
 
-                }       
+        }       
 
     }
 
@@ -234,62 +235,94 @@ class AuthController extends Controller
             "cuil_citizen" => "required|string",
             "token" => "required|string",
 
+            'name' => "required|string",
+            'last_name'=> "required|string",
+
+            'birthday' => 'required',
+			'cellphone_number' => 'required',
+			'department_id' => 'required',
+			'locality_id' => 'required',
+			'address_street' => 'required',
+			'address_number' => 'required',
+			'apartment' => 'nullable',
+
         ]);
 
-
-            $host = env('BASEUR_ER_WS_TOKEN');
+        $host = env('BASEUR_ER_WS_TOKEN');
                
-            $response = Http::post($host, [
-                    '_tk' => $request['token'],
-            ]);
+        $response = Http::post($host, [
+            '_tk' => $request['token'],
+        ]);
 
-            $responseBody = $response->body();
+        $responseBody = $response->body();
 
+        if($responseBody == 1) {
 
-                if($responseBody == 1) {
+            $user = $this->userService->getUser($request['cuil_citizen']);
 
-                    $user = $this->userService->getUser($request['cuil_citizen']);
+            if ($user){
 
-                if ($user){
+                $filteredRequestUserContact = $request->only([
+                    'birthday', 
+                    'cellphone_number', 
+                    'department_id', 
+                    'locality_id', 
+                    'address_street', 
+                    'address_number', 
+                    'apartment'
+                ]);
+                                    
+                $res_personal_data = $this->userService->setUserContact($user, $filteredRequestUserContact );
+						
+                if ($res_personal_data){
+
+                    $user->name = $request['name'];
+                    $user->last_name = $request['last_name'];
+                    $user->save();
 
                     $res_user_auth = $this->userService->setAuthType($user, "PRESENCIAL", "level_3");
 
                     if ($res_user_auth) {
 
-						return response()->json([
-							'status' => true,
-							'message' => 'Presential Validated User Identity',
-						]);
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Presential Validated User Identity',
+                        ]);
 
-					} else {
+                    }else{
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
-
-					}
-
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Internal server problem, please try again later'
+                        ], 503);
+    
+                    }
+                            
                 }else{
 
                     return response()->json([
                         'status' => false,
-                        'message' => 'User not found'
-                    ], 404);
-
+                        'message' => 'Internal server problem, please try again later'
+                    ], 503);
                 }
+                        
+            }else{
 
-                }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found'
+                ], 404);
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Bad token'
-                    ], 401);
+            }
 
-                }
+        }else{
 
-            
-        
+            return response()->json([
+                'status' => false,
+                'message' => 'Bad token'
+            ], 401);
+
+        }
         
     }
 
