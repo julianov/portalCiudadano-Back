@@ -34,7 +34,6 @@ class AuthController extends Controller
 	}
 
     public function getUrlAfip(Request $request)
-
     {
         $request->validate([
         // "cuil" => "required|min:11|max:11",
@@ -172,11 +171,17 @@ class AuthController extends Controller
         ]);
 
         $dni = $this->userService->getDniFromCuil($request['cuil_actor']);
-		$rs = $this->wsService->checkUserCuil($dni);
+		
+        $rs = $this->wsService->checkUserCuil($dni);
+       
         if ($rs->getData()->status === true) {
+            
             if($rs->getData()->Actor=== true){
 
                 $host = env('BASEUR_ER_WS_TOKEN');
+
+                $client = new \GuzzleHttp\Client();
+
 
                 $data = [
                     '_tk' => $request['token']
@@ -259,6 +264,7 @@ class AuthController extends Controller
             if($rs->getData()->Actor=== true){
 
                 $host = env('BASEUR_ER_WS_TOKEN');
+                $client = new \GuzzleHttp\Client();
 
                 $data = [
                     '_tk' => $request['token']

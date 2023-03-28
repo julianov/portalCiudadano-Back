@@ -277,6 +277,8 @@ class UserController extends Controller
 
 			$validated = $request->validated();
 
+			//obtener el cuil del access token que
+
 			$user = $this->userService->getUser($validated['cuil']);
 
 			if ($user) {
