@@ -187,7 +187,7 @@ class AuthController extends Controller
 
                 $responseBody = $response->body();
 
-                if($responseBody == 0) {
+                if($responseBody == 1) {
 
                     $user = $this->userService->getUser($request['cuil_citizen']);
 
@@ -265,7 +265,7 @@ class AuthController extends Controller
                 $responseBody = $response->body();
 
 
-                if($responseBody == 0) {
+                if($responseBody == 1) {
 
                     $user = $this->userService->getUser($request['cuil_citizen']);
 
