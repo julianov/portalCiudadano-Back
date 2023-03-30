@@ -189,22 +189,44 @@ class AuthController extends Controller
                 $table = "USER_CONTACT";
                 $user_data = $this->userService->getRow($table, $column_name, $column_value);
 
-                $column_name = "USER_ID";
-				$column_value = $user->id;
-				$table = "USER_AUTHENTICATION";
-				$user_auth = $this->userService->getRow($table, $column_name, $column_value);
+                if ($user_data){
+
+                    $column_name = "USER_ID";
+                    $column_value = $user->id;
+                    $table = "USER_AUTHENTICATION";
+                    $user_auth = $this->userService->getRow($table, $column_name, $column_value);
+                    
+                    if ($user_auth ){
     
-                $user_data = [
-                    "user" => $user,
-                    "user_contact" => $user_data,
-                    "user_leves_auth" => $user_auth->AUTH_LEVEL
-                ];
+                        $user_data = [
+                            "user" => $user,
+                            "user_contact" => $user_data,
+                            "user_leves_auth" => $user_auth->AUTH_LEVEL
+                        ];
+            
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'User authentication not found',
+                            'user_data' => $user_data
+                        ]);
     
-                return response()->json([
-                    'status' => true,
-                    'message' => 'User found',
-                    'user_data' => $user_data
-                ]);
+                    }else{
+                        
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'User not found'
+                        ], 404);
+    
+                    }
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User data contact not found'
+                    ], 404);
+
+                }    
     
             }else{
     
