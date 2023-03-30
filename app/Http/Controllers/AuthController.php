@@ -183,50 +183,58 @@ class AuthController extends Controller
             $user = $this->userService->getUser($request['cuil_citizen']);
 
             if ($user){
-    
+
                 $column_name = "USER_ID";
                 $column_value = $user->id;
-                $table = "USER_CONTACT";
-                $user_data = $this->userService->getRow($table, $column_name, $column_value);
-
-                if ($user_data){
+                $table = "USER_AUTHENTICATION";
+                $user_auth = $this->userService->getRow($table, $column_name, $column_value);
+                    
+                if ($user_auth ){
 
                     $column_name = "USER_ID";
                     $column_value = $user->id;
-                    $table = "USER_AUTHENTICATION";
-                    $user_auth = $this->userService->getRow($table, $column_name, $column_value);
-                    
-                    if ($user_auth ){
-    
+                    $table = "USER_CONTACT";
+                    $user_data = $this->userService->getRow($table, $column_name, $column_value);
+
+                    if ($user_data){
+
                         $user_data = [
                             "user" => $user,
                             "user_contact" => $user_data,
                             "user_leves_auth" => $user_auth->AUTH_LEVEL
                         ];
-            
+                
                         return response()->json([
                             'status' => true,
-                            'message' => 'User authentication not found',
+                            'message' => 'User data',
                             'user_data' => $user_data
                         ]);
-    
+
                     }else{
-                        
+
+                        $user_data = [
+                            "user" => $user,
+                            "user_leves_auth" => $user_auth->AUTH_LEVEL
+                        ];
+                
                         return response()->json([
-                            'status' => false,
-                            'message' => 'User not found'
-                        ], 404);
+                            'status' => true,
+                            'message' => 'User data authentication not found',
+                            'user_data' => $user_data
+                        ]);
+                       
+                    }    
     
-                    }
-
                 }else{
-
+                        
                     return response()->json([
                         'status' => false,
-                        'message' => 'User data contact not found'
+                        'message' => 'User authentication type not found - Must validate email'
                     ], 404);
-
-                }    
+    
+                }
+    
+                
     
             }else{
     
