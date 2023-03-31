@@ -279,7 +279,8 @@ class UserController extends Controller
 
 			//obtener el cuil del access token que
 
-			$user = $this->userService->getUser($validated['cuil']);
+			//$user = $this->userService->getUser($validated['cuil']);
+			$user = Auth::guard('authentication')->user();
 
 			if ($user) {
 
@@ -341,7 +342,9 @@ class UserController extends Controller
 	public function personalNames (ChangeNamesRequest $request): JsonResponse{
 
 		$validated = $request->validated();
-		$user = $this->userService->getUser($validated['cuil']);
+
+//		$user = $this->userService->getUser($validated['cuil']);
+		$user = Auth::guard('authentication')->user();
 
 		if($user){
 
