@@ -27,7 +27,9 @@ class UserService
 	 */
 	private EntreRiosWSService $wsService;
 
-	public function __construct(private readonly UserRepository $userRepository, EntreRiosWSService $wsService)
+	//public function __construct(private readonly UserRepository $userRepository, EntreRiosWSService $wsService)
+	public function __construct(EntreRiosWSService $wsService)
+
 	{
 		
 		$this->wsService = $wsService;
