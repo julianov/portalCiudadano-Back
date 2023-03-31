@@ -42,8 +42,8 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 
 Route::prefix("/v0/authentication")->controller(Controllers\AuthController::class)->group(function () {
 
-	Route::get('/afip/getUrl',[Controllers\AuthController::class, 'getUrlAfip']);
-	Route::get('/afip/getToken', [Controllers\AuthController::class, 'getValidationAfip']);
+	Route::middleware(['auth:authentication'])->get('/afip/getUrl',[Controllers\AuthController::class, 'getUrlAfip']);
+	Route::middleware(['auth:authentication'])->get('/afip/getToken', [Controllers\AuthController::class, 'getValidationAfip']);
 
 	Route::get('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
 	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
@@ -52,8 +52,8 @@ Route::prefix("/v0/authentication")->controller(Controllers\AuthController::clas
 
 Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->group(function () {
 
-	Route::middleware(['auth:authentication'])->get('/locations', [Controllers\LocationsController::class, 'getLocations']);
-	Route::middleware(['auth:authentication'])->get('/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
+	Route::get('/locations', [Controllers\LocationsController::class, 'getLocations']);
+	Route::get('/getstringlocations', [Controllers\LocationsController::class, 'getStringLocations']);
 
 });
 

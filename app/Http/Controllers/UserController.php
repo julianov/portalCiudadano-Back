@@ -589,8 +589,8 @@ class UserController extends Controller
 
 		$validated = $request->validated();
 
-
-		$user = User::where('cuil', $validated['cuil'])->first();
+		#$user = User::where('cuil', $validated['cuil'])->first();
+		$user = Auth::guard('authentication')->user();
 
 		if ($user) {
 
@@ -663,33 +663,37 @@ class UserController extends Controller
 			$cuil = explode('/', $aux)[0];
 			$new_email = explode('/', $aux)[1];
 			$token = explode('/', $aux)[2];
-			$user = User::where('cuil', $cuil)->first();
 			
-			$column_name = "USER_ID";
-			$column_value = $user->id;
-			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->userService->getRow($table, $column_name, $column_value);
+			#$user = User::where('cuil', $cuil)->first();
+			$user = Auth::guard('authentication')->user();
 
-			if (!empty($json)) {
+			if ($user && $user->cuil==$cuil){
 
-				if ($json->VAL_TOKEN == $token) {
+				$column_name = "USER_ID";
+				$column_value = $user->id;
+				$table = "USER_VALIDATION_TOKEN";
+				$json = $this->userService->getRow($table, $column_name, $column_value);
 
-					$user->email = $new_email;
-					$user->save();
+				if (!empty($json)) {
 
-					return response()->json([
-						'status' => true,
-						'message' => 'Email changed',
-					], 201);
+					if ($json->VAL_TOKEN == $token) {
 
-				} else {
+						$user->email = $new_email;
+						$user->save();
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Bad validation code',
-					], 201);
+						return response()->json([
+							'status' => true,
+							'message' => 'Email changed',
+						], 201);
 
-				}
+					} else {
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Bad validation code',
+						], 201);
+
+					}
 
 			} else {
 
@@ -699,6 +703,17 @@ class UserController extends Controller
 				], 503);
 
 			}
+
+			}else{
+
+				return response()->json([
+					'status' => false,
+					'message' => 'User not found'
+				], 404);
+
+			}
+
+			
 
 		}catch (DecryptException $e) {
 			return response()->json([
