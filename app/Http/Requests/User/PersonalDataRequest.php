@@ -24,7 +24,6 @@ class PersonalDataRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'cuil' => 'required',
 			'birthday' => 'required',
 			'cellphone_number' => 'required',
 			'department_id' => 'required',
@@ -38,7 +37,6 @@ class PersonalDataRequest extends FormRequest
 	public function messages()
 	{
 		return [
-			'cuil.required' => 'El CUIL es requerido',
 			'birthday.required' => 'La fecha de nacimiento es requerida',
 			'cellphone_number.required' => 'El número de celular es requerido',
 			'department_id.required' => 'El departamento es requerido',
