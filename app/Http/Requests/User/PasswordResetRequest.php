@@ -25,7 +25,7 @@ class PasswordResetRequest extends FormRequest
 	{
 		return [
 			'token' => 'required',
-			'new_password' => 'required',
+			'password' => 'required|string|min:8'
 	
 		];
 	}

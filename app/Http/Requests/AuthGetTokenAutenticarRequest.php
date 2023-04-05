@@ -14,7 +14,7 @@ class AuthGetTokenAutenticarRequest extends FormRequest
     public static function rules(): array
     {
         return [
-            "cuil" => "required|min:11|max:11",
+			'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
             "code" => "required|string",
         ];
     }

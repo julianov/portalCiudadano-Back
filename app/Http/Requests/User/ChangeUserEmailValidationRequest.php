@@ -24,8 +24,8 @@ class ChangeUserEmailValidationRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'cuil' => 'required|min:11|max:11',
-            'new_email' => 'required'
+			'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+			'new_email' => 'required|max:70'
 		];
 	}
 	/**

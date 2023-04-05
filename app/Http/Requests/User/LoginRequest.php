@@ -14,8 +14,8 @@ class LoginRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'cuil' => 'required|min:11|max:11',
-			'password' => 'required',
+			'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+			'password' => 'required|string|min:8'
 		];
 	}
 

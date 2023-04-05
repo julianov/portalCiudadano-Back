@@ -24,13 +24,13 @@ class PersonalDataRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'birthday' => 'required',
-			'cellphone_number' => 'required',
-			'department_id' => 'required',
-			'locality_id' => 'required',
-			'address_street' => 'required',
-			'address_number' => 'required',
-			'apartment' => 'nullable',
+			'birthday' => 'required|max:50|string',
+			'cellphone_number' => 'required|max:50|string',
+			'department_id' => 'required|numeric',
+			'locality_id' => 'required|numeric',
+			'address_street' => 'required|max:50|string',
+			'address_number' => 'required|max:50|string',
+			'apartment' => 'nullable|max:50|string',
 		];
 	}
 

@@ -29,12 +29,12 @@ class CreateUserRequest extends FormRequest
 	public function rules(): array
 	{
 		return [
-			'cuil' => 'required',
+			'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
 			'prs_id' => 'required',
-			'nombre' => 'required',
-			'apellido' => 'required',
-			'email' => 'required',
-			'password' => 'required',
+			'nombre' => 'required|string|max:50',
+			'apellido' => 'required|string|max:50',
+			'email' => 'required|max:70',
+			'password' => 'required|string|min:8'
 		];
 	}
 
