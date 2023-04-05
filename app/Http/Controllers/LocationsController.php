@@ -39,8 +39,7 @@ class LocationsController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'locality_id' => 'required',
-
+            'locality_id' => 'required|numeric',
         ]);
 
         if($validator->fails()){

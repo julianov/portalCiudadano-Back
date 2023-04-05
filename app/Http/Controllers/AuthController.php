@@ -38,8 +38,8 @@ class AuthController extends Controller
     {
         $request->validate([
         // "cuil" => "required|min:11|max:11",
-        "cuil" => "required|string",
-        ]);
+        'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+    ]);
         $redirectUri = config("autenticar.redirect_uri");
 
         return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
@@ -50,7 +50,7 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                "cuil" => "required",
+                'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
                 "code" => "required|string",
             ]);
             
@@ -166,7 +166,7 @@ class AuthController extends Controller
     {
         
         $request->validate([
-            "cuil_citizen" => "required|string",
+            "cuil_citizen" => "required|numeric|regex:/^[0-9]{11}$/",
             "token" => "required|string",
         ]);
              
@@ -262,19 +262,19 @@ class AuthController extends Controller
     {
 
         $request->validate([
-            "cuil_citizen" => "required|string",
+            "cuil_citizen" => "required|numeric|regex:/^[0-9]{11}$/",
             "token" => "required|string",
 
-            'name' => "required|string",
-            'last_name'=> "required|string",
+            'name' => 'required|string|max:50',
+			'last_name' => 'required|string|max:50',
 
-            'birthday' => 'required',
-			'cellphone_number' => 'required',
-			'department_id' => 'required',
-			'locality_id' => 'required',
-			'address_street' => 'required',
-			'address_number' => 'required',
-			'apartment' => 'nullable',
+            'birthday' => 'required|max:50|string',
+			'cellphone_number' => 'required|max:50|string',
+			'department_id' => 'required|numeric',
+			'locality_id' => 'required|numeric',
+			'address_street' => 'required|max:50|string',
+			'address_number' => 'required|max:50|string',
+			'apartment' => 'nullable|max:50|string',
 
         ]);
 
