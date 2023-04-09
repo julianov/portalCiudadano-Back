@@ -221,6 +221,8 @@ class UserController extends Controller
 
 			if ($captcha){
 
+				unset($validated['captcha']);
+
 				if (Auth::attempt($validated)) {
 
 					$user = Auth::user();
