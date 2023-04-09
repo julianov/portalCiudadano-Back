@@ -57,4 +57,13 @@ Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->gro
 
 });
 
+
+Route::prefix("/v0/notification")->controller(Controllers\NotificationsController::class)->group(function () {
+
+	Route::post('/new', [Controllers\NotificationsController::class, 'newNotification']);
+
+});
+
+
+
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);

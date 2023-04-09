@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('name'); #nombre de usuario
             $table->string('last_name'); #apellido de usuario
+            $table->boolean('actor')->default(false); // boolean column with a default value of true
 
             $table->timestamps(); //fixed
             $table->timestamp('email_verified_at')->nullable();
