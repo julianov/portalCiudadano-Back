@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\CheckUserCuilRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\passwordResetValidationRequest;
+use App\Http\Requests\User\ResendEmailVerificacionRequest;
 use App\Http\Requests\User\PasswordResetRequest;
 use App\Http\Requests\User\PersonalDataRequest;
 use App\Http\Requests\User\ValidateNewUserRequest;
@@ -12,6 +14,9 @@ use App\Http\Requests\User\ChangeUserEmailValidationRequest;
 use App\Http\Requests\User\ChangeUserEmailRequest;
 use App\Http\Requests\User\ChangeNamesRequest;
 use App\Http\Services\UserService;
+
+use App\Http\Services\PlSqlService;
+
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Carbon\Carbon;
@@ -33,11 +38,13 @@ class UserController extends Controller
 	 */
 	protected UserService $userService;
 	private EntreRiosWSService $wsService;
+	protected PlSqlService $plSqlServices;
 
-	public function __construct(UserService $userService, EntreRiosWSService $wsService)
+	public function __construct(UserService $userService, PlSqlService $plSqlServices, EntreRiosWSService $wsService)
 	{
 
 		$this->userService = $userService;
+		$this->plSqlServices = $plSqlServices;
 		$this->wsService = $wsService;
 	}
 
@@ -84,21 +91,35 @@ class UserController extends Controller
 		try {
 
 			$validated = $request->validated();
-			$user = User::where('cuil', $validated['cuil'])->first();
+			$captcha=$this->userService->ReCaptcha($validated['captcha']); 
 
-			if ($user) {
+			if ($captcha){
+
+				$user = User::where('cuil', $validated['cuil'])->first();
+
+				if ($user) {
+
+					return response()->json([
+						'status' => false,
+						'message' => 'User already registered'
+					], 409);
+
+				} else {
+
+					$singupUserServices = $this->userService->signup($validated);
+
+					return $singupUserServices;
+				}
+
+			}else{
 
 				return response()->json([
 					'status' => false,
-					'message' => 'User already registered'
-				], 409);
+					'message' => 'Bad captcha'
+				], 403);
 
-			} else {
-
-				$singupUserServices = $this->userService->signup($validated);
-
-				return $singupUserServices;
 			}
+			
 
 		} catch (Throwable $th) {
 			return response()->json([
@@ -127,7 +148,7 @@ class UserController extends Controller
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->userService->getRow($table, $column_name, $column_value);
+				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 				try {
 
@@ -213,7 +234,7 @@ class UserController extends Controller
 					$column_name = "USER_ID";
 					$column_value = $user->id;
 					$table = "USER_AUTHENTICATION";
-					$user_auth = $this->userService->getRow($table, $column_name, $column_value);
+					$user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 
 					if (!empty($user_auth)) {
@@ -227,7 +248,7 @@ class UserController extends Controller
 						$column_name = "USER_ID";
 						$column_value = $user->id;
 						$table = "USER_CONTACT";
-						$user_data = $this->userService->getRow($table, $column_name, $column_value);
+						$user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 						$user_data = [
 							"user" => $user,
@@ -351,7 +372,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
      		$table = "USER_AUTHENTICATION";
-			$json_auth_types = $this->userService->getRow($table, $column_name, $column_value);
+			$json_auth_types = $this->plSqlServices->getRow($table, $column_name, $column_value);
 			
 			if($json_auth_types){
 
@@ -395,74 +416,86 @@ class UserController extends Controller
 
 	}
 
-	public function passwordResetValidation(CheckUserCuilRequest $request): JsonResponse
+	
+	public function passwordResetValidation(passwordResetValidationRequest $request): JsonResponse
 	{
 
-		$validated = $this->validate($request, [
-			'cuil' => 'required',
-		]);
+		$validated = $request->validated();
+		$captcha=$this->userService->ReCaptcha($validated['captcha']); 
 
-		$user = User::where('cuil', $validated['cuil'])->first();
+		if ($captcha){
 
-		if ($user) {
+			$user = User::where('cuil', $validated['cuil'])->first();
 
-			$code = random_int(1000, 9999);
+			if ($user) {
 
-			$column_name = "USER_ID";
-			$column_value = $user->id;
-			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->userService->getRow($table, $column_name, $column_value);
+				$code = random_int(1000, 9999);
 
-			if (empty($json)) {
+				$column_name = "USER_ID";
+				$column_value = $user->id;
+				$table = "USER_VALIDATION_TOKEN";
+				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
-				$table_name = "USER_VALIDATION_TOKEN";
-				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
-				$values = $user->id.','.$code.',sysdate';
+				if (empty($json)) {
 
-				$result = $this->userService->insertarFila($table_name, $columns, $values);
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+					$values = $user->id.','.$code.',sysdate';
 
-				if ($result) {
+					$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
-					return $this->userService->sendEmail($user, $code, "PasswordReset" );
+					if ($result) {
 
-				} else {
+						return $this->userService->sendEmail($user, $code, "PasswordReset" );
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					} else {
 
-				}
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
 
-			} else {
-
-				$table_name = "USER_VALIDATION_TOKEN";
-				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
-				$values = 'USER_ID ='.$user->id;
-				$res = $this->userService->updateFila($table_name, $columns, $values);
-
-				if ($res) {
-
-					return $this->userService->sendEmail($user, $code, "PasswordReset" );
+					}
 
 				} else {
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+					$values = 'USER_ID ='.$user->id;
+					$res = $this->plSqlServices->updateFila($table_name, $columns, $values);
+
+					if ($res) {
+
+						return $this->userService->sendEmail($user, $code, "PasswordReset" );
+
+					} else {
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+					}
+
 				}
+
+			}else {
+
+				return response()->json([
+					'status' => false,
+					'message' => 'User not found'
+				], 404);
 
 			}
 
-		}else {
+		}else{
 
 			return response()->json([
 				'status' => false,
-				'message' => 'User not found'
-			], 404);
+				'message' => 'Bad captcha'
+			], 403);
 
 		}
+		
 		
 
 	}
@@ -483,7 +516,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
 			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->userService->getRow($table, $column_name, $column_value);
+			$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 			if (!empty($json)) {
 
@@ -525,62 +558,78 @@ class UserController extends Controller
 		
 	}
 
-	public function resendEmailVerificacion(CheckUserCuilRequest $request): JsonResponse
+	public function resendEmailVerificacion(ResendEmailVerificacionRequest $request): JsonResponse
 	{
 		$validated = $request->validated();
-		$cuil = $validated['cuil'];
-		$user = User::where('cuil', $validated['cuil'])->first();
+		
+		$captcha=$this->userService->ReCaptcha($validated['captcha']); 
 
-		if($user){
+		if($captcha){
 
-			if ($user->email_verified_at==null){
+			$cuil = $validated['cuil'];
+			$user = User::where('cuil', $validated['cuil'])->first();
 
-				$code = random_int(1000, 9999);
+			if($user){
 
-				$column_name = "USER_ID";
-				$column_value = $user->id;
-				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->userService->getRow($table, $column_name, $column_value);
+				if ($user->email_verified_at==null){
 
-				if($json->VAL_TOKEN>9999){
-					$code = random_int(10000, 99999);
-				}else{
 					$code = random_int(1000, 9999);
-				}
 
-				$table_name = "USER_VALIDATION_TOKEN";
-				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
-				$values = 'USER_ID ='.$user->id;
-				$result = $this->userService->updateFila($table_name, $columns, $values);
+					$column_name = "USER_ID";
+					$column_value = $user->id;
+					$table = "USER_VALIDATION_TOKEN";
+					$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
-				if ($result){
+					if($json->VAL_TOKEN>9999){
+						$code = random_int(10000, 99999);
+					}else{
+						$code = random_int(1000, 9999);
+					}
 
-					return $this->userService->sendEmail($user, $code, "EmailVerification" );
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+					$values = 'USER_ID ='.$user->id;
+					$result = $this->plSqlServices->updateFila($table_name, $columns, $values);
+
+					if ($result){
+
+						return $this->userService->sendEmail($user, $code, "EmailVerification" );
+
+					}else{
+
+						return response()->json([
+							'status' => false,
+							'message' => 'Internal server problem, please try again later'
+						], 503);
+					}
 
 				}else{
 
 					return response()->json([
 						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+						'message' => 'Email alredy verified'
+					], 401);
 				}
 
 			}else{
 
 				return response()->json([
 					'status' => false,
-					'message' => 'Email alredy verified'
-				], 401);
+					'message' => 'Invalid Cuil'
+				], 503);
+
 			}
 
 		}else{
 
 			return response()->json([
 				'status' => false,
-				'message' => 'Invalid Cuil'
-			], 503);
+				'message' => 'Bad captcha'
+			], 403);
 
 		}
+
+		
 
 	}
 
@@ -599,7 +648,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
 			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->userService->getRow($table, $column_name, $column_value);
+			$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 			if (empty($json)) {
 
@@ -607,7 +656,7 @@ class UserController extends Controller
 				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
 				$values = $user->id.','.$code.',sysdate';
 
-				$result = $this->userService->insertarFila($table_name, $columns, $values);
+				$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
 				if ($result) {
 
@@ -627,7 +676,7 @@ class UserController extends Controller
 				$table_name = "USER_VALIDATION_TOKEN";
 				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
 				$values = 'USER_ID ='.$user->id;
-				$res = $this->userService->updateFila($table_name, $columns, $values);
+				$res = $this->plSqlServices->updateFila($table_name, $columns, $values);
 
 				if ($res) {
 
@@ -672,7 +721,7 @@ class UserController extends Controller
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->userService->getRow($table, $column_name, $column_value);
+				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 				if (!empty($json)) {
 

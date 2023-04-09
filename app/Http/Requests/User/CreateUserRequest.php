@@ -34,7 +34,8 @@ class CreateUserRequest extends FormRequest
 			'nombre' => 'required|string|max:50',
 			'apellido' => 'required|string|max:50',
 			'email' => 'required|max:70',
-			'password' => 'required|string|min:8'
+			'password' => 'required|string|min:8',
+			'captcha' => 'required|string|min:8'
 		];
 	}
 
@@ -52,6 +53,7 @@ class CreateUserRequest extends FormRequest
 			'apellido.required' => 'El campo Apellido es obligatorio',
 			'email.required' => 'El campo Email es obligatorio',
 			'password.required' => 'El campo Contraseña es obligatorio',
+			'captcha.required' => 'El campo Catcha es obligatorio',
 		];
 	}
 

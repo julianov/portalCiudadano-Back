@@ -17,28 +17,36 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Mail;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Services\PlSqlService;
 
 
 class UserService
 {
 
-	/**
-	 * @param  UserRepository  $userRepository
-	 */
+	
 	private EntreRiosWSService $wsService;
+	protected PlSqlService $plSqlServices;
 
-	//public function __construct(private readonly UserRepository $userRepository, EntreRiosWSService $wsService)
-	public function __construct(EntreRiosWSService $wsService)
-
+	public function __construct(EntreRiosWSService $wsService, PlSqlService $plSqlServices)
 	{
 		
 		$this->wsService = $wsService;
+		$this->plSqlServices = $plSqlServices;
 
 	}
 
-	/**
-	 * @throws Exception
-	 */
+	public function ReCaptcha ($value)
+	{
+		$response = Http::get("https://www.google.com/recaptcha/api/siteverify",[
+            'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
+            'response' => $value
+        ]);
+
+		return $response->json()["success"];
+
+	}
+
+
 	public function getDniFromCuil($cuil){
 
 		$dni = substr($cuil, 2, -1);
@@ -85,7 +93,7 @@ class UserService
 		$table_name = "USER_VALIDATION_TOKEN";
 		$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
 		$values = $userId.','.$code.',sysdate';
-		$result = self::insertarFila($table_name, $columns, $values);
+		$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 		if ($result){
 			return $code;
 		}else{
@@ -250,19 +258,19 @@ class UserService
 		$column_name = "USER_ID";
 		$column_value = $user->id;
 		$table = "USER_AUTHENTICATION";
-		$json = self::getRow($table, $column_name, $column_value);
+		$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 		if (empty($json)) {
 
 			$column_name = "DESCRIPTION";
 			$column_value = $auth_type;
 			$table = "AUTHENTICATION_TYPES";
-			$json_auth_types= self::getRow($table, $column_name, $column_value);
+			$json_auth_types= $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 			$table_name = "USER_AUTHENTICATION";
             $columns = "USER_ID, AUTHENTICATION_TYPES_ID, AUTH_LEVEL, CREATED_AT";
             $values = $user->id.','. $json_auth_types->ID .",'".$auth_level."', sysdate";
-			$res= self::insertarFila($table_name, $columns, $values);
+			$res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
 			return $res;
 
@@ -271,12 +279,12 @@ class UserService
 			$column_name = "DESCRIPTION";
 			$column_value = $auth_type;
 			$table = "AUTHENTICATION_TYPES";
-			$json_auth_types= self::getRow($table, $column_name, $column_value);
+			$json_auth_types= $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 			$table_name= "USER_AUTHENTICATION";
 			$columns= 'AUTHENTICATION_TYPES_ID = '.$json_auth_types->ID .", AUTH_LEVEL = '".$auth_level."' ,UPDATED_AT = sysdate";
 			$values= 'USER_ID ='.$user->id;
-			$res= self::updateFila($table_name, $columns, $values);
+			$res= $this->plSqlServices->updateFila($table_name, $columns, $values);
 
 			return $res;
 
@@ -291,7 +299,7 @@ class UserService
 		$column_name = "USER_ID";
 		$column_value = $user->id;
 		$table = "USER_CONTACT";
-		$json_user_contact= self::getRow($table, $column_name, $column_value);
+		$json_user_contact= $this->plSqlServices->getRow($table, $column_name, $column_value);
 
 
 		if(empty($json_user_contact)){
@@ -299,7 +307,7 @@ class UserService
 			$table_name = "USER_CONTACT";
 			$columns = "USER_ID, BIRTHDAY, CELLPHONE_NUMBER, DEPARTMENT_ID, LOCALITY_ID, ADDRESS_STREET, ADDRESS_NUMBER, APARTMENT, CREATED_AT";
 			$values = $user->id.",TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'),'".$request['cellphone_number']."','".$request['department_id']."','".$request['locality_id']."','".$request['address_street']."','".$request['address_number']."','".$request['apartment']."',sysdate";
-			$res= self::insertarFila($table_name, $columns, $values);
+			$res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
 			if($res){
 				return "inserted";
@@ -313,7 +321,7 @@ class UserService
 			$columns = "BIRTHDAY = TO_DATE('".$request['birthday']."', 'DD/MM/YYYY'), CELLPHONE_NUMBER = '".$request['cellphone_number']."', DEPARTMENT_ID = '".$request['department_id']."', LOCALITY_ID = '".$request['locality_id']."', ADDRESS_STREET = '".$request['address_street']."', ADDRESS_NUMBER = '".$request['address_number']."', APARTMENT = '".$request['apartment']."', UPDATED_AT = SYSDATE";
 			$values = "USER_ID = ".$user->id;
 
-			$res= self::updateFila($table_name, $columns, $values);
+			$res= $this->plSqlServices->updateFila($table_name, $columns, $values);
 
 			//return $res;
 			if($res){
@@ -325,36 +333,5 @@ class UserService
 		}
 	}
 
-	public function insertarFila(string $table_name, string $columns, string $values): bool{
 
-		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.INSERTAR_FILA(:table_name, :columns, :values); END;",
-            [
-                'table_name' => $table_name,
-                'columns' => $columns,
-                'values' => $values,
-            ]);
-            
-		return $res;
-
-	}
-
-	public function getRow( string $table, string $column_name, string $column_value): mixed{
-
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.FILA_" . $table . "(:column_name,:column_value) as result FROM DUAL", ['column_name' => $column_name, 'column_value' => $column_value]);
-		$json = json_decode($result[0]->result);
-	
-		return $json;
-	}
-
-	public function updateFila(string $table_name, string $columns, string $values): mixed{
-
-			$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.MODIFICAR_FILAR(:p_nombre_tabla, :p_valores_columnas, :p_clausula_where); END;",
-            [
-                'p_nombre_tabla' => $table_name,
-                'p_valores_columnas' => $columns,
-                'p_clausula_where' => $values,
-            ]);
-
-		return $res;
-	}
 }

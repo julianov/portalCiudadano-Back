@@ -15,7 +15,8 @@ class LoginRequest extends FormRequest
 	{
 		return [
 			'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
-			'password' => 'required|string|min:8'
+			'password' => 'required|string|min:8',
+			'captcha' => 'required|string|min:8'
 		];
 	}
 
@@ -26,6 +27,7 @@ class LoginRequest extends FormRequest
 			'cuil.min' => 'El campo CUIL debe tener 11 caracteres',
 			'cuil.max' => 'El campo CUIL debe tener 11 caracteres',
 			'password.required' => 'El campo Contraseña es obligatorio',
+			'captcha.required' => 'El campo Catcha es obligatorio',
 		];
 	}
 }

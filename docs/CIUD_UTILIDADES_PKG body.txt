@@ -1,0 +1,242 @@
+create or replace PACKAGE BODY CIUD_UTILIDADES_PKG AS
+
+-----------------------------------------FUNCIONES----------------------------------------------------
+
+ -- FUNCIÓN GENÉRICA PARA UPDATE DE UN CAMPO O CAMPOS, EN TABLA (NOMBRE DE TABLA SE PASA COMO PARÁMETRO).
+FUNCTION MODIFICAR_FILAR(
+  p_nombre_tabla IN VARCHAR2,
+  p_valores_columnas IN VARCHAR2,
+  p_clausula_where IN VARCHAR2
+)
+RETURN BOOLEAN
+AS
+  l_stmt VARCHAR2(4000);
+  l_resultado BOOLEAN;
+BEGIN
+  l_stmt := 'UPDATE ' || p_nombre_tabla || ' SET ' || p_valores_columnas || ' WHERE ' || p_clausula_where;
+
+  BEGIN
+    EXECUTE IMMEDIATE l_stmt;
+    l_resultado := TRUE;
+  EXCEPTION
+    WHEN OTHERS THEN
+      l_resultado := FALSE;
+  END;
+
+  RETURN l_resultado;
+END;
+
+-- FUNCIÓN GENÉRICA PARA BUSCAR UNA FILA EN UNA TABLA 
+FUNCTION OBTENER_FILA (p_nombre_tabla IN VARCHAR2, p_nombre_campo IN VARCHAR2, p_valor_campo IN VARCHAR2)
+  RETURN SYS_REFCURSOR
+AS
+  l_consulta       VARCHAR2(4000);
+  l_resultado      SYS_REFCURSOR;
+BEGIN
+  l_consulta := 'SELECT * FROM ' || p_nombre_tabla || ' WHERE ' || p_nombre_campo || ' = :1';
+  OPEN l_resultado FOR l_consulta USING p_valor_campo;
+  RETURN l_resultado;
+END;
+
+
+FUNCTION get_value(p_table_name IN VARCHAR2,p_column_buscar IN VARCHAR2,  p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_result_num VARCHAR2(4000);
+BEGIN
+  l_query := 'SELECT ' || p_column_buscar || ' FROM ' || p_table_name || ' WHERE ' || p_column_name || ' = :value';
+
+  EXECUTE IMMEDIATE l_query INTO l_result_num USING p_column_value;
+
+  l_result := l_result_num;
+
+  RETURN l_result;
+END;
+
+
+FUNCTION FILA_USER_VALIDATION_TOKEN( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_temp       SYS_REFCURSOR;
+  l_row        USER_VALIDATION_TOKEN%ROWTYPE;
+BEGIN
+  l_query := 'SELECT * FROM USER_VALIDATION_TOKEN WHERE ' || p_column_name || ' = :value';
+  OPEN l_temp FOR l_query USING p_column_value;
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+l_result := l_result  || '{ "ID": '|| l_row.ID || ', "USER_ID":' || l_row.USER_ID || ',"VAL_TOKEN":' || l_row.VAL_TOKEN || ',"CREATED_AT": "' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","EXPIRES_AT":"' || l_row.EXPIRES_AT|| '"}';
+  END LOOP;
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+FUNCTION FILA_USER_CONTACT( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_temp       SYS_REFCURSOR;
+  l_row        USER_CONTACT%ROWTYPE;
+BEGIN
+  l_query := 'SELECT * FROM USER_CONTACT WHERE ' || p_column_name || ' = :value';
+  OPEN l_temp FOR l_query USING p_column_value;
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+l_result := l_result  || '{ "ID": '|| l_row.ID || ', "USER_ID":' || l_row.USER_ID || ',"BIRTHDAY":"' || l_row.BIRTHDAY || '","CELLPHONE_NUMBER":"' || l_row.CELLPHONE_NUMBER || '","DEPARTMENT_ID":"' || l_row.DEPARTMENT_ID || '","LOCALITY_ID":"' || l_row.LOCALITY_ID|| '","ADDRESS_STREET":"' || l_row.ADDRESS_STREET|| '","ADDRESS_NUMBER":"' || l_row.ADDRESS_NUMBER|| '","APARTMENT":"' || l_row.APARTMENT|| '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT ||  '","CELLPHONE_NUMBER_VERIFIED_AT":"' || l_row.CELLPHONE_NUMBER_VERIFIED_AT || '","DELETED_AT":"' || l_row.DELETED_AT|| '"}';
+  END LOOP;
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+FUNCTION FILA_USER_AUTHENTICATION( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_temp       SYS_REFCURSOR;
+  l_row        USER_AUTHENTICATION%ROWTYPE;
+BEGIN
+  l_query := 'SELECT * FROM USER_AUTHENTICATION WHERE ' || p_column_name || ' = :value';
+  OPEN l_temp FOR l_query USING p_column_value;
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+l_result := l_result  || '{ "ID": '|| l_row.ID || ', "USER_ID":' || l_row.USER_ID || ',"AUTHENTICATION_TYPES_ID":' || l_row.AUTHENTICATION_TYPES_ID || ',"AUTH_LEVEL":"' || l_row.AUTH_LEVEL || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT|| '"}';
+  END LOOP;
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+FUNCTION FILA_AUTHENTICATION_TYPES( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_temp       SYS_REFCURSOR;
+  l_row        AUTHENTICATION_TYPES%ROWTYPE;
+BEGIN
+  l_query := 'SELECT * FROM AUTHENTICATION_TYPES WHERE ' || p_column_name || ' = :value';
+  OPEN l_temp FOR l_query USING p_column_value;
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+l_result := l_result  || '{ "ID": '|| l_row.ID || ', "DESCRIPTION":"' || l_row.DESCRIPTION || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT|| '"}';
+  END LOOP;
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+
+FUNCTION FILA_PRESENTIAL( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+  l_query      VARCHAR2(2000);
+  l_result     VARCHAR2(4000);
+  l_temp       SYS_REFCURSOR;
+  l_row        PRESENTIAL%ROWTYPE;
+BEGIN
+  l_query := 'SELECT * FROM PRESENTIAL WHERE ' || p_column_name || ' = :value';
+  OPEN l_temp FOR l_query USING p_column_value;
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+    l_result := l_result  || '{ "ID": '|| l_row.ID || ', "USER_AUTHENTICATION_ID":' || l_row.USER_AUTHENTICATION_ID || ',"DNI_FRONT":"' || blob_to_base64(l_row.DNI_FRONT) || '","DNI_BACK":"' || blob_to_base64(l_row.DNI_BACK) || '","USER_PHOTO":"' || blob_to_base64(l_row.USER_PHOTO) || '","ACTOR_ID":"' || l_row.ACTOR_ID|| '","CREATED_AT":"' || l_row.CREATED_AT|| '","UPDATED_AT":"' || l_row.UPDATED_AT|| '"}';
+END LOOP;
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+--NEW FUNCTION
+
+FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+     l_query      VARCHAR2(2000);
+     l_result     VARCHAR2(4000);
+     l_temp       SYS_REFCURSOR;
+    l_row NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT * FROM NOTIFICATIONS WHERE ' || p_column_name || ' = :value';
+    OPEN l_temp FOR l_query USING p_column_value;
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || ',"AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","ATTACHMENTS":"' || blob_to_base64(l_row.ATTACHMENTS) || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT || '"}';
+    END LOOP;
+IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+FUNCTION blob_to_base64 (p_blob BLOB)
+RETURN VARCHAR2
+AS
+  l_blob_len INTEGER;
+  l_raw_data RAW(32767);
+  l_base64   VARCHAR2(32767);
+BEGIN
+  SELECT DBMS_LOB.GETLENGTH(p_blob) INTO l_blob_len FROM DUAL;
+  DBMS_LOB.READ(p_blob, l_blob_len, 1, l_raw_data);
+  l_base64 := UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(l_raw_data));
+  RETURN l_base64;
+END;
+
+-- FUNCIÓN GENÉRICA PARA BORRAR UNA FILA DE UNA TABLA. 
+FUNCTION ELIMINAR_FILA (p_nombre_tabla IN VARCHAR2, p_nombre_campo IN VARCHAR2, p_valor_campo IN VARCHAR2)
+  RETURN BOOLEAN
+AS
+  l_consulta       VARCHAR2(4000);
+  l_eliminados     NUMBER;
+BEGIN
+  l_consulta := 'DELETE FROM ' || p_nombre_tabla || ' WHERE ' || p_nombre_campo || ' = :1';
+    EXECUTE IMMEDIATE l_consulta USING p_valor_campo;
+    RETURN SQL%ROWCOUNT = 1;
+END;
+
+-- FUNCIÓN GENÉRICA PARA OBTENER EL ID, SEGÚN UNA CONDICIÓN QUE LE PASAMOS. 
+FUNCTION get_id (p_table_name IN VARCHAR2, p_field_name IN VARCHAR2, p_field_value IN VARCHAR2)
+  RETURN NUMBER
+AS
+  l_query       VARCHAR2(4000);
+  l_result      NUMBER;
+BEGIN
+  l_query := 'SELECT id FROM ' || p_table_name || ' WHERE ' || p_field_name || ' = :1';
+  EXECUTE IMMEDIATE l_query INTO l_result USING p_field_value;
+  RETURN l_result;
+END;
+
+
+-----------------------------------------PROCEDIMIENTOS----------------------------------------------------
+
+-- PROCEDIMIENTO GENÉRICO PARA INSERTAR UNA FILA EN TABLA (NOMBRE DE TABLA SE PASA COMO PARÁMETRO). 
+FUNCTION INSERTAR_FILA (p_table_name IN VARCHAR2, p_columns IN VARCHAR2, p_values IN VARCHAR2)
+RETURN BOOLEAN
+AS
+BEGIN
+  EXECUTE IMMEDIATE 'INSERT INTO ' || p_table_name || ' (' || p_columns || ') VALUES (' || p_values || ')';
+  RETURN TRUE;
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN FALSE;
+END;
+
+END CIUD_UTILIDADES_PKG; 
