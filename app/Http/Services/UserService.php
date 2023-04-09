@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Services\PlSqlService;
+use Illuminate\Support\Facades\Http;
 
 
 class UserService
