@@ -217,71 +217,84 @@ class UserController extends Controller
 		try {
 
 			$validated = $request->validated();
+			$captcha=$this->userService->ReCaptcha($validated['captcha']); 
 
-			if (Auth::attempt($validated)) {
+			if ($captcha){
 
-				$user = Auth::user();
+				if (Auth::attempt($validated)) {
 
-				if ($user->email_verified_at == null) {
-
-					return response()->json([
-						'status' => false,
-						'message' => 'email validation still pending'
-					], 400);
-
-				} else {
-
-					$column_name = "USER_ID";
-					$column_value = $user->id;
-					$table = "USER_AUTHENTICATION";
-					$user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
-
-
-					if (!empty($user_auth)) {
-
-						$token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
-
-						//a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
-						$timestamp = now()->addDays(1);
-						$expires_at = date('M d, Y H:i A', strtotime($timestamp));
-
-						$column_name = "USER_ID";
-						$column_value = $user->id;
-						$table = "USER_CONTACT";
-						$user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
-
-						$user_data = [
-							"user" => $user,
-							"user_contact" => $user_data
-						];
-
-						return response()->json([
-							'status' => true,
-							'message' => 'Login successful',
-							'access_token' => $token,
-							'token_type' => 'bearer',
-							'expires_at' => $expires_at,
-							'user_data' => $user_data
-						]);
-
-					} else {
-
-						//enviar error de nivel de autenticación
+					$user = Auth::user();
+	
+					if ($user->email_verified_at == null) {
+	
 						return response()->json([
 							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
-
+							'message' => 'email validation still pending'
+						], 400);
+	
+					} else {
+	
+						$column_name = "USER_ID";
+						$column_value = $user->id;
+						$table = "USER_AUTHENTICATION";
+						$user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+	
+	
+						if (!empty($user_auth)) {
+	
+							$token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
+	
+							//a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
+							$timestamp = now()->addDays(1);
+							$expires_at = date('M d, Y H:i A', strtotime($timestamp));
+	
+							$column_name = "USER_ID";
+							$column_value = $user->id;
+							$table = "USER_CONTACT";
+							$user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+	
+							$user_data = [
+								"user" => $user,
+								"user_contact" => $user_data
+							];
+	
+							return response()->json([
+								'status' => true,
+								'message' => 'Login successful',
+								'access_token' => $token,
+								'token_type' => 'bearer',
+								'expires_at' => $expires_at,
+								'user_data' => $user_data
+							]);
+	
+						} else {
+	
+							//enviar error de nivel de autenticación
+							return response()->json([
+								'status' => false,
+								'message' => 'Internal server problem, please try again later'
+							], 503);
+	
+						}
 					}
+				} else {
+	
+					return response()->json([
+						'status' => false,
+						'message' => 'Invalid Credentials',
+					], 400);
+	
 				}
-			} else {
+
+			}else{
 
 				return response()->json([
 					'status' => false,
-					'message' => 'Invalid Credentials',
-				], 400);
-
+					'message' => 'Bad captcha'
+				], 403);
+	
 			}
+			
 
 
 		} catch (Exception $e) {
