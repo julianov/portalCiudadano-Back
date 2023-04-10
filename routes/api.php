@@ -61,6 +61,7 @@ Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->gro
 Route::prefix("/v0/notification")->controller(Controllers\NotificationsController::class)->group(function () {
 
 	Route::post('/new', [Controllers\NotificationsController::class, 'newNotification']);
+	Route::middleware(['auth:authentication'])->get('/get/user/news', [Controllers\NotificationsController::class, 'checkUserNotifications']);
 
 });
 
