@@ -159,7 +159,15 @@ class UserController extends Controller
 
 						$resgitered=false;
 						if($json->VAL_TOKEN > 9999) {
-							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_4");
+							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
+
+							//SET THE ACTOR TYPE
+							$table_name = "USER_ACTORS";
+							$columns = "USER_ID, DESCRIPTION, CREATED_AT";
+							$values = $user->id.','."".',sysdate';
+
+							$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+
 						}else{
 							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
 						}
