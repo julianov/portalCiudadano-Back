@@ -159,7 +159,7 @@ class NotificationsController extends Controller
 
                     return response()->json([
                         'status' => true,
-                        'notifications' => $res
+                        'notifications' => $res_notifications
                     ], 200);
                 }
                 
