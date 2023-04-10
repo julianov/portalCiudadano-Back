@@ -158,33 +158,60 @@ class UserController extends Controller
 						$user->save();
 
 						$resgitered=false;
+						
 						if($json->VAL_TOKEN > 9999) {
+							
 							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
 
 							//SET THE ACTOR TYPE
 							$table_name = "USER_ACTORS";
 							$columns = "USER_ID, DESCRIPTION, CREATED_AT";
 							$values = $user->id.','."".',sysdate';
-
 							$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
+							if($result){
+
+								if ($resgitered) {
+
+									return response()->json([
+										'status' => true,
+										'message' => 'Email user confirmed',
+									], 201);
+		
+								} else {
+		
+									return response()->json([
+										'status' => false,
+										'message' => 'Internal server problem, please try again later'
+									], 503);
+								}
+
+							}else{
+
+								return response()->json([
+									'status' => false,
+									'message' => 'Internal server problem, please try again later'
+								], 503);
+							}
+
 						}else{
+
 							$resgitered = $this->userService->setAuthType($user, "REGISTRADO", "level_1");
-						}
+							
+							if ($resgitered) {
 
-						if ($resgitered) {
-
-							return response()->json([
-								'status' => true,
-								'message' => 'Email user confirmed',
-							], 200);
-
-						} else {
-
-							return response()->json([
-								'status' => false,
-								'message' => 'Internal server problem, please try again later'
-							], 503);
+								return response()->json([
+									'status' => true,
+									'message' => 'Email user confirmed',
+								], 201);
+	
+							} else {
+	
+								return response()->json([
+									'status' => false,
+									'message' => 'Internal server problem, please try again later'
+								], 503);
+							}						
 						}
 
 					} else {
@@ -263,9 +290,15 @@ class UserController extends Controller
 							$table = "USER_CONTACT";
 							$user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
 	
+							$table = "USER_ACTORS";
+							$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+							$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
+							$is_actor = ($is_empty) ? false : true;
+
 							$user_data = [
 								"user" => $user,
-								"user_contact" => $user_data
+								"user_contact" => $user_data,
+								"is_actor" => $is_actor
 							];
 	
 							return response()->json([

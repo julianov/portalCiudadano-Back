@@ -56,6 +56,21 @@ class NotificationsController extends Controller
                 $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['attachments']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
+                if ($res){
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Notification loaded successfully',
+                    ], 201);
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Internal server problem, please try again later'
+                    ], 503);
+                }
+
                 
             }else{
                 
@@ -64,6 +79,20 @@ class NotificationsController extends Controller
                 $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
+                if ($res){
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Notification loaded successfully',
+                    ], 201);
+
+                }else{
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Internal server problem, please try again later'
+                    ], 503);
+                }
                 
             }
 
@@ -76,6 +105,14 @@ class NotificationsController extends Controller
 
         }
         
+    }
+
+
+    public function checkUserNotifications(Request $request){
+
+        //aca pueden darse varios casos. Si el user es actor, si es ciudadano. Si ha completado su información personal, si no la ha completado solo se ven los broadcast.
+
+        //Lo primero que hay que hacer es obtener todas las notificaciones que no se vencieron
     }
 
 }
