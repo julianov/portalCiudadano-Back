@@ -27,68 +27,57 @@ class EntreRiosWSService
 	public function checkUserCuil(string $dni)
 		{
 		$persona = $this->getPersonaFisica($dni);
-		if ($persona != "Cuil not existing in DB"){
-			$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
-			$response = new CheckUserCuilResponse(true, $persona, $actor);
-			$is_actor=false;
-			if ($response->getActor()->getEntId()!=null){
-				$is_actor=true;
-			}
+
+		if (!$persona) {
 			return response()->json([
-				"status" => true,
-				"fullName" => $response->getUser()->getFullName(),
-				"prs_id" => $response->getUser()->getid(),
-				"Cuil" => $response->getUser()->getCuil(),
-				"Nombres" => $response->getUser()->getNombres(),
-				"Apellido" => $response->getUser()->getApellido(),
-				"Actor" => $is_actor
-			]);
-		}else{
-			return response()->json([
-			'status' => false,
-			'message' => 'Cuil not existing in DB'
+				'status' => false,
+				'message' => 'Cuil not existing in DB'
 			], 422);
 		}
+
+		$is_actor = false;
+
+		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
+
+		$response = new CheckUserCuilResponse(true, $persona, $actor);
+		if ($response->getActor()->getEntId() != null) { $is_actor=true; }
+
+		return response()->json([
+			"status" => true,
+			"fullName" => $response->getUser()->getFullName(),
+			"prs_id" => $response->getUser()->getid(),
+			"Cuil" => $response->getUser()->getCuil(),
+			"Nombres" => $response->getUser()->getNombres(),
+			"Apellido" => $response->getUser()->getApellido(),
+			"Actor" => $is_actor
+		], 200);
 	}
 
-	private function getPersonaFisica(string $dni): PersonaFisicaResponse|string
+	private function getPersonaFisica(string $dni): ?PersonaFisicaResponse
 	{
 		$url = "consultaPF/".$dni;
-		$response = Http::withHeaders(
-			['Authorization' => $this->authToken])
+		$response = Http::withHeaders(['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
 
-			if(array_key_exists(0, $response->json())){
+		if(!array_key_exists(0, $response->json())){ return null; }
 
-				return new PersonaFisicaResponse($response->json()[0]);
-
-			}else{
-
-				return "Cuil not existing in DB";
-				// Handle error
-			}
+		return new PersonaFisicaResponse($response->json()[0]);
 	}
 
-	private function getBduActorEntidad(string $sexo, string $dni): BduActorEntidadResponse|string
+	private function getBduActorEntidad(string $sexo, string $dni): ?BduActorEntidadResponse
 	{
 		$url = "consultaBduActorEntidad/$dni./'$sexo'";
 		$response = Http::withHeaders(
 			['Authorization' => $this->authToken])
 			->get($this->baseUrl.$url);
 
-			if(array_key_exists(0, $response->json())){
+		if (!array_key_exists(0, $response->json())) { return null; }
 
-				return new BduActorEntidadResponse($response->json()[0]);
-
-			}else{
-
-				return "Cuil not existing in DB";
-			}
+		return new BduActorEntidadResponse($response->json()[0]);
 	}
 
     public function getERLocations()
 	{
-
 		$url ="consultaLocalidades/null/null/'entre%20rios'/null";
 		$response = Http::withHeaders([
 			'Authorization' => $this->authToken,

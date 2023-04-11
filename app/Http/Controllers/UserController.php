@@ -16,6 +16,7 @@ use App\Http\Requests\User\ChangeNamesRequest;
 use App\Http\Services\UserService;
 
 use App\Http\Services\PlSqlService;
+use App\Http\Services\ErrorService;
 
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
@@ -39,13 +40,14 @@ class UserController extends Controller
 	protected UserService $userService;
 	private EntreRiosWSService $wsService;
 	protected PlSqlService $plSqlServices;
+	private ErrorService $errorService;
 
-	public function __construct(UserService $userService, PlSqlService $plSqlServices, EntreRiosWSService $wsService)
+	public function __construct(UserService $userService, PlSqlService $plSqlServices, EntreRiosWSService $wsService, ErrorService $errorService)
 	{
-
 		$this->userService = $userService;
 		$this->plSqlServices = $plSqlServices;
 		$this->wsService = $wsService;
+		$this->errorService = $errorService;
 	}
 
 	/**
@@ -55,7 +57,6 @@ class UserController extends Controller
 	 */
 	public function index(): JsonResponse
 	{
-		//
 		return response()->json();
 	}
 
@@ -71,14 +72,10 @@ class UserController extends Controller
 		if ($user) {
 			return response()->json([
 				'status' => false,
-				'message' => 'User already registered'
+				'message' => 'User already registered',
 			], 409);
 
 		} else {
-			/*$dni = substr($validated['cuil'], 2, -1);
-			if (str_starts_with($validated['cuil'], "0")) {
-				$dni = substr($validated['cuil'], 1);
-			}*/
 			$dni= $this->userService->getDniFromCuil($validated['cuil']);
 			$rs = $this->wsService->checkUserCuil($dni);
 			return $rs;
@@ -87,53 +84,39 @@ class UserController extends Controller
 
 	public function singup(CreateUserRequest $request): JsonResponse
 	{
-
 		try {
-
 			$validated = $request->validated();
+
 			$captcha=$this->userService->ReCaptcha($validated['captcha']); 
-
-			if ($captcha){
-
-				$user = User::where('cuil', $validated['cuil'])->first();
-
-				if ($user) {
-
-					return response()->json([
-						'status' => false,
-						'message' => 'User already registered'
-					], 409);
-
-				} else {
-
-					$singupUserServices = $this->userService->signup($validated);
-
-					return $singupUserServices;
-				}
-
-			}else{
-
+			if (!$captcha) {
 				return response()->json([
 					'status' => false,
 					'message' => 'Bad captcha'
 				], 403);
-
 			}
-			
 
+			$user = User::where('cuil', $validated['cuil'])->first();
+			if ($user) {
+				return response()->json([
+					'status' => false,
+					'message' => 'User already registered'
+				], 409);
+			}
+
+			$singupUserServices = $this->userService->signup($validated);
+
+			return $singupUserServices;
 		} catch (Throwable $th) {
 			return response()->json([
 				'status' => false,
 				'message' => $th->getMessage()
 			], 500);
 		}
-
 	}
 
 	/**
 	 * @throws ValidationException
 	 */
-
 	public function validateNewUser(ValidateNewUserRequest $request): JsonResponse
 	{
 		try {
@@ -207,10 +190,7 @@ class UserController extends Controller
 	
 							} else {
 	
-								return response()->json([
-									'status' => false,
-									'message' => 'Internal server problem, please try again later'
-								], 503);
+								return $this->errorService->genericError();
 							}						
 						}
 
@@ -313,10 +293,7 @@ class UserController extends Controller
 						} else {
 	
 							//enviar error de nivel de autenticación
-							return response()->json([
-								'status' => false,
-								'message' => 'Internal server problem, please try again later'
-							], 503);
+							return $this->errorService->genericError();
 	
 						}
 					}
@@ -377,10 +354,7 @@ class UserController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
+						return $this->errorService->genericError();
 
 					}
 				}else if($res_user_contact =="updated"){
@@ -392,10 +366,7 @@ class UserController extends Controller
 
 				} else {
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					return $this->errorService->genericError();
 				}
 			} else {
 
@@ -506,10 +477,7 @@ class UserController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
+						return $this->errorService->genericError();
 
 					}
 
@@ -526,10 +494,7 @@ class UserController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
+						return $this->errorService->genericError();
 					}
 
 				}
@@ -597,18 +562,12 @@ class UserController extends Controller
 
 			} else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem, please try again later'
-				], 503);
+				return $this->errorService->genericError();
 
 			}
 
 		}catch (DecryptException $e) {
-			return response()->json([
-				'status' => false,
-				'message' => 'Invalid token',
-			], 400);
+			return $this->errorService->badToken();
 		}
 
 		
@@ -653,10 +612,7 @@ class UserController extends Controller
 
 					}else{
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
+						return $this->errorService->genericError();
 					}
 
 				}else{
@@ -720,10 +676,7 @@ class UserController extends Controller
 
 				} else {
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					return $this->errorService->genericError();
 
 				}
 
@@ -740,10 +693,7 @@ class UserController extends Controller
 
 				} else {
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					return $this->errorService->genericError();
 				}
 
 			}
@@ -802,10 +752,7 @@ class UserController extends Controller
 
 			} else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem, please try again later'
-				], 503);
+				return $this->errorService->genericError();
 
 			}
 
@@ -821,10 +768,7 @@ class UserController extends Controller
 			
 
 		}catch (DecryptException $e) {
-			return response()->json([
-				'status' => false,
-				'message' => 'Invalid token',
-			], 400);
+			return $this->errorService->badToken();
 		}
 
 		
