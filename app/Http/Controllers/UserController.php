@@ -165,8 +165,8 @@ class UserController extends Controller
 
 							//SET THE ACTOR TYPE
 							$table_name = "USER_ACTORS";
-							$columns = "USER_ID, DESCRIPTION, CREATED_AT";
-							$values = $user->id.','."".',sysdate';
+							$columns = "USER_ID, CREATED_AT";
+							$values = $user->id.',sysdate';
 							$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
 							if($result){
