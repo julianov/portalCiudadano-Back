@@ -293,7 +293,7 @@ class UserController extends Controller
 							$table = "USER_ACTORS";
 							$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
 							$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
-							$is_actor = ($is_empty) ? false : true;
+							$is_actor = ($is_actor_empty) ? false : true;
 
 							$user_data = [
 								"user" => $user,
