@@ -62,4 +62,19 @@ class PlSqlService
 
 		return $json;
 	}
+
+	public function getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
+	{
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_EMAIL_USUARIOS(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
+			'min_fecha_nacimiento' => $min_fecha_nacimiento,
+			'max_fecha_nacimiento' => $max_fecha_nacimiento,
+			'localidad_id' => $localidad_id,
+			'departamento_id' => $departamento_id,
+			'tipo_de_usuario'=> $tipo_de_usuario,
+		]);
+
+		$json = json_decode($result[0]->result);
+
+		return $json;
+	}
 }

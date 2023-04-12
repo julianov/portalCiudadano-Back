@@ -18,6 +18,30 @@ class NotificationsController extends Controller
 		$this->plSqlServices = $plSqlServices;
 	}
 
+    
+
+
+    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachments,$notification_date_from,$notificaion_date_to)
+    {
+
+
+        $birthday = Carbon::now()->subYears($age_from);
+        $min_fecha_nacimiento = $birthday->format('dd/mm/yyyy');
+
+        $birthday = Carbon::now()->subYears($age_to);
+        $max_fecha_nacimiento = $birthday->format('dd/mm/yyyy');
+
+        $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
+
+        $result_code=1; //es solo para prueba
+        foreach ($usuarios as $usuario) {
+            Mail::to($usuario->email)
+                ->queue((new EmailConfirmation($usuario, $result_code))
+                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                    ->subject('Validación de correo e-mail'));
+        }
+
+    }
 
     public function newNotification(Request $request){
 
@@ -65,6 +89,12 @@ class NotificationsController extends Controller
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
+
+                    if ($request['send_by_email'] =='1' || $request['send_by_email'] == 1 ){
+
+                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachments'],$request['notification_date_from'],$request['notificaion_date_to']);
+                    
+                    }
 
                     return response()->json([
                         'status' => true,
@@ -117,10 +147,6 @@ class NotificationsController extends Controller
 
 
     public function checkUserNotifications(Request $request){
-
-        //aca pueden darse varios casos. Si el user es actor, si es ciudadano. Si ha completado su información personal, si no la ha completado solo se ven los broadcast.
-
-        //Lo primero que hay que hacer es obtener todas las notificaciones que no se vencieron
 
         $user = Auth::guard('authentication')->user();
 
