@@ -157,12 +157,12 @@ class UserController extends Controller
 		
 								} else {
 		
-									return $this->errorService->genericError();
+									return $this->errorService->databaseWriteError();
 								}
 
 							}else{
 
-								return $this->errorService->genericError();
+								return $this->errorService->databaseWriteError();
 							}
 
 						}else{
@@ -178,7 +178,7 @@ class UserController extends Controller
 	
 							} else {
 	
-								return $this->errorService->genericError();
+								return $this->errorService->databaseReadError();
 							}						
 						}
 
@@ -275,25 +275,19 @@ class UserController extends Controller
 						} else {
 	
 							//enviar error de nivel de autenticación
-							return $this->errorService->genericError();
+							return $this->errorService->databaseReadError();
 	
 						}
 					}
 				} else {
 	
-					return response()->json([
-						'status' => false,
-						'message' => 'Invalid Credentials',
-					], 400);
+					return $this->errorService->invalidCredentials();
 	
 				}
 
 			}else{
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Bad captcha'
-				], 403);
+				return $this->errorService->badCaptcha();
 	
 			}
 			
@@ -336,7 +330,7 @@ class UserController extends Controller
 
 					} else {
 
-						return $this->errorService->genericError();
+						return $this->errorService->databaseWriteError();
 
 					}
 				}else if($res_user_contact =="updated"){
@@ -348,14 +342,11 @@ class UserController extends Controller
 
 				} else {
 
-					return $this->errorService->genericError();
+					return $this->errorService->databaseWriteError();
 				}
 			} else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+				return $this->errorService->badUser();
 
 			}
 		} catch (Throwable $th) {
@@ -398,28 +389,19 @@ class UserController extends Controller
 
 				}else{
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Not enabled to change the names'
-					], 403);
+					return $this->errorService->changeName();
 
 				}
 
 			}else{
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Internal server problem - Code:01'
-				], 404);
+				return $this->errorService->databaseReadError();
 
 			}
 
 		}else{
 
-			return response()->json([
-				'status' => false,
-				'message' => 'User not found'
-			], 404);
+			return $this->errorService->badUser();
 
 		}
 
@@ -459,7 +441,7 @@ class UserController extends Controller
 
 					} else {
 
-						return $this->errorService->genericError();
+						return $this->errorService->databaseWriteError();
 
 					}
 
@@ -476,26 +458,20 @@ class UserController extends Controller
 
 					} else {
 
-						return $this->errorService->genericError();
+						return $this->errorService->databaseWriteError();
 					}
 
 				}
 
 			}else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+				return $this->errorService->badUser();
 
 			}
 
 		}else{
 
-			return response()->json([
-				'status' => false,
-				'message' => 'Bad captcha'
-			], 403);
+			return $this->errorService->badCaptcha();
 
 		}
 		
@@ -535,16 +511,13 @@ class UserController extends Controller
 
 				} else {
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Bad validation code',
-					], 201);
+					return $this->errorService->badPassword();
 
 				}
 
 			} else {
 
-				return $this->errorService->genericError();
+				return $this->errorService->databaseReadError();
 
 			}
 
@@ -594,32 +567,23 @@ class UserController extends Controller
 
 					}else{
 
-						return $this->errorService->genericError();
+						return $this->errorService->databaseWriteError();
 					}
 
 				}else{
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Email alredy verified'
-					], 401);
+					return $this->errorService->alreadyVerifiedEmail();
 				}
 
 			}else{
 
-				return response()->json([
-					'status' => false,
-					'message' => 'Invalid Cuil'
-				], 503);
+				return $this->errorService->invalidCuil();
 
 			}
 
 		}else{
 
-			return response()->json([
-				'status' => false,
-				'message' => 'Bad captcha'
-			], 403);
+			return $this->errorService->badCaptcha();
 
 		}
 
@@ -658,7 +622,7 @@ class UserController extends Controller
 
 				} else {
 
-					return $this->errorService->genericError();
+					return $this->errorService->databaseWriteError();
 
 				}
 
@@ -675,17 +639,14 @@ class UserController extends Controller
 
 				} else {
 
-					return $this->errorService->genericError();
+					return $this->errorService->databaseWriteError();
 				}
 
 			}
 
 			}else {
 
-				return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+				return $this->errorService->badUser();
 
 			}
 		
@@ -725,25 +686,19 @@ class UserController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Bad validation code',
-						], 201);
+						return $this->errorService->badCode();
 
 					}
 
 			} else {
 
-				return $this->errorService->genericError();
+				return $this->errorService->databaseReadError();
 
 			}
 
 			}else{
 
-				return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+				return $this->errorService->badUser();
 
 			}
 
@@ -804,10 +759,7 @@ class UserController extends Controller
 				'message' => 'User removed'
 			], 201);
 		} else {
-			return response()->json([
-				'status' => false,
-				'message' => 'there is not that user'
-			], 409);
+			return $this->errorService->noUser();
 		}
 	}
 }
