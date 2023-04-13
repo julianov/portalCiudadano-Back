@@ -19,7 +19,7 @@ use Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Services\PlSqlService;
 use Illuminate\Support\Facades\Http;
-
+use App\Http\Services\ErrorService;
 
 class UserService
 {
@@ -27,13 +27,13 @@ class UserService
 	
 	private EntreRiosWSService $wsService;
 	protected PlSqlService $plSqlServices;
-
-	public function __construct(EntreRiosWSService $wsService, PlSqlService $plSqlServices)
+	private ErrorService $errorService;
+	public function __construct(EntreRiosWSService $wsService, PlSqlService $plSqlServices, ErrorService $errorService)
 	{
 		
 		$this->wsService = $wsService;
 		$this->plSqlServices = $plSqlServices;
-
+		$this->errorService = $errorService;
 	}
 
 	public function ReCaptcha ($value)
@@ -44,20 +44,15 @@ class UserService
         ]);
 
 		return $response->json()["success"];
-
 	}
 
 
 	public function getDniFromCuil($cuil){
-
 		$dni = substr($cuil, 2, -1);
 
-		if (str_starts_with($cuil, "0")) {
-			$dni = substr($cuil, 1);
-		}
+		if (str_starts_with($cuil, "0")) { $dni = substr($cuil, 1); }
 
 		return $dni;
-
 	}
 
 	public function createUser(array $request){
@@ -73,6 +68,7 @@ class UserService
 		$user->email = $request['email'];
 		$user->password = bcrypt($request['password']);
 		$user->save();
+
 		return $user;
 	}
 
@@ -188,33 +184,21 @@ class UserService
 	public function signup(array $request)
 	{
 		try {
-
 			if ($request['prs_id'] == "NOTFOUND" ){
-
 				$user = self::createUser($request);
 
-				//$code = random_int(1000, 9999);
-				
 				$result_code = self::saveUserValToken($user->id, false);
-		
-				if ($result_code!=0){
-
-					return self::sendEmail($user, $result_code, "EmailVerification" );
-
-				}else{
-
+				if ($result_code == 0) {
 					$user->delete();
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
 
+					return $this->errorService->genericError();
 				}
-			}else{
 
+				return self::sendEmail($user, $result_code, "EmailVerification" );
+			} else {
 				$dni = self::getDniFromCuil($request['cuil']);
 				$rs = $this->wsService->checkUserCuil($dni);
-	
+
 				if ($rs->getData()->status === true) {
 					// es una persona válida
 					if ($rs->getData()->prs_id == $request['prs_id']){
@@ -230,22 +214,13 @@ class UserService
 							
 						}else{
 							$user->delete();
-							return response()->json([
-								'status' => false,
-								'message' => 'Internal server problem, please try again later'
-							], 503);
+							return $this->errorService->genericError();
 						}
 					}else{
-						return response()->json([
-							'status' => false,
-							'message' => 'Data inconsistency'
-						], 422);
+						return $this->errorService->dataInconsistency();
 					}
 				} else {
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem or bad cuil'
-					], 503);
+					return $this->errorService->badCuil();
 				}
 			}
 		} catch (Throwable $th) {
