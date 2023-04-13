@@ -39,6 +39,21 @@ class NotificationsController extends Controller
                 ->queue((new EmailConfirmation($usuario, $result_code))
                     ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                     ->subject('Validación de correo e-mail'));
+
+            /*
+            Mail::to($usuario->email)
+            ->queue((new EmailConfirmation($usuario, $result_code))
+                ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                ->subject('Validación de correo e-mail')
+                ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
+        
+                Mail::to($usuario->email)
+                ->queue((new EmailConfirmation($usuario, $result_code))
+                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                    ->subject('Validación de correo e-mail')
+                    ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
+        
+                */
         }
 
     }
