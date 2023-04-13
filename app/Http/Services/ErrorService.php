@@ -130,4 +130,49 @@ class ErrorService{
             'error_code' => '012',
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+    
+    public function invalidCredentials()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid Credentials',
+            'error_code' => '013',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function changeName()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'Not enable to change name',
+            'error_code' => '014',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function alreadyVerifiedEmail()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'Email already verified',
+            'error_code' => '015',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function invalidCuil()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid Cuil',
+            'error_code' => '015',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function noUser()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'there is not that user',
+            'error_code' => '016',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
 }
