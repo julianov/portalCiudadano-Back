@@ -19,7 +19,7 @@ use Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Services\PlSqlService;
 use Illuminate\Support\Facades\Http;
-
+use App\Http\Services\ErrorService;
 
 class UserService
 {
@@ -27,13 +27,13 @@ class UserService
 	
 	private EntreRiosWSService $wsService;
 	protected PlSqlService $plSqlServices;
-
-	public function __construct(EntreRiosWSService $wsService, PlSqlService $plSqlServices)
+	private ErrorService $errorService;
+	public function __construct(EntreRiosWSService $wsService, PlSqlService $plSqlServices, ErrorService $errorService)
 	{
 		
 		$this->wsService = $wsService;
 		$this->plSqlServices = $plSqlServices;
-
+		$this->errorService = $errorService;
 	}
 
 	public function ReCaptcha ($value)
@@ -191,10 +191,7 @@ class UserService
 				if ($result_code == 0) {
 					$user->delete();
 
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem, please try again later'
-					], 503);
+					return $this->errorService->genericError();
 				}
 
 				return self::sendEmail($user, $result_code, "EmailVerification" );
@@ -217,22 +214,13 @@ class UserService
 							
 						}else{
 							$user->delete();
-							return response()->json([
-								'status' => false,
-								'message' => 'Internal server problem, please try again later'
-							], 503);
+							return $this->errorService->genericError();
 						}
 					}else{
-						return response()->json([
-							'status' => false,
-							'message' => 'Data inconsistency'
-						], 422);
+						return $this->errorService->dataInconsistency();
 					}
 				} else {
-					return response()->json([
-						'status' => false,
-						'message' => 'Internal server problem or bad cuil'
-					], 503);
+					return $this->errorService->badCuil();
 				}
 			}
 		} catch (Throwable $th) {

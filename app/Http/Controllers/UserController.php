@@ -89,18 +89,12 @@ class UserController extends Controller
 
 			$captcha=$this->userService->ReCaptcha($validated['captcha']); 
 			if (!$captcha) {
-				return response()->json([
-					'status' => false,
-					'message' => 'Bad captcha'
-				], 403);
+				return $this->errorService->badCaptcha();
 			}
 
 			$user = User::where('cuil', $validated['cuil'])->first();
 			if ($user) {
-				return response()->json([
-					'status' => false,
-					'message' => 'User already registered'
-				], 409);
+				return $this->errorService->userRegistered();
 			}
 
 			$singupUserServices = $this->userService->signup($validated);
@@ -163,18 +157,12 @@ class UserController extends Controller
 		
 								} else {
 		
-									return response()->json([
-										'status' => false,
-										'message' => 'Internal server problem, please try again later'
-									], 503);
+									return $this->errorService->genericError();
 								}
 
 							}else{
 
-								return response()->json([
-									'status' => false,
-									'message' => 'Internal server problem, please try again later'
-								], 503);
+								return $this->errorService->genericError();
 							}
 
 						}else{
@@ -196,10 +184,7 @@ class UserController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Bad confirmation code'
-						], 400);
+						return $this->errorService->badCode();
 					}
 				} catch (DecryptException $e) {
 					return response()->json([
@@ -209,10 +194,7 @@ class UserController extends Controller
 				}
 
 			} else {
-				return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+				return $this->errorService->badUser();
 			}
 		} catch (Throwable $th) {
 
