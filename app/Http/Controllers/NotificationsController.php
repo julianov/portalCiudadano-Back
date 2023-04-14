@@ -21,7 +21,7 @@ class NotificationsController extends Controller
     
 
 
-    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachments,$notification_date_from,$notificaion_date_to)
+    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
     {
 
 
@@ -34,35 +34,43 @@ class NotificationsController extends Controller
         $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
 
         $result_code=1; //es solo para prueba
-        foreach ($usuarios as $usuario) {
+
+        if ($attachment_type=='img'){
+
             Mail::to($usuario->email)
                 ->queue((new EmailConfirmation($usuario, $result_code))
                     ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject('Validación de correo e-mail'));
+                    ->subject('Validación de correo e-mail')
+                    ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
+        
 
-            /*
+        }elseif ($attachment_type=='pdf'){
+
             Mail::to($usuario->email)
             ->queue((new EmailConfirmation($usuario, $result_code))
                 ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                 ->subject('Validación de correo e-mail')
                 ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
         
+
+        }else{
+
+            foreach ($usuarios as $usuario) {
                 Mail::to($usuario->email)
-                ->queue((new EmailConfirmation($usuario, $result_code))
-                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject('Validación de correo e-mail')
-                    ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
-        
-                */
+                    ->queue((new EmailConfirmation($usuario, $result_code))
+                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                        ->subject('Validación de correo e-mail'));
+            }
+
         }
+      
 
     }
 
     public function newNotification(Request $request){
 
         $request->validate([
-            "token" => "required|string",
-
+           // "token" => "required|string",
             "recipients" => [
                 'required',
                 'string',
@@ -74,7 +82,12 @@ class NotificationsController extends Controller
             "locality_id" => "required|numeric",
             "message_title" => "required|string",
             "message_body" => "required|string",
-            "attachments" => "nullable|string",
+            "attachment_type" => [
+                'required',
+                'max:50',
+                Rule::in(['none', 'img', 'pdf']),
+            ],
+            "attachment" => "nullable|string",
             "notification_date_from" => "required|max:50|string",
             "notificaion_date_to" => "required|max:50|string",
             "send_by_email" => [
@@ -86,7 +99,7 @@ class NotificationsController extends Controller
             
         ]);
              
-        $host = env('BASEUR_ER_WS_TOKEN');
+      /*  $host = env('BASEUR_ER_WS_TOKEN');
                
         $response = Http::post($host, [
             '_tk' => $request['token'],
@@ -94,20 +107,20 @@ class NotificationsController extends Controller
 
         $responseBody = $response->body();
 
-        if($responseBody == 1) {
+        if($responseBody == 1) {*/
 
-            if ($request->has('attachments')) {
+            if ($request->has('attachment')) {
 
                 $table_name = "NOTIFICATIONS";
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENTS, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['attachments']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."','".$request['send_by_email']."',sysdate";
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE,ATTACHMENT, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['attachment_type']."','".$request['attachment']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."','".$request['send_by_email']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
                     if ($request['send_by_email'] =='1' || $request['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachments'],$request['notification_date_from'],$request['notificaion_date_to']);
+                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachment_type'],$request['attachment'],$request['notification_date_from'],$request['notificaion_date_to']);
                     
                     }
 
@@ -134,6 +147,12 @@ class NotificationsController extends Controller
 
                 if ($res){
 
+                    if ($request['send_by_email'] =='1' || $request['send_by_email'] == 1 ){
+
+                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachment_type'],$request['notification_date_from'],$request['notificaion_date_to']);
+                    
+                    }
+
                     return response()->json([
                         'status' => true,
                         'message' => 'Notification loaded successfully',
@@ -149,14 +168,14 @@ class NotificationsController extends Controller
                 
             }
 
-        }else{
+      /*  }else{
 
             return response()->json([
                 'status' => false,
                 'message' => 'Bad token'
             ], 401);
 
-        }
+        }*/
         
     }
 

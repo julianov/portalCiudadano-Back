@@ -19,10 +19,11 @@ return new class extends Migration
             $table->enum('recipients', ['citizen', 'actor', 'both'])->default('both'); // Se agrega el método default() con el valor "both"
             $table->integer('age_from')->nullable(); // se agrega nullable() para hacerlo opcional
             $table->integer("age_to")->nullable(); // se agrega nullable() para hacerlo opcional
-            $table->integer('department')->nullable(); // se agrega nullable() para hacerlo opcional
-            $table->integer('locality')->nullable(); // se agrega nullable() para hacerlo opcional
+            $table->integer('department_id')->nullable(); // se agrega nullable() para hacerlo opcional
+            $table->integer('locality_id')->nullable(); // se agrega nullable() para hacerlo opcional
             $table->string('message_title');
             $table->string('message_body')->nullable(); // se agrega nullable() para hacerlo opcional
+            $table->enum('attachment_type', ['none', 'img', 'pdf'])->default('none'); // Se agrega el método default() con el valor "both"
             $table->binary("attachments")->nullable(); // se agrega nullable() para hacerlo opcional
             $table->datetime("notification_date_from");
             $table->datetime("notification_date_to");
