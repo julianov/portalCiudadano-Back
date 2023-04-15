@@ -49,7 +49,7 @@ class NewNotificationRequest extends FormRequest
                 'required',
                 'max:50',
                 Rule::in([0, 1]),
-                Rule::regex('/^[0-1]+$/')
+                'regex:/^[0-1]+$/'
             ],
 		];
 	}
