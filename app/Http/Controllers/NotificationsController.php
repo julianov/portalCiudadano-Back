@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Notifications\NewNotificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
@@ -67,37 +68,10 @@ class NotificationsController extends Controller
 
     }
 
-    public function newNotification(Request $request){
+    public function newNotification(NewNotificationRequest $request){
 
-        $request->validate([
-           // "token" => "required|string",
-            "recipients" => [
-                'required',
-                'string',
-                Rule::in(['citizen', 'actor', 'both']), // Verificar que el valor sea uno de los permitidos
-            ], 
-            "age_from" => "required|numeric",
-            "age_to" => "required|numeric",
-            "department_id" => "required|numeric",
-            "locality_id" => "required|numeric",
-            "message_title" => "required|string",
-            "message_body" => "required|string",
-            "attachment_type" => [
-                'required',
-                'max:50',
-                Rule::in(['none', 'img', 'pdf']),
-            ],
-            "attachment" => "nullable|string",
-            "notification_date_from" => "required|max:50|string",
-            "notificaion_date_to" => "required|max:50|string",
-            "send_by_email" => [
-                'required',
-                'max:50',
-                Rule::in([0, 1]),
-                Rule::regex('/^[0-1]+$/')
-            ],
-            
-        ]);
+        $validated = $request->validated();
+
              
       /*  $host = env('BASEUR_ER_WS_TOKEN');
                
@@ -113,14 +87,14 @@ class NotificationsController extends Controller
 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE,ATTACHMENT, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['attachment_type']."','".$request['attachment']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."','".$request['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."','".$validated['age_from']."','".$validated['age_to']."','".$validated['department_id']."','".$validated['locality_id']."','".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
-                    if ($request['send_by_email'] =='1' || $request['send_by_email'] == 1 ){
+                    if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachment_type'],$request['attachment'],$request['notification_date_from'],$request['notificaion_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notificaion_date_to']);
                     
                     }
 
@@ -142,14 +116,14 @@ class NotificationsController extends Controller
                 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$request['recipients']."','".$request['age_from']."','".$request['age_to']."','".$request['department_id']."','".$request['locality_id']."','".$request['message_title']."','".$request['message_body']."','".$request['notification_date_from']."','".$request['notificaion_date_to']."',sysdate";
+                $values = "'".$validated['recipients']."','".$validated['age_from']."','".$validated['age_to']."','".$validated['department_id']."','".$validated['locality_id']."','".$validated['message_title']."','".$validated['message_body']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
-                    if ($request['send_by_email'] =='1' || $request['send_by_email'] == 1 ){
+                    if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($request['recipients'],$request['age_from'],$request['age_to'],$request['department_id'],$request['locality_id'],$request['message_title'],$request['message_body'],$request['attachment_type'],$request['notification_date_from'],$request['notificaion_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notificaion_date_to']);
                     
                     }
 
@@ -167,15 +141,6 @@ class NotificationsController extends Controller
                 }
                 
             }
-
-      /*  }else{
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Bad token'
-            ], 401);
-
-        }*/
         
     }
 
