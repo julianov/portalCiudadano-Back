@@ -87,7 +87,8 @@ class NotificationsController extends Controller
 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE,ATTACHMENT, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."','".$validated['age_from']."','".$validated['age_to']."','".$validated['department_id']."','".$validated['locality_id']."','".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
+
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
@@ -115,8 +116,8 @@ class NotificationsController extends Controller
             }else{
                 
                 $table_name = "NOTIFICATIONS";
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."','".$validated['age_from']."','".$validated['age_to']."','".$validated['department_id']."','".$validated['locality_id']."','".$validated['message_title']."','".$validated['message_body']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."',sysdate";
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
