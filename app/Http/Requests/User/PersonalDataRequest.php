@@ -29,7 +29,7 @@ class PersonalDataRequest extends FormRequest
 			'department_id' => 'required|numeric',
 			'locality_id' => 'required|numeric',
 			'address_street' => 'required|max:50|string',
-			'address_number' => 'required|max:50|string',
+			'address_number' => 'required|numeric',
 			'apartment' => 'nullable|max:50|string',
 		];
 	}

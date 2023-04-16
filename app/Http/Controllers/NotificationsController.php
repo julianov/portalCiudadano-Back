@@ -6,6 +6,7 @@ use App\Http\Requests\Notifications\NewNotificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 
 class NotificationsController extends Controller
@@ -27,10 +28,10 @@ class NotificationsController extends Controller
 
 
         $birthday = Carbon::now()->subYears($age_from);
-        $min_fecha_nacimiento = $birthday->format('dd/mm/yyyy');
+        $min_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $birthday = Carbon::now()->subYears($age_to);
-        $max_fecha_nacimiento = $birthday->format('dd/mm/yyyy');
+        $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
 
@@ -160,7 +161,7 @@ class NotificationsController extends Controller
             if (!empty($user_data)) {
 
                 //$fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val
-                $fechaActual = Carbon::now()->format('dd-mm-yyyy');
+                $fechaActual = Carbon::now()->format('d/m/Y');
                 $fechaCumpleanos = Carbon::parse($user_data->BIRTHDAY);
                 // Calcular la edad
                 $edad = $fechaCumpleanos->age;
@@ -170,7 +171,7 @@ class NotificationsController extends Controller
                 $column_value = $user->id;
 				$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
 				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
-				$is_actor = ($is_empty) ? 'citizen' : 'actor';
+				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
                 $res_notifications = $this->plSqlServices->getNotifications($fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
