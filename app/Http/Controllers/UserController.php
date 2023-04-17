@@ -16,7 +16,7 @@ use App\Http\Requests\User\ChangeNamesRequest;
 use App\Http\Services\UserService;
 
 use App\Http\Services\PlSqlService;
-use App\Services\ErrorService;
+use App\Http\Services\ErrorService;
 
 use App\Models\User;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
