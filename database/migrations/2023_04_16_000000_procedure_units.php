@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string("name"); 
             $table->bigInteger('actor_id');
             $table->foreign('actor_id')->references('id')->on('user_actors')->onDelete('cascade');
-            $table->string("Json_forms_numbers")->nullable(); 
+            $table->string("json_forms_numbers")->nullable(); 
             $table->boolean('active')->default(false);
 
             $table->timestamps(); //fixed

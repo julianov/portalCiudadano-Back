@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('userors')->onDelete('cascade');
             $table->bigInteger('actor_id');
             $table->foreign('actor_id')->references('id')->on('user_actors')->onDelete('cascade');
-            $table->string("Json_forms_ids")->nullable(); 
+            $table->string("json_forms_ids")->nullable(); 
             $table->enum('status', ['pending', 'pause', 'canceled','approved'])->default('both'); // Se agrega el método default() con el valor "both"
             $table->datetime("date_approved");
 
