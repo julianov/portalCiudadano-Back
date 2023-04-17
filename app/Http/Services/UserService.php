@@ -19,7 +19,7 @@ use Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Services\PlSqlService;
 use Illuminate\Support\Facades\Http;
-use App\Http\Services\ErrorService;
+use App\Services\ErrorService;
 
 class UserService
 {
