@@ -15,6 +15,7 @@ use App\Http\Services\UserService;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
 use Illuminate\Support\Facades\Http;
+use App\Http\Services\PlSqlService;
 
 class AuthController extends Controller
 {
@@ -25,12 +26,15 @@ class AuthController extends Controller
 
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
+	protected PlSqlService $plSqlServices;
 
-    public function __construct(UserService $userService, EntreRiosWSService $wsService)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService, PlSqlService $plSqlServices)
 	{
 
 		$this->userService = $userService;
         $this->wsService = $wsService;
+        $this->plSqlServices = $plSqlServices;
+
 
 	}
 
@@ -178,6 +182,7 @@ class AuthController extends Controller
 
         $responseBody = $response->body();
 
+
         if($responseBody == 1) {
 
             $user = $this->userService->getUser($request['cuil_citizen']);
@@ -187,14 +192,14 @@ class AuthController extends Controller
                 $column_name = "USER_ID";
                 $column_value = $user->id;
                 $table = "USER_AUTHENTICATION";
-                $user_auth = $this->userService->getRow($table, $column_name, $column_value);
-                    
+                $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                
                 if ($user_auth ){
 
                     $column_name = "USER_ID";
                     $column_value = $user->id;
                     $table = "USER_CONTACT";
-                    $user_data = $this->userService->getRow($table, $column_name, $column_value);
+                    $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
                     if ($user_data){
 
@@ -273,7 +278,7 @@ class AuthController extends Controller
 			'department_id' => 'required|numeric',
 			'locality_id' => 'required|numeric',
 			'address_street' => 'required|max:50|string',
-			'address_number' => 'required|max:50|string',
+			'address_number' => 'required|numeric',
 			'apartment' => 'nullable|max:50|string',
 
         ]);
