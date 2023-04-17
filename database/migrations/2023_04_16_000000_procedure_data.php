@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id()->primary();
             $table->string("name"); 
             $table->bigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('userors')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->bigInteger('actor_id');
             $table->foreign('actor_id')->references('id')->on('user_actors')->onDelete('cascade');
             $table->string("json_forms_ids")->nullable(); 
