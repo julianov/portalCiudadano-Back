@@ -283,7 +283,9 @@ class AuthController extends Controller
 
             if ($user){
 
-                $filteredRequestUserContact = $validated->only([
+                $validatedCollection = collect($validated);
+
+                $filteredRequestUserContact = $validatedCollection->only([
                     'birthday', 
                     'cellphone_number', 
                     'department_id', 
@@ -291,7 +293,7 @@ class AuthController extends Controller
                     'address_street', 
                     'address_number', 
                     'apartment'
-                ]);
+                ])->toArray();
                                     
                 $res_personal_data = $this->userService->setUserContact($user, $filteredRequestUserContact );
 						
