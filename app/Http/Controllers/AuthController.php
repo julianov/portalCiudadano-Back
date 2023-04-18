@@ -16,6 +16,7 @@ use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Services\PlSqlService;
+use App\Http\Requests\Auth\validateFaceToFaceCitizenRequest;
 
 class AuthController extends Controller
 {
@@ -263,41 +264,26 @@ class AuthController extends Controller
 
 
 
-    public function validateFaceToFaceCitizen(Request $request)
+    public function validateFaceToFaceCitizen(validateFaceToFaceCitizenRequest $request)
     {
 
-        $request->validate([
-            "cuil_citizen" => "required|numeric|regex:/^[0-9]{11}$/",
-            "token" => "required|string",
-
-            'name' => 'required|string|max:50',
-			'last_name' => 'required|string|max:50',
-
-            'birthday' => 'required|max:50|string',
-			'cellphone_number' => 'required|max:50|string',
-			'department_id' => 'required|numeric',
-			'locality_id' => 'required|numeric',
-			'address_street' => 'required|max:50|string',
-			'address_number' => 'required|numeric',
-			'apartment' => 'nullable|max:50|string',
-
-        ]);
+        $validated = $request->validated();
 
         $host = env('BASEUR_ER_WS_TOKEN');
                
         $response = Http::post($host, [
-            '_tk' => $request['token'],
+            '_tk' => $validated['token'],
         ]);
 
         $responseBody = $response->body();
 
         if($responseBody == 1) {
 
-            $user = $this->userService->getUser($request['cuil_citizen']);
+            $user = $this->userService->getUser($validated['cuil_citizen']);
 
             if ($user){
 
-                $filteredRequestUserContact = $request->only([
+                $filteredRequestUserContact = $validated->only([
                     'birthday', 
                     'cellphone_number', 
                     'department_id', 
@@ -311,8 +297,8 @@ class AuthController extends Controller
 						
                 if ($res_personal_data){
 
-                    $user->name = $request['name'];
-                    $user->last_name = $request['last_name'];
+                    $user->name = $validated['name'];
+                    $user->last_name = $validated['last_name'];
                     $user->save();
 
                     $res_user_auth = $this->userService->setAuthType($user, "PRESENCIAL", "level_3");
