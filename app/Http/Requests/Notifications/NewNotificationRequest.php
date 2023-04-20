@@ -43,8 +43,8 @@ class NewNotificationRequest extends FormRequest
                 Rule::in(['none', 'img', 'pdf']),
             ],
             "attachment" => "nullable|string",
-            "notification_date_from" => "required|max:50|string",
-            "notification_date_to" => "required|max:50|string",
+            "notification_date_from" => "required|max:50|string|date_format:d/m/y",
+            "notification_date_to" => "required|max:50|string|date_format:d/m/y",
             "send_by_email" => [
                 'required',
                 'max:50',
@@ -66,9 +66,10 @@ class NewNotificationRequest extends FormRequest
             "message_body" => 'El campo message_body es requerida',
             "attachment_type" => 'El campo attachment_type es requerida',
             "notification_date_from" => 'El campo notification_date_from es requerida',
+            "notification_date_from.date_format" => 'El campo notification_date_from debe ser formato dd/mm/yy',
             "notification_date_to" => 'El campo notificaion_date_to es requerida',
+            "notification_date_to.date_format" => 'El campo notification_date_to debe ser formato dd/mm/yy',
             "send_by_email" =>  'El campo send_by_email es requerida',
 		];
 	}
 }
-
