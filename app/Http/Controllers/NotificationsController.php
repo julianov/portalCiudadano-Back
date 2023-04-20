@@ -23,7 +23,7 @@ class NotificationsController extends Controller
     
 
 
-    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
+    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notification_date_to)
     {
 
 
@@ -88,7 +88,7 @@ class NotificationsController extends Controller
 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE,ATTACHMENT, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notification_date_to']."','".$validated['send_by_email']."',sysdate";
 
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
@@ -96,7 +96,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                     
                     }
 
@@ -118,14 +118,14 @@ class NotificationsController extends Controller
                 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['notification_date_from']."','".$validated['notificaion_date_to']."','".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['notification_date_from']."','".$validated['notification_date_to']."','".$validated['send_by_email']."',sysdate";
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notification_date_to']);
                     
                     }
 

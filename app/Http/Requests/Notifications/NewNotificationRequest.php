@@ -44,7 +44,7 @@ class NewNotificationRequest extends FormRequest
             ],
             "attachment" => "nullable|string",
             "notification_date_from" => "required|max:50|string",
-            "notificaion_date_to" => "required|max:50|string",
+            "notification_date_to" => "required|max:50|string",
             "send_by_email" => [
                 'required',
                 'max:50',
@@ -66,7 +66,7 @@ class NewNotificationRequest extends FormRequest
             "message_body" => 'El campo message_body es requerida',
             "attachment_type" => 'El campo attachment_type es requerida',
             "notification_date_from" => 'El campo notification_date_from es requerida',
-            "notificaion_date_to" => 'El campo notificaion_date_to es requerida',
+            "notification_date_to" => 'El campo notificaion_date_to es requerida',
             "send_by_email" =>  'El campo send_by_email es requerida',
 		];
 	}
