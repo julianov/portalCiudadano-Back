@@ -15,6 +15,8 @@ use App\Http\Services\UserService;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
 use Illuminate\Support\Facades\Http;
+use App\Http\Services\PlSqlService;
+use App\Http\Requests\Auth\validateFaceToFaceCitizenRequest;
 
 class AuthController extends Controller
 {
@@ -25,12 +27,15 @@ class AuthController extends Controller
 
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
+	protected PlSqlService $plSqlServices;
 
-    public function __construct(UserService $userService, EntreRiosWSService $wsService)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService, PlSqlService $plSqlServices)
 	{
 
 		$this->userService = $userService;
         $this->wsService = $wsService;
+        $this->plSqlServices = $plSqlServices;
+
 
 	}
 
@@ -178,6 +183,7 @@ class AuthController extends Controller
 
         $responseBody = $response->body();
 
+
         if($responseBody == 1) {
 
             $user = $this->userService->getUser($request['cuil_citizen']);
@@ -187,14 +193,14 @@ class AuthController extends Controller
                 $column_name = "USER_ID";
                 $column_value = $user->id;
                 $table = "USER_AUTHENTICATION";
-                $user_auth = $this->userService->getRow($table, $column_name, $column_value);
-                    
+                $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                
                 if ($user_auth ){
 
                     $column_name = "USER_ID";
                     $column_value = $user->id;
                     $table = "USER_CONTACT";
-                    $user_data = $this->userService->getRow($table, $column_name, $column_value);
+                    $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
                     if ($user_data){
 
@@ -258,41 +264,28 @@ class AuthController extends Controller
 
 
 
-    public function validateFaceToFaceCitizen(Request $request)
+    public function validateFaceToFaceCitizen(validateFaceToFaceCitizenRequest $request)
     {
 
-        $request->validate([
-            "cuil_citizen" => "required|numeric|regex:/^[0-9]{11}$/",
-            "token" => "required|string",
-
-            'name' => 'required|string|max:50',
-			'last_name' => 'required|string|max:50',
-
-            'birthday' => 'required|max:50|string',
-			'cellphone_number' => 'required|max:50|string',
-			'department_id' => 'required|numeric',
-			'locality_id' => 'required|numeric',
-			'address_street' => 'required|max:50|string',
-			'address_number' => 'required|max:50|string',
-			'apartment' => 'nullable|max:50|string',
-
-        ]);
+        $validated = $request->validated();
 
         $host = env('BASEUR_ER_WS_TOKEN');
                
         $response = Http::post($host, [
-            '_tk' => $request['token'],
+            '_tk' => $validated['token'],
         ]);
 
         $responseBody = $response->body();
 
         if($responseBody == 1) {
 
-            $user = $this->userService->getUser($request['cuil_citizen']);
+            $user = $this->userService->getUser($validated['cuil_citizen']);
 
             if ($user){
 
-                $filteredRequestUserContact = $request->only([
+                $validatedCollection = collect($validated);
+
+                $filteredRequestUserContact = $validatedCollection->only([
                     'birthday', 
                     'cellphone_number', 
                     'department_id', 
@@ -300,14 +293,14 @@ class AuthController extends Controller
                     'address_street', 
                     'address_number', 
                     'apartment'
-                ]);
+                ])->toArray();
                                     
                 $res_personal_data = $this->userService->setUserContact($user, $filteredRequestUserContact );
 						
                 if ($res_personal_data){
 
-                    $user->name = $request['name'];
-                    $user->last_name = $request['last_name'];
+                    $user->name = $validated['name'];
+                    $user->last_name = $validated['last_name'];
                     $user->save();
 
                     $res_user_auth = $this->userService->setAuthType($user, "PRESENCIAL", "level_3");
