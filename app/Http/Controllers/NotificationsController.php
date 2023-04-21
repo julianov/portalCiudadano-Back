@@ -23,15 +23,15 @@ class NotificationsController extends Controller
     
 
 
-    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notification_date_to)
+    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
     {
 
 
         $birthday = Carbon::now()->subYears($age_from);
-        $min_fecha_nacimiento = $birthday->format('d/m/Y');
+        $min_fecha_nacimiento = $birthday->format('d/m/y');
 
         $birthday = Carbon::now()->subYears($age_to);
-        $max_fecha_nacimiento = $birthday->format('d/m/Y');
+        $max_fecha_nacimiento = $birthday->format('d/m/y');
 
         $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
 
@@ -96,7 +96,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notificaion_date_to']);
                     
                     }
 
@@ -125,7 +125,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notification_date_to']);
+                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notificaion_date_to']);
                     
                     }
 
@@ -161,7 +161,7 @@ class NotificationsController extends Controller
             if (!empty($user_data)) {
 
                 //$fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val
-                $fechaActual = Carbon::now()->format('d/m/Y');
+                $fechaActual = Carbon::now()->format('d/m/y');
                 $fechaCumpleanos = Carbon::parse($user_data->BIRTHDAY);
                 // Calcular la edad
                 $edad = $fechaCumpleanos->age;
