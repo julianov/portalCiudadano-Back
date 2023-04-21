@@ -17,13 +17,14 @@ class PlSqlService
 
     public function insertarFila(string $table_name, string $columns, string $values): bool{
 
+
 		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.INSERTAR_FILA(:table_name, :columns, :values); END;",
             [
                 'table_name' => $table_name,
                 'columns' => $columns,
                 'values' => $values,
             ]);
-            
+        
 		return $res;
 
 	}
@@ -51,18 +52,18 @@ class PlSqlService
 
 	public function getNotifications($fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
+
+		
 		
 		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_NOTIFICATIONS(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
 			'localidad_val' => $localidad_val,
 			'edad_val' => $edad_val,
-			'destinatario_val' => $destinatario_val
+			'destinatario_val' => "'".$destinatario_val."'"
 		]);
 
-		$json = json_decode($result[0]->result);
-
-		return $json;
+		return $result[0]->result;
 	}
 
 	public function getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
@@ -72,11 +73,10 @@ class PlSqlService
 			'max_fecha_nacimiento' => $max_fecha_nacimiento,
 			'localidad_id' => $localidad_id,
 			'departamento_id' => $departamento_id,
-			'tipo_de_usuario'=> $tipo_de_usuario,
+			'tipo_de_usuario'=> "'".$tipo_de_usuario."'",
 		]);
 
-		$json = json_decode($result[0]->result);
+		return $result[0]->result;
 
-		return $json;
 	}
 }
