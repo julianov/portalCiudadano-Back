@@ -5,17 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
-
+use App\Services\ErrorService;
 
 class NotificationsController extends Controller
 {
 
     protected PlSqlService $plSqlServices;
+    protected ErrorService $errorService;
 
-	public function __construct(PlSqlService $plSqlServices)
+	public function __construct(PlSqlService $plSqlServices, ErrorService $errorService)
 	{
 
 		$this->plSqlServices = $plSqlServices;
+        $this->errorService = $errorService;
 	}
 
 
@@ -73,10 +75,7 @@ class NotificationsController extends Controller
 
                 }else{
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Internal server problem, please try again later'
-                    ], 503);
+                    return $this->errorService->databaseWriteError();
                 }
 
                 
@@ -96,20 +95,14 @@ class NotificationsController extends Controller
 
                 }else{
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Internal server problem, please try again later'
-                    ], 503);
+                    return $this->errorService->databaseWriteError();
                 }
                 
             }
 
         }else{
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Bad token'
-            ], 401);
+            return $this->errorService->badToken();
 
         }
         
@@ -166,20 +159,14 @@ class NotificationsController extends Controller
 
             }else{
 
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User contact data not found'
-                ], 404);
+                return $this->errorService->userDataNotFound();
 
             }
 
 
         }else{
 
-            return response()->json([
-				'status' => false,
-				'message' => 'User not found'
-			], 404);
+            return $this->errorService->badUser();
 
         }
 

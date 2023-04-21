@@ -46,7 +46,7 @@ class ErrorService{
     {
         return response()->json([
             'status' => false,
-            'message' => 'Data inconsistency',
+            'message' => 'Bad Token',
             'error_code' => '005',
         ], Response::HTTP_UNAUTHORIZED);
     }
@@ -175,4 +175,51 @@ class ErrorService{
             'error_code' => '016',
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+
+    public function authNotFound()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'User data authentication not found',
+            'error_code' => '017',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+
+    public function validateEmail()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'User authentication type not found - Must validate email',
+            'error_code' => '019',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+    
+    public function wsUnavailable()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'WS temporarily unavailable',
+            'error_code' => '020',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function badFormat()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'bad format',
+            'error_code' => '021',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function userDataNotFound()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => 'User contact data not found',
+            'error_code' => '022',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
 }

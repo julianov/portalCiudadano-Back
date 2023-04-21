@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Illuminate\Support\Facades\Validator;
-
+use App\Services\ErrorService;
 class LocationsController extends Controller
 {
 	private EntreRiosWSService $wsService;
-
-    public function __construct(EntreRiosWSService $wsService)
+    private ErrorService $errorService;
+    
+    public function __construct(EntreRiosWSService $wsService, ErrorService $errorService)
 	{
 
 		$this->wsService = $wsService;
+        $this->errorService = $errorService;
 	}
 
     public function getLocations()
@@ -27,12 +29,9 @@ class LocationsController extends Controller
             
         }else{
 
-            return response()->json([
-                'status' => false,
-                'message' => 'WS temporarily unavailable'
-            ], 503);
-        }
+            return $this->errorService->wsUnavailable();
         
+        }
     }
 
     public function getStringLocations(Request $request):JsonResponse 
@@ -44,10 +43,7 @@ class LocationsController extends Controller
 
         if($validator->fails()){
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Bad format'
-            ], 503);
+            return $this->errorService->badFormat();
 
         }else{
 
@@ -65,10 +61,7 @@ class LocationsController extends Controller
 
                 }
             }
-            return response()->json([
-                'status' => false,
-                'message' => 'WS temporarily unavailable'
-            ], 503);
+            return $this->errorService->wsUnavailable();
 
         }
         
