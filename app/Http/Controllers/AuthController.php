@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-
+use App\Services\ErrorService;
 use \Firebase\JWT\JWT;
 
 use Illuminate\Support\Str;
@@ -126,27 +126,18 @@ class AuthController extends Controller
 
 					} else {
 
-						return response()->json([
-							'status' => false,
-							'message' => 'Internal server problem, please try again later'
-						], 503);
+						return $this->errorService->databaseWriteError();
 
 					}
 
                 }else{
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Inconsistency in data by application'
-                    ], 409);
+                    return $this->errorService->dataInconsistency();
                     
                 }
 
             }else{
-                return response()->json([
-					'status' => false,
-					'message' => 'User not found'
-				], 404);
+                return $this->errorService->badUser();
             }
 
 
@@ -223,20 +214,13 @@ class AuthController extends Controller
                             "user_leves_auth" => $user_auth->AUTH_LEVEL
                         ];
                 
-                        return response()->json([
-                            'status' => true,
-                            'message' => 'User data authentication not found',
-                            'user_data' => $user_data
-                        ]);
+                        return $this->errorService->authNotFound();
                        
                     }    
     
                 }else{
                         
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'User authentication type not found - Must validate email'
-                    ], 404);
+                    return $this->errorService->validateEmail();
     
                 }
     
@@ -244,19 +228,13 @@ class AuthController extends Controller
     
             }else{
     
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->errorService->badUser();
     
                 }
 
         }else{
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Bad token'
-            ], 401);
+            return $this->errorService->badToken();
 
         }       
 
@@ -314,36 +292,24 @@ class AuthController extends Controller
 
                     }else{
 
-                        return response()->json([
-                            'status' => false,
-                            'message' => 'Internal server problem, please try again later'
-                        ], 503);
+                        return $this->errorService->databaseReadError();
     
                     }
                             
                 }else{
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Internal server problem, please try again later'
-                    ], 503);
+                    return $this->errorService->databaseReadError();
                 }
                         
             }else{
 
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not found'
-                ], 404);
+                return $this->errorService->badUser();
 
             }
 
         }else{
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Bad token'
-            ], 401);
+            return $this->errorService->badToken();
 
         }
         

@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
+use Mail;
+use App\Mail\NotificationEmail;
 
 class NotificationsController extends Controller
 {
@@ -28,38 +29,49 @@ class NotificationsController extends Controller
 
 
         $birthday = Carbon::now()->subYears($age_from);
-        $min_fecha_nacimiento = $birthday->format('d/m/y');
+        $min_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $birthday = Carbon::now()->subYears($age_to);
-        $max_fecha_nacimiento = $birthday->format('d/m/y');
+        $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
+        $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
 
         $result_code=1; //es solo para prueba
 
         if ($attachment_type=='img'){
 
-            Mail::to($usuario->email)
-                ->queue((new EmailConfirmation($usuario, $result_code))
-                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject('Validación de correo e-mail')
-                    ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
-        
+            foreach ($usuarios as $usuario) {
 
+                $user = User::where('email', $usuario)->first();
+
+                Mail::to($usuario)
+                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
+                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                        ->subject('Validación de correo e-mail')
+                        ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
+            
+                }
         }elseif ($attachment_type=='pdf'){
 
-            Mail::to($usuario->email)
-            ->queue((new EmailConfirmation($usuario, $result_code))
-                ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                ->subject('Validación de correo e-mail')
-                ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
-        
+            foreach ($usuarios as $usuario) {
+                
+                $user = User::where('email', $usuario)->first();
+
+                Mail::to($usuario)
+                ->queue((new NotificationEmail($user , $message_title, $message_boye))
+                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                    ->subject('Validación de correo e-mail')
+                    ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
+                }
 
         }else{
 
             foreach ($usuarios as $usuario) {
-                Mail::to($usuario->email)
-                    ->queue((new EmailConfirmation($usuario, $result_code))
+
+                $user = User::where('email', $usuario)->first();
+
+                Mail::to($usuario)
+                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                         ->subject('Validación de correo e-mail'));
             }
@@ -96,7 +108,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                     
                     }
 
@@ -125,7 +137,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],"none",$validated['notification_date_from'],$validated['notification_date_to']);
                     
                     }
 
