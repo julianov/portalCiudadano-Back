@@ -13,24 +13,15 @@ class NotificationEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
     public $title;
     public $body;
     
 
-    public function __construct(User $user, $title, $body )
+    public function __construct( $title, $body )
     {
-        $this->user = $user;
         $this->title = $title;
         $this->body = $body;
 
-        try{
-            //$this->hash = Crypt::encrypt($hash);
-            //$this->cuil = Crypt::encrypt($user->cuil);
-            $this->mixto = Crypt::encrypt($user->cuil . '/'.$hash);
-        } catch (DecryptException $e){
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-        }
     }
 
     /**

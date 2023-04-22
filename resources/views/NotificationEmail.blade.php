@@ -55,9 +55,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 20px;">
-                        <h1 id="username_text">{{$user->name }} {{$user->last_name}}</h1>
                         <h1 id="username_text">{{$title}}</h1>
-
                         <h2 id="info_text">{{$body }} </h2>
                         <br>
                         

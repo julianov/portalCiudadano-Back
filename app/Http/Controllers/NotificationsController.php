@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Mail;
 use App\Mail\NotificationEmail;
+use App\Models\User;
 
 class NotificationsController extends Controller
 {
@@ -34,46 +35,52 @@ class NotificationsController extends Controller
         $birthday = Carbon::now()->subYears($age_to);
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
+        $usuarios= explode(",", $this->plSqlServices->getCuilsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
 
         $result_code=1; //es solo para prueba
 
         if ($attachment_type=='img'){
 
-            foreach ($usuarios as $usuario) {
+            $usuarios_unicos = array_unique($usuarios);
 
-                $user = User::where('email', $usuario)->first();
+            foreach ($usuarios_unicos as $usuario) {
+
+                //$user = User::where('cuil', $usuario)->first();
 
                 Mail::to($usuario)
-                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
+                    ->queue((new NotificationEmail( $message_title, $message_body))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject('Validación de correo e-mail')
-                        ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
+                        ->subject($message_title)
+                        ->attachData($attachment, 'nombre_imagen.png', ['mime' => 'image/png']));
             
                 }
         }elseif ($attachment_type=='pdf'){
 
-            foreach ($usuarios as $usuario) {
+            $usuarios_unicos = array_unique($usuarios);
+
+            foreach ($usuarios_unicos as $usuario) {
                 
-                $user = User::where('email', $usuario)->first();
+                //$user = User::where('cuil', $usuario)->first();
 
                 Mail::to($usuario)
-                ->queue((new NotificationEmail($user , $message_title, $message_boye))
+                ->queue((new NotificationEmail( $message_title, $message_body))
                     ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject('Validación de correo e-mail')
+                    ->subject($message_title)
                     ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
                 }
 
         }else{
 
-            foreach ($usuarios as $usuario) {
+            $usuarios_unicos = array_unique($usuarios);
+            
+            foreach ($usuarios_unicos as $usuario) {
 
-                $user = User::where('email', $usuario)->first();
-
+                //$user = User::where('cuil', $usuario)->first();
+               
                 Mail::to($usuario)
-                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
+                    ->queue((new NotificationEmail( $message_title, $message_body))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject('Validación de correo e-mail'));
+                        ->subject($message_title));
             }
 
         }
