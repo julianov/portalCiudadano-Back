@@ -8,7 +8,7 @@ use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Mail;
-use App\Mail\EmailConfirmation;
+use App\Mail\NotificationEmail;
 
 class NotificationsController extends Controller
 {
@@ -41,8 +41,11 @@ class NotificationsController extends Controller
         if ($attachment_type=='img'){
 
             foreach ($usuarios as $usuario) {
-                Mail::to($usuario[2])
-                    ->queue((new EmailConfirmation($usuario[2], $result_code))
+
+                $user = User::where('email', $usuario)->first();
+
+                Mail::to($usuario)
+                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                         ->subject('Validación de correo e-mail')
                         ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
@@ -51,8 +54,11 @@ class NotificationsController extends Controller
         }elseif ($attachment_type=='pdf'){
 
             foreach ($usuarios as $usuario) {
+                
+                $user = User::where('email', $usuario)->first();
+
                 Mail::to($usuario)
-                ->queue((new EmailConfirmation($usuario[2], $result_code))
+                ->queue((new NotificationEmail($user , $message_title, $message_boye))
                     ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                     ->subject('Validación de correo e-mail')
                     ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
@@ -62,8 +68,10 @@ class NotificationsController extends Controller
 
             foreach ($usuarios as $usuario) {
 
+                $user = User::where('email', $usuario)->first();
+
                 Mail::to($usuario)
-                    ->queue((new EmailConfirmation($usuario, $result_code))
+                    ->queue((new NotificationEmail($user , $message_title, $message_boy))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                         ->subject('Validación de correo e-mail'));
             }
