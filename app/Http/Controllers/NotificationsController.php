@@ -35,7 +35,7 @@ class NotificationsController extends Controller
         $birthday = Carbon::now()->subYears($age_to);
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $usuarios= explode(",", $this->plSqlServices->getCuilsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
+        $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
 
         $result_code=1; //es solo para prueba
 
