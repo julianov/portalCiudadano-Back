@@ -195,7 +195,7 @@ class NotificationsController extends Controller
 
                 $res_notifications = $this->plSqlServices->getNotifications($fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
-                if (empty($res_notifications)) {
+                if (empty($res_notifications) || $res_notifications=='[]') {
 
                     return response()->json([
                         'status' => false,
@@ -232,5 +232,4 @@ class NotificationsController extends Controller
 
 
     }
-
 }
