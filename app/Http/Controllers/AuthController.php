@@ -28,14 +28,15 @@ class AuthController extends Controller
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
 	protected PlSqlService $plSqlServices;
+    protected ErrorService $errorService;
 
-    public function __construct(UserService $userService, EntreRiosWSService $wsService, PlSqlService $plSqlServices)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService, PlSqlService $plSqlServices, ErrorService $errorService)
 	{
 
 		$this->userService = $userService;
         $this->wsService = $wsService;
         $this->plSqlServices = $plSqlServices;
-
+        $this->errorService = $errorService;
 
 	}
 
