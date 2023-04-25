@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 use Illuminate\Support\Facades\Validator;
-use App\Services\ErrorService;
+use App\Http\Services\ErrorService;
 class LocationsController extends Controller
 {
 	private EntreRiosWSService $wsService;
