@@ -7,19 +7,19 @@ use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Services\ErrorService;
+use Mail;
+use App\Mail\NotificationEmail;
+use App\Models\User;
 
 class NotificationsController extends Controller
 {
 
     protected PlSqlService $plSqlServices;
-    protected ErrorService $errorService;
 
-	public function __construct(PlSqlService $plSqlServices, ErrorService $errorService)
+	public function __construct(PlSqlService $plSqlServices)
 	{
 
 		$this->plSqlServices = $plSqlServices;
-        $this->errorService = $errorService;
 	}
 
     
@@ -30,40 +30,57 @@ class NotificationsController extends Controller
 
 
         $birthday = Carbon::now()->subYears($age_from);
-        $min_fecha_nacimiento = $birthday->format('d/m/y');
+        $min_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $birthday = Carbon::now()->subYears($age_to);
-        $max_fecha_nacimiento = $birthday->format('d/m/y');
+        $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $usuarios= $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id,$recipients);
+        $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
 
         $result_code=1; //es solo para prueba
 
         if ($attachment_type=='img'){
 
-            Mail::to($usuario->email)
-                ->queue((new EmailConfirmation($usuario, $result_code))
-                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject('Validación de correo e-mail')
-                    ->attachData($base64Image, 'nombre_imagen.jpg', ['mime' => 'image/jpeg']));
-        
+            $usuarios_unicos = array_unique($usuarios);
 
+            foreach ($usuarios_unicos as $usuario) {
+
+                //$user = User::where('cuil', $usuario)->first();
+
+                Mail::to($usuario)
+                    ->queue((new NotificationEmail( $message_title, $message_body))
+                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                        ->subject($message_title)
+                        ->attachData($attachment, 'nombre_imagen.png', ['mime' => 'image/png']));
+            
+                }
         }elseif ($attachment_type=='pdf'){
 
-            Mail::to($usuario->email)
-            ->queue((new EmailConfirmation($usuario, $result_code))
-                ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                ->subject('Validación de correo e-mail')
-                ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
-        
+            $usuarios_unicos = array_unique($usuarios);
+
+            foreach ($usuarios_unicos as $usuario) {
+                
+                //$user = User::where('cuil', $usuario)->first();
+
+                Mail::to($usuario)
+                ->queue((new NotificationEmail( $message_title, $message_body))
+                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                    ->subject($message_title)
+                    ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
+                }
 
         }else{
 
-            foreach ($usuarios as $usuario) {
-                Mail::to($usuario->email)
-                    ->queue((new EmailConfirmation($usuario, $result_code))
+            $usuarios_unicos = array_unique($usuarios);
+            
+            foreach ($usuarios_unicos as $usuario) {
+
+                //$user = User::where('cuil', $usuario)->first();
+               
+                Mail::to($usuario)
+                    ->queue((new NotificationEmail( $message_title, $message_body))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject('Validación de correo e-mail'));
+                        ->subject($message_title));
             }
 
         }
@@ -90,7 +107,7 @@ class NotificationsController extends Controller
 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE,ATTACHMENT, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."','".$validated['notification_date_from']."','".$validated['notification_date_to']."','".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['attachment']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
 
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
@@ -98,7 +115,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                     
                     }
 
@@ -109,7 +126,10 @@ class NotificationsController extends Controller
 
                 }else{
 
-                    return $this->errorService->databaseWriteError();
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Internal server problem, please try again later'
+                    ], 503);
                 }
 
                 
@@ -117,16 +137,17 @@ class NotificationsController extends Controller
                 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."','".$validated['notification_date_from']."','".$validated['notification_date_to']."','".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
+
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],$validated['notification_date_from'],$validated['notificaion_date_to']);
+                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],"none",$validated['notification_date_from'],$validated['notification_date_to']);
                     
-                    }
+                   }
 
                     return response()->json([
                         'status' => true,
@@ -135,7 +156,10 @@ class NotificationsController extends Controller
 
                 }else{
 
-                    return $this->errorService->databaseWriteError();
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Internal server problem, please try again later'
+                    ], 503);
                 }
                 
             }
@@ -157,7 +181,7 @@ class NotificationsController extends Controller
             if (!empty($user_data)) {
 
                 //$fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val
-                $fechaActual = Carbon::now()->format('d/m/y');
+                $fechaActual = Carbon::now()->format('d/m/Y');
                 $fechaCumpleanos = Carbon::parse($user_data->BIRTHDAY);
                 // Calcular la edad
                 $edad = $fechaCumpleanos->age;
@@ -171,7 +195,7 @@ class NotificationsController extends Controller
 
                 $res_notifications = $this->plSqlServices->getNotifications($fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
-                if (empty($res_notifications)) {
+                if (empty($res_notifications) || $res_notifications=='[]') {
 
                     return response()->json([
                         'status' => false,
@@ -189,18 +213,23 @@ class NotificationsController extends Controller
 
             }else{
 
-                return $this->errorService->userDataNotFound();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User contact data not found'
+                ], 404);
 
             }
 
 
         }else{
 
-            return $this->errorService->badUser();
+            return response()->json([
+				'status' => false,
+				'message' => 'User not found'
+			], 404);
 
         }
 
 
     }
-
 }
