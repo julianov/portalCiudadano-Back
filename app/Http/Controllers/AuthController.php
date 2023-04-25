@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
-use App\Services\ErrorService;
+use App\Http\Services\ErrorService;
 use \Firebase\JWT\JWT;
 
 use Illuminate\Support\Str;
