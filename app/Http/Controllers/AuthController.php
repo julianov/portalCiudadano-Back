@@ -214,8 +214,13 @@ class AuthController extends Controller
                             "user" => $user,
                             "user_leves_auth" => $user_auth->AUTH_LEVEL
                         ];
+
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'User data',
+                            'user_data' => $user_data
+                        ]);
                 
-                        return $this->errorService->authNotFound();
                        
                     }    
     
