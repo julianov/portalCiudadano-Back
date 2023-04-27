@@ -43,8 +43,8 @@ class NewNotificationRequest extends FormRequest
                 Rule::in(['none', 'img', 'pdf']),
             ],
             "attachment" => "nullable|string",
-            "notification_date_from" => "required|max:50|string|date_format:d/m/y",
-            "notification_date_to" => "required|max:50|string|date_format:d/m/y",
+            "notification_date_from" => "required|max:50|string|date_format:d/m/Y",
+            "notification_date_to" => "required|max:50|string|date_format:d/m/Y",
             "send_by_email" => [
                 'required',
                 'max:50',
