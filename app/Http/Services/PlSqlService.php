@@ -79,14 +79,13 @@ class PlSqlService
 	}
 
 
-	public function insertFile (string $table_name, string $file_type, string $file_type_description, string $file_name, string $file){
+	public function insertFile (string $table_name, string $file_type, string $file_type_description, string $file_name, string $file)
+	{
 
 	
 		$multimedia_id=-1;
 
-		$table="MULTIMEDIA.MMD_CIUD_".$table_name."_DOC"
-
-		//ejemplo de tabla name es MULTIMEDIA.MMD_CIUD_NOTIFICATIONS_DOC
+		$table="MULTIMEDIA.MMD_CIUD_".$table_name."_DOC";
 
 		//file type puede ser DOC si es un documento o IMG si es una imagen
 
@@ -94,17 +93,17 @@ class PlSqlService
 
 		//MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO('CIUDADANOS',:table_name,:file_type, :file_type_description,:file_name,:file,:multimedia_id)
 
-		DB::statement('BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(:p1, :p2, :p3, :p4, :p5, :p6, :p7); END;', [
+		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(:p1, :p2, :p3, :p4, :p5, :p6, :p7); END;", [
 			'CIUDADANOS',
 			$table,
 			$file_type,
 			$file_type_description,
 			$file_name,
 			$file,
-			&$multimedia_id, // Paso del parámetro de salida por referencia
+			&$multimedia_id // Passing the output parameter by reference
 		]);
 
-		return $multimedia_id
+		return $multimedia_id;
 
 	}
 }

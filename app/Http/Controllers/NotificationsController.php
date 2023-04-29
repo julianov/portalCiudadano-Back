@@ -20,7 +20,7 @@ class NotificationsController extends Controller
     private ErrorService $errorService;
 
 
-	public function __construct(PlSqlService $plSqlServices)
+	public function __construct(PlSqlService $plSqlServices, ErrorService $errorService)
 	{
 
 		$this->plSqlServices = $plSqlServices;
