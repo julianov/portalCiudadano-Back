@@ -13,13 +13,13 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-.env
+*.env
 /.env
 /_ide_helper.php
 /bootstrap/cache/*.php
 
 Dockerfile/
-docker-compose.yml 
-docker-compose.dev.yml 
+docker-compose.yml
+docker-compose.dev.yml
 Querys.sql
 README.md
