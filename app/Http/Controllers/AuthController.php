@@ -46,10 +46,22 @@ class AuthController extends Controller
         // "cuil" => "required|min:11|max:11",
         'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
     ]);
-        $redirectUri = config("autenticar.redirect_uri");
+        $redirectUri = config("autenticar.redirect_uri_afip");
 
         return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
    
+    }
+
+    public function getUrlMiArgentina(Request $request)
+    {
+        $request->validate([
+        // "cuil" => "required|min:11|max:11",
+        'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+        ]);
+        $redirectUri = config("autenticar.redirect_uri_miargentina");
+
+        return "https://hml.autenticar.gob.ar/auth/realms/appentrerios-miarg/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
+                
     }
 
     public function getValidationAfip(Request $request): \Illuminate\Http\JsonResponse
@@ -65,9 +77,9 @@ class AuthController extends Controller
 
             $client = new \GuzzleHttp\Client();
 
-            $url = config("autenticar.base_url_api")."protocol/openid-connect/token";
+            $url = config("autenticar.base_url_api_afip")."protocol/openid-connect/token";
 
-            $redirectUri = config("autenticar.redirect_uri");
+            $redirectUri = config("autenticar.redirect_uri_afip");
 
             $response = $client->post($url, [
                 RequestOptions::FORM_PARAMS => [
@@ -75,7 +87,7 @@ class AuthController extends Controller
                     "code" => $code,
                     "redirect_uri" => $redirectUri,
                     "client_id" => config("autenticar.client_id"),
-                    "client_secret" => config("autenticar.secret"),
+                    "client_secret" => config("autenticar.secret_afip"),
                 ],
                 "headers" => [
                     "Content-Type" => "application/x-www-form-urlencoded",

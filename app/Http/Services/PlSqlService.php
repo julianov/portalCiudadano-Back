@@ -79,7 +79,7 @@ class PlSqlService
 	}
 
 
-	public function insertFile (string $table_name, string $file_type, string $file_type_description, string $file_name, string $file)
+	public function insertFile (string $table_name, string $file_type, string $file_type_extension, string $file_name, string $file)
 	{
 
 	
@@ -97,7 +97,7 @@ class PlSqlService
 			'CIUDADANOS',
 			$table,
 			$file_type,
-			$file_type_description,
+			$file_type_extension,
 			$file_name,
 			$file,
 			&$multimedia_id // Passing the output parameter by reference
@@ -106,4 +106,25 @@ class PlSqlService
 		return $multimedia_id;
 
 	}
+
+
+	function convertFileToBlob(UploadedFile $file) // Se espera que $file sea una instancia de UploadedFile
+	{
+		$extension = $file->getClientOriginalExtension();
+		$blob = null;
+
+		if ($extension === 'pdf') {
+			$pdf = new Pdf($file->getPathname());
+			$image = Image::make($pdf->getImageData())->encode('png');
+			$blob = $image->getEncoded();
+		} elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp'])) {
+			$image = Image::make($file)->encode('png');
+			$blob = $image->getEncoded();
+		} else {
+			return "Bad extension";
+		}
+
+		return $blob;
+	}
+
 }

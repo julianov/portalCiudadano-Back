@@ -114,13 +114,13 @@ class NotificationsController extends Controller
                 $table_name = "NOTIFICATIONS";
                 $file_type=""; 
 
-                if ($validated['attachment_type'] == 'img'){
+                if ($validated['attachment_type'] == 'pdf'){
 
-                    $file_type="IMG";
+                    $file_type="DOC";
 
                 }else{
 
-                    $file_type="DOC";
+                    $file_type="IMG";
 
                 }
 
@@ -252,4 +252,31 @@ class NotificationsController extends Controller
 
 
     }
+
+
+    public function prueba (){
+
+        $imagePath = public_path('prueba.jpg');
+        $imageContent = file_get_contents($imagePath);
+
+        $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
+        $blob = null;
+
+        if ($extension === 'pdf') {
+            $pdf = new Pdf($imagePath);
+            $image = Image::make($pdf->getImageData())->encode('png');
+            $blob = $image->getEncoded();
+        } elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp'])) {
+            $image = Image::make($imagePath)->encode('png');
+            $blob = $image->getEncoded();
+        } else {
+            return "Bad extension";
+        }
+
+        $res= $this->plSqlServices->insertFile($table_name, $blob, 'png', $validated['message_title'] , $validated['attachment_type']); 
+
+
+
+    }
+
 }
