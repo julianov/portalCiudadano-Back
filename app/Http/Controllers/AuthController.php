@@ -171,6 +171,113 @@ class AuthController extends Controller
 
 
 
+    public function getValidationMiArgentina(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+                "code" => "required|string",
+            ]);
+            
+            $cuil = $request->cuil;
+            $code = $request->code;
+
+            $client = new \GuzzleHttp\Client();
+
+            $url = config("autenticar.base_url_api_miargentina")."protocol/openid-connect/token";
+
+            $redirectUri = config("autenticar.redirect_uri_miargentina");
+
+            $response = $client->post($url, [
+                RequestOptions::FORM_PARAMS => [
+                    "grant_type" => config("autenticar.grant_type"),
+                    "code" => $code,
+                    "redirect_uri" => $redirectUri,
+                    "client_id" => config("autenticar.client_id"),
+                    "client_secret" => config("autenticar.secret_miargentina"),
+                ],
+                "headers" => [
+                    "Content-Type" => "application/x-www-form-urlencoded",
+                ],
+            ]);
+
+            return $response->getBody()->getContents();
+
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            $access_token = $data['access_token'];
+/*
+            list($header, $payload, $signature) = explode('.', $access_token);
+            $jsonToken = base64_decode($payload);
+            $decoded_token = json_decode($jsonToken, true);
+                        
+            $cuit = $decoded_token['cuit'];
+            $tipo_persona = $decoded_token['tipo_persona'];
+            $proveedor = $decoded_token['proveedor'];
+            $preferred_username = $decoded_token['preferred_username'];
+            $given_name = $decoded_token['given_name'];
+            $family_name = $decoded_token['family_name'];
+            $nivel = $decoded_token['nivel'];
+            
+            $user = $this->userService->getUser($cuil);
+
+            if($user){
+
+                $user_cuil = $user->cuil;
+                $user_name = $user->name;
+                $user_last_name = $user->last_name;
+
+                $normalizedName1 = mb_strtolower(strtolower($user_name));
+                $normalizedName2 = mb_strtolower(strtolower($given_name));
+                $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
+                $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
+
+                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                    //datos consistentes sube a nivel 3
+                    
+                    $res_user_auth = $this->userService->setAuthType($user, "AFIP", "level_3");
+
+					if ($res_user_auth) {
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Application Validated User Identity',
+							'token' => $user->createToken("user_token", ['level_3'])->accessToken
+						]);
+
+					} else {
+
+						return $this->errorService->databaseWriteError();
+
+					}
+
+                }else{
+
+                    return $this->errorService->dataInconsistency();
+                    
+                }
+
+            }else{
+                return $this->errorService->badUser();
+            }
+
+
+
+        } catch (\Exception $e) {
+
+            if ($e instanceof BadResponseException) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                return response()->json(json_decode($responseBodyAsString), $e->getCode());
+            }
+
+            return response()->json([
+                "error" => $e->getMessage(),
+            ], 500);
+        }*/
+    }
+
+
     public function validateFaceToFaceGetData(Request $request)
     {
         

@@ -45,6 +45,9 @@ Route::prefix("/v0/authentication")->controller(Controllers\AuthController::clas
 	Route::middleware(['auth:authentication'])->get('/afip/getUrl',[Controllers\AuthController::class, 'getUrlAfip']);
 	Route::middleware(['auth:authentication'])->get('/afip/getToken', [Controllers\AuthController::class, 'getValidationAfip']);
 
+	Route::middleware(['auth:authentication'])->get('/miargentina/getUrl',[Controllers\AuthController::class, 'getUrlMiArgentina']);
+	Route::middleware(['auth:authentication'])->get('/miargentina/getToken', [Controllers\AuthController::class, 'getValidationMiArgentina']);
+
 	Route::get('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
 	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
 
