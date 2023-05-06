@@ -201,12 +201,11 @@ class AuthController extends Controller
                 ],
             ]);
 
-            return $response->getBody()->getContents();
 
             $data = json_decode($response->getBody()->getContents(), true);
 
             $access_token = $data['access_token'];
-/*
+
             list($header, $payload, $signature) = explode('.', $access_token);
             $jsonToken = base64_decode($payload);
             $decoded_token = json_decode($jsonToken, true);
@@ -217,7 +216,6 @@ class AuthController extends Controller
             $preferred_username = $decoded_token['preferred_username'];
             $given_name = $decoded_token['given_name'];
             $family_name = $decoded_token['family_name'];
-            $nivel = $decoded_token['nivel'];
             
             $user = $this->userService->getUser($cuil);
 
@@ -235,7 +233,7 @@ class AuthController extends Controller
                 if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
                     //datos consistentes sube a nivel 3
                     
-                    $res_user_auth = $this->userService->setAuthType($user, "AFIP", "level_3");
+                    $res_user_auth = $this->userService->setAuthType($user, "MIARGENTINA", "level_3");
 
 					if ($res_user_auth) {
 
@@ -274,7 +272,7 @@ class AuthController extends Controller
             return response()->json([
                 "error" => $e->getMessage(),
             ], 500);
-        }*/
+        }
     }
 
 
