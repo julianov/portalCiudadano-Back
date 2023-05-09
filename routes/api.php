@@ -51,6 +51,8 @@ Route::prefix("/v0/authentication")->controller(Controllers\AuthController::clas
 	Route::get('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
 	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
 
+	Route::get('/actor/redirect', [Controllers\AuthController::class, 'ActorRedirect']);
+
 });
 
 Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->group(function () {
