@@ -93,13 +93,15 @@ class PlSqlService
 
 		//MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO('CIUDADANOS',:table_name,:file_type, :file_type_description,:file_name,:file,:multimedia_id)
 
+		$blob_file = self::convertFileToBlob($file); 
+
 		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(:p1, :p2, :p3, :p4, :p5, :p6, :p7); END;", [
 			'CIUDADANOS',
 			$table,
 			$file_type,
 			$file_type_extension,
 			$file_name,
-			$file,
+			$blob_file,
 			&$multimedia_id // Passing the output parameter by reference
 		]);
 
@@ -127,4 +129,13 @@ class PlSqlService
 		return $blob;
 	}
 
+	public function getUploadedFile (string $table, int $multimedia_id ){
+
+		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2); END;", [
+			$table,
+			$multimedia_id // Passing the output parameter by reference
+		]);
+
+		return $res;
+	}
 }

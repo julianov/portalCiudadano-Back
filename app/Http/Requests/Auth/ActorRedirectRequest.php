@@ -35,7 +35,7 @@ class ActorRedirectRequest extends FormRequest
 	{
 		return [
 		
-            "cuil" => 'El campo cuil_citizen es requerido',
+            "cuil" => 'El campo cuil es requerido',
             "token" => 'El campo token es requerido',
             
 		];
