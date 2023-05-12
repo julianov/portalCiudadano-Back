@@ -79,6 +79,9 @@ class PlSqlService
 	}
 
 
+	//MULTIMEDIA 
+
+
 	public function insertFile (string $table_name, string $file_type, string $file_type_extension, string $file_name, string $file)
 	{
 
@@ -138,4 +141,6 @@ class PlSqlService
 
 		return $res;
 	}
+
+
 }

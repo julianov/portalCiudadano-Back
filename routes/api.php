@@ -67,6 +67,7 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 
 	Route::post('/new', [Controllers\NotificationsController::class, 'newNotification']);
 	Route::middleware(['auth:authentication'])->get('/get/user/news', [Controllers\NotificationsController::class, 'checkUserNotifications']);
+	Route::middleware(['auth:authentication'])->get('/get/user/attachments', [Controllers\NotificationsController::class, 'getNotificationsAttachments']);
 
 });
 

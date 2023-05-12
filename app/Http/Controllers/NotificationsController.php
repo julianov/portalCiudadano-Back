@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
+use App\Http\Requests\Notifications\getNotificationsAttachmentsRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use App\Http\Services\ErrorService;
@@ -29,8 +30,6 @@ class NotificationsController extends Controller
 	}
 
     
-
-
     public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
     {
 
@@ -253,6 +252,47 @@ class NotificationsController extends Controller
 
     }
 
+    public function getNotificationsAttachments(getNotificationsAttachmentsRequest $request){
+
+
+        $validated = $request->validated();
+
+        $column_name = "MESSAGE_TITLE";
+		$column_value = $validated['message_title'];
+		$table = "NOTIFICATIONS";
+        $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+
+        if (!empty($notification)) {
+            
+            if ($notification->MULTIMEDIA_ID!=null){
+
+                $attachment = $this->plSqlServices->getUploadedFile($table, $notification->MULTIMEDIA_ID);
+
+                if ($attachment){
+
+                    return response()->json([
+                        'status' => true,
+                        'attachment' => $attachment
+                    ], 200);
+
+                }else{
+
+                    return $this->errorService->databaseReadError();
+
+                }
+            }else{
+
+                return $this->errorService->databaseReadError();
+
+            }
+        }else{
+
+            return $this->errorService->databaseReadError();
+
+        }
+        
+
+    }
 
     public function prueba (){
 
