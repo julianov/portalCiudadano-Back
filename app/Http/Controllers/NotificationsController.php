@@ -32,7 +32,6 @@ class NotificationsController extends Controller
     
     public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
     {
-        $attachment->originalName()
 
         $birthday = Carbon::now()->subYears($age_from);
         $min_fecha_nacimiento = $birthday->format('d/m/Y');
@@ -113,7 +112,7 @@ class NotificationsController extends Controller
                     $file_type="DOC";
                 }
 
-                $res= $this->plSqlServices->insertFile($table_name, $file_type, $tipoArchivo $validated['message_title'] , $validated['attachment']->getPathname()); 
+                $res= $this->plSqlServices->insertFile($table_name, $file_type, $tipoArchivo , $validated['message_title'] , $validated['attachment']->getPathname()); 
 
                 if ($res != -1){
 
