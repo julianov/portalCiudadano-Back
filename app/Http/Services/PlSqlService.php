@@ -82,9 +82,8 @@ class PlSqlService
 	//MULTIMEDIA 
 
 
-	public function insertFile (string $table_name, string $file_type, string $file_type_extension, string $file_name, string $file)
+	public function insertFile (string $table_name, string $file_type, string $file_type_extension, string $file_name, string $file_path)
 	{
-
 	
 		$multimedia_id=-1;
 
@@ -96,8 +95,8 @@ class PlSqlService
 
 		//MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO('CIUDADANOS',:table_name,:file_type, :file_type_description,:file_name,:file,:multimedia_id)
 
-		$blob_file = self::convertFileToBlob($file); 
-
+		$blob_file = (self::getDocumentFromFront($file_path) );
+		
 		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(:p1, :p2, :p3, :p4, :p5, :p6, :p7); END;", [
 			'CIUDADANOS',
 			$table,
@@ -108,6 +107,7 @@ class PlSqlService
 			&$multimedia_id // Passing the output parameter by reference
 		]);
 
+		dd($multimedia_id);
 		return $multimedia_id;
 
 	}
@@ -130,6 +130,24 @@ class PlSqlService
 		}
 
 		return $blob;
+	}
+
+
+	function getDocumentFromFront(string $rutaImagen){
+		// Verificar si el archivo existe
+		if (file_exists($rutaImagen)) {
+			// Leer el contenido del archivo
+			$contenidoImagen = file_get_contents($rutaImagen);
+
+			// Convertir el contenido a formato base64
+			$blob = base64_encode($contenidoImagen);
+
+			// Imprimir el blob
+			return $blob;
+		}
+		else{
+			return "bad data";
+		}
 	}
 
 	public function getUploadedFile (string $table, int $multimedia_id ){

@@ -32,7 +32,7 @@ class NotificationsController extends Controller
     
     public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
     {
-
+        $attachment->originalName()
 
         $birthday = Carbon::now()->subYears($age_from);
         $min_fecha_nacimiento = $birthday->format('d/m/Y');
@@ -44,22 +44,7 @@ class NotificationsController extends Controller
 
         $result_code=1; //es solo para prueba
 
-        if ($attachment_type=='img'){
-
-            $usuarios_unicos = array_unique($usuarios);
-
-            foreach ($usuarios_unicos as $usuario) {
-
-                //$user = User::where('cuil', $usuario)->first();
-
-                Mail::to($usuario)
-                    ->queue((new NotificationEmail( $message_title, $message_body))
-                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject($message_title)
-                        ->attachData($attachment, 'nombre_imagen.png', ['mime' => 'image/png']));
-            
-                }
-        }elseif ($attachment_type=='pdf'){
+        if ($attachment_type!='none'){
 
             $usuarios_unicos = array_unique($usuarios);
 
@@ -71,7 +56,7 @@ class NotificationsController extends Controller
                 ->queue((new NotificationEmail( $message_title, $message_body))
                     ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                     ->subject($message_title)
-                    ->attachData($base64File, 'nombre_archivo.pdf', ['mime' => 'application/pdf']));
+                    ->attachData($attachment->getPathname(), $attachment->originalName(), ['mime' => $attachment_type]));
                 }
 
         }else{
@@ -107,28 +92,33 @@ class NotificationsController extends Controller
         $responseBody = $response->body();
 
         if($responseBody == 1) {*/
-
+         
             if ($request->has('attachment')) {
 
                 $table_name = "NOTIFICATIONS";
                 $file_type=""; 
 
-                if ($validated['attachment_type'] == 'pdf'){
+                $tipoArchivo = $validated['attachment']->getMimeType();
+                #puede ser application/pdf o image/png así que tengo que hacer un explode de aca para abaja
+                #el word es application/vnd.openxmlformats-officedocument.wordprocessingml.document y el doc comun es application/msword
+                
+                $tipoArchivo= explode('/', $tipoArchivo)[1];
 
-                    $file_type="DOC";
+                if (tipoArchivo == 'png' || tipoArchivo == 'jpg' tipoArchivo == 'jpeg'){
+
+                    $file_type="IMG";                    
 
                 }else{
 
-                    $file_type="IMG";
-
+                    $file_type="DOC";
                 }
 
-                $res= $this->plSqlServices->insertFile($table_name, $file_type, $validated['attachment_type'], $validated['message_title'] , $validated['attachment_type']); 
+                $res= $this->plSqlServices->insertFile($table_name, $file_type, $tipoArchivo $validated['message_title'] , $validated['attachment']->getPathname()); 
 
                 if ($res != -1){
 
                     $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                    $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."',".res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
+                    $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."',".res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
 
                     $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
@@ -136,7 +126,7 @@ class NotificationsController extends Controller
 
                         if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                            self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],"none",$validated['notification_date_from'],$validated['notification_date_to']);
+                            self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment']->getMimeType(),$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                         
                     }
 
@@ -162,7 +152,7 @@ class NotificationsController extends Controller
                 
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$validated['attachment_type']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','"."none"."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$validated['send_by_email']."',sysdate";
 
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
@@ -170,7 +160,7 @@ class NotificationsController extends Controller
 
                     if ($validated['send_by_email'] =='1' || $validated['send_by_email'] == 1 ){
 
-                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment_type'],"none",$validated['notification_date_from'],$validated['notification_date_to']);
+                        self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],"none","none",$validated['notification_date_from'],$validated['notification_date_to']);
                     
                    }
 
