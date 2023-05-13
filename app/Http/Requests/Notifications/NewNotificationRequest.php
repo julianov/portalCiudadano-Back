@@ -37,12 +37,7 @@ class NewNotificationRequest extends FormRequest
             "locality_id" => "required|numeric",
             "message_title" => "required|string",
             "message_body" => "required|string",
-            "attachment_type" => [
-                'required',
-                'max:50',
-                Rule::in(['none', 'img', 'pdf']),
-            ],
-            "attachment" => "nullable|string",
+            "attachment" => "nullable",
             "notification_date_from" => "required|max:50|string|date_format:d/m/Y",
             "notification_date_to" => "required|max:50|string|date_format:d/m/Y",
             "send_by_email" => [
@@ -64,7 +59,6 @@ class NewNotificationRequest extends FormRequest
             "locality_id" => 'El campo locality_id es requerida',
             "message_title" => 'El campo message_title es requerida',
             "message_body" => 'El campo message_body es requerida',
-            "attachment_type" => 'El campo attachment_type es requerida',
             "notification_date_from" => 'El campo notification_date_from es requerida',
             "notification_date_from.date_format" => 'El campo notification_date_from debe ser formato dd/mm/yy',
             "notification_date_to" => 'El campo notificaion_date_to es requerida',

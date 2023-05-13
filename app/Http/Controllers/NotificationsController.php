@@ -104,7 +104,7 @@ class NotificationsController extends Controller
                 
                 $tipoArchivo= explode('/', $tipoArchivo)[1];
 
-                if (tipoArchivo == 'png' || tipoArchivo == 'jpg' tipoArchivo == 'jpeg'){
+                if (tipoArchivo == 'png' || tipoArchivo == 'jpg' || tipoArchivo == 'jpeg'){
 
                     $file_type="IMG";                    
 
