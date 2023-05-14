@@ -40,10 +40,9 @@ class NewNotificationRequest extends FormRequest
             "attachment" => "nullable",
             "notification_date_from" => "required|max:50|string|date_format:d/m/Y",
             "notification_date_to" => "required|max:50|string|date_format:d/m/Y",
-            "send_by_email" => [
+            "send_by_email" =>  [
                 'required',
-                'boolean',
-                'in:true,false',
+                Rule::in(['true', 'false']),
             ],
         ];
 	}

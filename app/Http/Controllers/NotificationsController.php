@@ -118,7 +118,7 @@ class NotificationsController extends Controller
 
                     $send_email_validation='0';
 
-                    if ($validated['send_by_email']){
+                    if ($validated['send_by_email']=="true"){
                         $send_email_validation='1';
                     }
 
@@ -129,7 +129,7 @@ class NotificationsController extends Controller
 
                     if ($res){
 
-                        if ($validated['send_by_email']){
+                        if ($validated['send_by_email']=="true"){
 
                             self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment']->getMimeType(),$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                         
@@ -160,7 +160,7 @@ class NotificationsController extends Controller
                 
                 $send_email_validation='0';
 
-                if ($validated['send_by_email']){
+                if ($validated['send_by_email']=="true"){
                     $send_email_validation='1';
                 }
                 $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','"."none"."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
@@ -169,7 +169,7 @@ class NotificationsController extends Controller
 
                 if ($res){
 
-                    if ($validated['send_by_email']){
+                    if ($validated['send_by_email']=="true"){
 
                         self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],"none","none",$validated['notification_date_from'],$validated['notification_date_to']);
                     
