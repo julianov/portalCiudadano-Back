@@ -25,7 +25,7 @@ class NewNotificationRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			// "token" => "required|string",
+            // "token" => "required|string",
             "recipients" => [
                 'required',
                 'string',
@@ -42,11 +42,10 @@ class NewNotificationRequest extends FormRequest
             "notification_date_to" => "required|max:50|string|date_format:d/m/Y",
             "send_by_email" => [
                 'required',
-                'max:50',
-                Rule::in([0, 1]),
-                'regex:/^[0-1]+$/'
+                'boolean',
+                'in:true,false',
             ],
-		];
+        ];
 	}
 
 	public function messages()
