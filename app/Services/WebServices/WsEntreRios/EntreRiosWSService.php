@@ -25,7 +25,7 @@ class EntreRiosWSService
 	 * @return array
 	 */
 	public function checkUserCuil(string $dni)
-		{
+	{
 		$persona = $this->getPersonaFisica($dni);
 
 		if (!$persona) {
@@ -40,6 +40,7 @@ class EntreRiosWSService
 		$actor = $this->getBduActorEntidad($persona->getSexo(), $persona->getNroDocumento());
 
 		$response = new CheckUserCuilResponse(true, $persona, $actor);
+		
 		if ($response->getActor()->getEntId() != null) { $is_actor=true; }
 
 		return response()->json([
@@ -52,6 +53,20 @@ class EntreRiosWSService
 			"Actor" => $is_actor
 		], 200);
 	}
+
+
+	public function getCuil(string $dni){
+
+		$persona = $this->getPersonaFisica($dni);
+
+		if (!$persona) {
+			
+			return "bad dni";
+		}
+
+		return $response->getUser()->getCuil();
+	}
+
 
 	private function getPersonaFisica(string $dni): ?PersonaFisicaResponse
 	{

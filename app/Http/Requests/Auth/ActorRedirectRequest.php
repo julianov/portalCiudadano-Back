@@ -25,7 +25,7 @@ class ActorRedirectRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			"cuil" => "required|numeric|regex:/^[0-9]{11}$/",
+			"dni" => "required|numeric|regex:/^[0-9]$/",
             "token" => "required|string",
             
 		];
@@ -35,7 +35,7 @@ class ActorRedirectRequest extends FormRequest
 	{
 		return [
 		
-            "cuil" => 'El campo cuil es requerido',
+            "dni" => 'El campo dni es requerido',
             "token" => 'El campo token es requerido',
             
 		];
