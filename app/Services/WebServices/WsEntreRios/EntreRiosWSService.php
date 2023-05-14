@@ -55,7 +55,7 @@ class EntreRiosWSService
 	}
 
 
-	public function getCuil(string $dni){
+	public function getPrs_id(string $dni){
 
 		$persona = $this->getPersonaFisica($dni);
 
@@ -64,7 +64,7 @@ class EntreRiosWSService
 			return "bad dni";
 		}
 
-		return $response->getUser()->getCuil();
+		return $persona->getid();
 	}
 
 

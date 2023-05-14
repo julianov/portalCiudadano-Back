@@ -25,7 +25,7 @@ class ActorRedirectRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			"dni" => "required|numeric|regex:/^[0-9]$/",
+			'dni' => 'required|numeric|regex:/^[0-9]+$/',
             "token" => "required|string",
             
 		];

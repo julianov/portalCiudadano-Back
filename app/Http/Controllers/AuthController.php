@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Services\PlSqlService;
 use App\Http\Requests\Auth\validateFaceToFaceCitizenRequest;
 use App\Http\Requests\Auth\ActorRedirectRequest;
+use App\Models\User;
 
 
 class AuthController extends Controller
@@ -454,9 +455,9 @@ class AuthController extends Controller
 
         if($responseBody == 1) {
 
-            $cuil = $this->wsService->getCuil($validated['dni']);
+            $prs_id = $this->wsService->getPrs_id($validated['dni']);
 
-            if ($cuil == "bad dni"){
+            if ($prs_id == "bad dni"){
 
                     return response()->json([
                         'status' => false,
@@ -465,67 +466,73 @@ class AuthController extends Controller
 
             }else{
 
-                $user = User::where('cuil', $cuil)->first();
-	
-                if ($user->email_verified_at == null) {
+                $user = User::where('prs_id', $prs_id)->first();
 
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'email validation still pending'
-                    ], 400);
+                if ($user){
 
-                } else {
-
-                    $column_name = "USER_ID";
-                    $column_value = $user->id;
-                    $table = "USER_AUTHENTICATION";
-                    $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
-
-                    if (!empty($user_auth)) {
-
-                        $token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
-
-                        //a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
-                        $timestamp = now()->addDays(1);
-                        $expires_at = date('M d, Y H:i A', strtotime($timestamp));
-
-                        $column_name = "USER_ID";
-                        $column_value = $user->id;
-                        $table = "USER_CONTACT";
-                        $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
-
-                        $table = "USER_ACTORS";
-                        $user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
-                        $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
-                        $is_actor = ($is_actor_empty) ? false : true;
-
-                        $user_data = [
-                            "user" => $user,
-                            "user_contact" => $user_data,
-                            "is_actor" => $is_actor
-                        ];
+                    if ($user->email_verified_at == null) {
 
                         return response()->json([
-                            'status' => true,
-                            'message' => 'Login successful',
-                            'access_token' => $token,
-                            'token_type' => 'bearer',
-                            'expires_at' => $expires_at,
-                            'user_data' => $user_data
-                        ]);
-
+                            'status' => false,
+                            'message' => 'email validation still pending'
+                        ], 400);
+    
                     } else {
-
-                        //enviar error de nivel de autenticación
-                        return $this->errorService->databaseReadError();
-
+    
+                        $column_name = "USER_ID";
+                        $column_value = $user->id;
+                        $table = "USER_AUTHENTICATION";
+                        $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+    
+                        if (!empty($user_auth)) {
+    
+                            $token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
+    
+                            //a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
+                            $timestamp = now()->addDays(1);
+                            $expires_at = date('M d, Y H:i A', strtotime($timestamp));
+    
+                            $column_name = "USER_ID";
+                            $column_value = $user->id;
+                            $table = "USER_CONTACT";
+                            $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+    
+                            $table = "USER_ACTORS";
+                            $user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                            $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
+                            $is_actor = ($is_actor_empty) ? false : true;
+    
+                            $user_data = [
+                                "user" => $user,
+                                "user_contact" => $user_data,
+                                "is_actor" => $is_actor
+                            ];
+    
+                            return response()->json([
+                                'status' => true,
+                                'message' => 'Login successful',
+                                'access_token' => $token,
+                                'token_type' => 'bearer',
+                                'expires_at' => $expires_at,
+                                'user_data' => $user_data
+                            ]);
+    
+                        } else {
+    
+                            //enviar error de nivel de autenticación
+                            return $this->errorService->databaseReadError();
+    
+                        }
                     }
+
+                }else{
+
+                    return $this->errorService->badUser();
+
+
                 }
 
             }
-
-            
-
 
         }else{
 
