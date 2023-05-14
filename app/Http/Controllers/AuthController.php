@@ -458,6 +458,11 @@ class AuthController extends Controller
 
             if ($cuil == "bad dni"){
 
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'bad dni'
+                    ], 404);
+
             }else{
 
                 $user = User::where('cuil', $cuil)->first();
