@@ -87,7 +87,7 @@ class PlSqlService
 	
 		$multimedia_id=-1;
 
-		$table="MULTIMEDIA.MMD_CIUD_".$table_name."_DOC";
+		$table="CIUD_".$table_name."_DOC";
 
 		//file type puede ser DOC si es un documento o IMG si es una imagen
 
