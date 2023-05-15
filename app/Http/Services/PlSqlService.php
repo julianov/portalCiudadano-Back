@@ -50,10 +50,11 @@ class PlSqlService
 	}
 
 
-	public function getNotifications($fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
+	public function getNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
 		
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_NOTIFICATIONS(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+			'user_id' => $userId,
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
 			'localidad_val' => $localidad_val,

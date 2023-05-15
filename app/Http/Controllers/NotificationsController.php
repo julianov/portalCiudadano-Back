@@ -218,7 +218,7 @@ class NotificationsController extends Controller
 				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
 				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
-                $res_notifications = $this->plSqlServices->getNotifications($fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+                $res_notifications = $this->plSqlServices->getNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -341,5 +341,5 @@ class NotificationsController extends Controller
             return $this->errorService->noUser();
         }
 
-
+    }
 }
