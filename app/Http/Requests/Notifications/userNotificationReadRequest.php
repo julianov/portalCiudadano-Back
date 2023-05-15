@@ -25,7 +25,7 @@ class userNotificationReadRequest extends FormRequest
 	public function rules()
 	{
 		return [
-            "message_title" => "required|string",
+            "notification_id" => "required|numeric",
           
 		];
 	}
@@ -34,7 +34,7 @@ class userNotificationReadRequest extends FormRequest
 	{
 		return [
 		
-            "message_title" => 'El campo message_title es requerido',
+            "notification_id" => 'El campo notification_id es requerido',
            
 		];
 	}

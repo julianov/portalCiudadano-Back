@@ -304,8 +304,8 @@ class NotificationsController extends Controller
 
 		if($user){
 
-            $column_name = "MESSAGE_TITLE";
-            $column_value = $validated['message_title'];
+            $column_name = "ID";
+            $column_value = $validated['notification_id'];
             $table = "NOTIFICATIONS";
             $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
