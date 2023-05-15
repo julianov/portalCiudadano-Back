@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
 use App\Http\Requests\Notifications\getNotificationsAttachmentsRequest;
+use App\Http\Requests\Notifications\userNotificationReadRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use App\Http\Services\ErrorService;
@@ -295,29 +296,50 @@ class NotificationsController extends Controller
 
     }
 
-    public function prueba (){
+    public function userNotificationRead ( userNotificationReadRequest $request){
+       
+        $validated = $request->validated();
 
-        $imagePath = public_path('prueba.jpg');
-        $imageContent = file_get_contents($imagePath);
+        $user = Auth::guard('authentication')->user();
 
-        $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
-        $blob = null;
+		if($user){
 
-        if ($extension === 'pdf') {
-            $pdf = new Pdf($imagePath);
-            $image = Image::make($pdf->getImageData())->encode('png');
-            $blob = $image->getEncoded();
-        } elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp'])) {
-            $image = Image::make($imagePath)->encode('png');
-            $blob = $image->getEncoded();
-        } else {
-            return "Bad extension";
+            $column_name = "MESSAGE_TITLE";
+            $column_value = $validated['message_title'];
+            $table = "NOTIFICATIONS";
+            $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+
+            if (!empty($notification)){
+
+                $notification_id=$notification->ID; 
+
+                $table_name = "USER_NOTIFICATIONS";
+				$columns = "USER_ID, NOTIFICATION_ID, CREATED_AT";
+				$values = $user->id.','.$notification_id.',sysdate';
+				$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+                
+                if ($result) {
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => "Notification read"
+                    ], 200);
+
+
+                }else{
+
+                    return $this->errorService->databaseWriteError();
+                    
+                }
+
+            }else{
+
+                return $this->errorService->databaseReadError();
+            }
+        }else{
+
+            return $this->errorService->noUser();
         }
 
-        $res= $this->plSqlServices->insertFile($table_name, $blob, 'png', $validated['message_title'] , $validated['attachment_type']); 
-
-
-
-    }
 
 }
