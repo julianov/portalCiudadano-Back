@@ -66,7 +66,8 @@ Route::prefix("/v0/er")->controller(Controllers\LocationsController::class)->gro
 Route::prefix("/v0/notification")->controller(Controllers\NotificationsController::class)->group(function () {
 
 	Route::post('/new', [Controllers\NotificationsController::class, 'newNotification']);
-	Route::middleware(['auth:authentication'])->get('/get/user/news', [Controllers\NotificationsController::class, 'checkUserNotifications']);
+	Route::middleware(['auth:authentication'])->get('/get/user/news', [Controllers\NotificationsController::class, 'checkUserNewNotifications']);
+	Route::middleware(['auth:authentication'])->get('/get/user/all', [Controllers\NotificationsController::class, 'checkUserAllNotifications']);
 	Route::middleware(['auth:authentication'])->get('/get/user/attachments', [Controllers\NotificationsController::class, 'getNotificationsAttachments']);
 	Route::middleware(['auth:authentication'])->post('/get/user/read', [Controllers\NotificationsController::class, 'userNotificationRead']);
 	Route::middleware(['auth:authentication'])->get('/get/actor/active/news', [Controllers\NotificationsController::class, 'checkAllNotifications']);

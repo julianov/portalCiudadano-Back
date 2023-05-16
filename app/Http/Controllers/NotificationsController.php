@@ -192,7 +192,7 @@ class NotificationsController extends Controller
     }
 
 
-    public function checkUserNotifications(Request $request){
+    public function checkUserNewNotifications(Request $request){
 
         $user = Auth::guard('authentication')->user();
 
@@ -219,6 +219,69 @@ class NotificationsController extends Controller
 				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
                 $res_notifications = $this->plSqlServices->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+
+                if (empty($res_notifications) || $res_notifications=='[]') {
+
+                    return response()->json([
+                        'status' => false,
+                        'notifications' => "without new notifications"
+                    ], 204);
+
+                } else {
+
+                    return response()->json([
+                        'status' => true,
+                        'notifications' => $res_notifications
+                    ], 200);
+                }
+                
+
+            }else{
+
+                return $this->errorService->userDataNotFound();
+
+
+            }
+
+
+        }else{
+
+            return $this->errorService->noUser();
+
+
+        }
+
+
+    }
+
+
+    public function checkUserAllNotifications(Request $request){
+
+        $user = Auth::guard('authentication')->user();
+
+		if($user){
+
+            $column_name = "USER_ID";
+            $column_value = $user->id;
+            $table = "USER_CONTACT";
+            $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+
+            if (!empty($user_data)) {
+
+                //$fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val
+                $fechaActual = Carbon::now()->format('d/m/Y');
+                $fechaCumpleanos = Carbon::parse($user_data->BIRTHDAY);
+                // Calcular la edad
+                $edad = $fechaCumpleanos->age;
+
+                $table = "USER_ACTORS";
+                $column_name = "USER_ID";
+                $column_value = $user->id;
+				$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
+				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
+
+                $res_notifications = $this->plSqlServices->getAllNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
