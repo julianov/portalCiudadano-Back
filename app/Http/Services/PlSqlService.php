@@ -50,10 +50,10 @@ class PlSqlService
 	}
 
 
-	public function getNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
+	public function getNewNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
 		
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.NUEVAS_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
 			'user_id' => $userId,
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
@@ -69,7 +69,7 @@ class PlSqlService
 	{
 		
 		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val) as result FROM DUAL", [
-			'fecha_val' => $fecha_val
+			'fecha_val' => $fechaActual
 			
 		]);
 
