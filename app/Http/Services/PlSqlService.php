@@ -65,6 +65,17 @@ class PlSqlService
 		return $result[0]->result;
 	}
 
+	public function getAllActiveNotifications($fechaActual)
+	{
+		
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val) as result FROM DUAL", [
+			'fecha_val' => $fecha_val
+			
+		]);
+
+		return $result[0]->result;
+	}
+
 	public function getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
 	{
 		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_EMAIL_USUARIOS(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [

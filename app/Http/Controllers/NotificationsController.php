@@ -254,6 +254,59 @@ class NotificationsController extends Controller
 
     }
 
+
+    public function checkAllNotifications(Request $request){
+
+        $user = Auth::guard('authentication')->user();
+
+        if ($user){
+
+            $table = "USER_ACTORS";
+            $user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+            $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
+            $is_actor = ($is_actor_empty) ? false : true;
+
+            if ($is_actor){
+
+                $fechaActual = Carbon::now()->format('d/m/Y');
+
+                $res_all_active_notifications = $this->plSqlServices->getAllActiveNotifications($fechaActual);
+                
+                if (empty($res_all_active_notifications) || $res_all_active_notifications=='[]') {
+
+                    return response()->json([
+                        'status' => false,
+                        'notifications' => "without new notifications"
+                    ], 204);
+
+                } else {
+
+                    return response()->json([
+                        'status' => true,
+                        'notifications' => $res_all_active_notifications
+                    ], 200);
+                }
+
+            }else{
+
+                return response()->json([
+                        'status' => false,
+                        'message' => "Access denied"
+                    ], 403);
+
+            }
+            
+
+        }else{
+
+            return $this->errorService->noUser();
+
+        }
+        
+
+    }
+
+
     public function getNotificationsAttachments(getNotificationsAttachmentsRequest $request){
 
 
