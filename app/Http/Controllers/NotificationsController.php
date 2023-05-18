@@ -113,9 +113,10 @@ class NotificationsController extends Controller
                     $file_type="DOC";
                 }
 
-                $res= $this->plSqlServices->insertFile($table_name, $file_type, $tipoArchivo , $validated['message_title'] , $validated['attachment']->getPathname()); 
+               // $res= $this->plSqlServices->insertFile($table_name, $file_type, $tipoArchivo , $validated['message_title'] , $validated['attachment']->getPathname()); 
+                $res= $this->plSqlServices->notificationAttachment($validated['attachment'], $validated['attachment']->getSize()); 
 
-                if ($res != -1){
+                if ($res != null){
 
                     $send_email_validation='0';
 
@@ -124,9 +125,9 @@ class NotificationsController extends Controller
                     }
 
                     $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                    $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."',".res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                    $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."',".$res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
 
-                    $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
+                    $res = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                     if ($res){
 

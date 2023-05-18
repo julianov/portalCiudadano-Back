@@ -3,7 +3,7 @@
 namespace App\Http\Services;
 
 use Illuminate\Support\Facades\DB;
-
+use PDO;
 
 class PlSqlService
 {
@@ -115,12 +115,6 @@ class PlSqlService
 
 		$table="CIUD_".$table_name."_DOC";
 
-		//file type puede ser DOC si es un documento o IMG si es una imagen
-
-		//multimedia id es el output
-
-		//MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO('CIUDADANOS',:table_name,:file_type, :file_type_description,:file_name,:file,:multimedia_id)
-
 		$blob_file = (self::getDocumentFromFront($file_path) );
 		
 		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(:p1, :p2, :p3, :p4, :p5, :p6, :p7); END;", [
@@ -138,6 +132,31 @@ class PlSqlService
 
 	}
 
+
+	public function notificationAttachment ( $file_path, $tamanio)
+	{
+		
+		$blob_file =file_get_contents($file_path) ;
+		
+	/*	$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO(:p_file); END",
+		[
+			'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio]
+			
+		]);
+*/	
+		$inmuebleId = null;
+
+		$procedimiento = 'CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO';
+        $parametros = [
+            'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio],                   
+            'P_multimedia_id' => ['value' => &$inmuebleId,'type' => PDO::PARAM_INT ]
+        ];     
+       
+        $resultado = DB::executeProcedure($procedimiento, $parametros);
+
+		dd($inmuebleId);
+		return $inmuebleId;
+	}
 
 	function convertFileToBlob(UploadedFile $file) // Se espera que $file sea una instancia de UploadedFile
 	{
