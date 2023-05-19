@@ -17,14 +17,12 @@ class PlSqlService
 
 	public function getLastId ($table_name){
 
-
-		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.OBTENER_ULTIMO_ID(:table_name); END;",
-            [
-                'table_name' => $table_name,
-                
-            ]);
-        
-		return $res;
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_ULTIMO_ID(:table_name) as result FROM DUAL", 
+		[
+			'table_name' => $table_name
+		]);
+		
+		return $result[0]->result;
 	}
 
     public function insertarFila(string $table_name, string $columns, string $values): bool{
@@ -125,6 +123,8 @@ class PlSqlService
 	{
 		
 		$blob_file =file_get_contents($file_path) ;
+
+		//dd($file_type." - ".$file_extension." - ".$table_id." - ".$file_name);
 		
 	/*	$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO(:p_file); END",
 		[
@@ -136,11 +136,11 @@ class PlSqlService
 		 
 		$procedimiento = 'CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO';
         $parametros = [
+			'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio],                   
 			'file_type' => $file_type,
 			'file_extension' => $file_extension,
 			'notification_table_id' => $table_id,
 			'file_name' => $file_name,
-            'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio],                   
             'P_multimedia_id' => ['value' => &$inmuebleId,'type' => PDO::PARAM_INT ]
         ];     
        

@@ -103,58 +103,61 @@ class NotificationsController extends Controller
                     $file_type="DOC";
                 }
 
-
-                $send_email_validation='0';
-
-                if ($validated['send_by_email']=="true"){
-                    $send_email_validation='1';
-                }
-
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."',".$res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
-                $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
-
-                if ($insert_notification_row){
-
-                    $last_id = $this->plSqlServices->getLastId($table_name); 
+               
+                $last_id = $this->plSqlServices->getLastId($table_name); 
                         
-                    if (is_numeric($last_id) && is_int($last_id)){
+                if ($last_id!=null){
 
-                        $file_name = $validated['attachment']->getClientOriginalName();
+                    $file_name = $validated['attachment']->getClientOriginalName();
 
-                        $notification_attachment = $this->plSqlServices->notificationAttachment($validated['attachment'], $validated['attachment']->getSize(), $file_type, $tipoArchivo, $last_id, $file_name); 
-                            
-                        if ($notification_attachment!= null) {
+                    $notification_attachment = $this->plSqlServices->notificationAttachment($validated['attachment'], $validated['attachment']->getSize(), $file_type, $tipoArchivo, intval($last_id)+1, $file_name); 
+                        
+                    if ($notification_attachment!= null) {
+
+                        $send_email_validation='0';
+
+                        if ($validated['send_by_email']=="true"){
+                            $send_email_validation='1';
+                        }
+        
+
+                        $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                        $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."',".$res.",(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                        $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+
+                        if ($insert_notification_row){
 
                             if ($validated['send_by_email']=="true"){
 
                                 self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment']->getMimeType(),$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                                 
                             }
-        
+
                             return response()->json([
                                 'status' => true,
                                 'message' => 'Notification loaded successfully',
                             ], 201);
-
+                                    
                         }else{
 
                             return $this->errorService->databaseWriteError();
+                            
 
                         }
-                               
+
+
                     }else{
 
-                            return response()->json([
-                                'status' => false,
-                                'message' => 'No se pudo adjuntar la imagen',
-                            ], 400);
-
-                        }
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'No se pudo adjuntar la imagen',
+                        ], 400);
+                    }
 
                 }else{
 
-                        return $this->errorService->databaseWriteError();
+                    return $this->errorService->databaseReadError();
+
 
                 }
 
