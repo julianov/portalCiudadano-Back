@@ -145,24 +145,25 @@ class PlSqlService
 	public function getAttachmentFileName (string $table, int $multimedia_id ){
 
 
-		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_CONT_NOMBRE(:p1,, :p2) as result FROM DUAL", 
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_CONT_NOMBRE(:p1, :p2) as result FROM DUAL", 
 		[
-			$table,
-			$multimedia_id // Passing the output parameter by reference
+			'p1' =>$table,
+			'p2' =>$multimedia_id // Passing the output parameter by reference
 		]);
 
-		return $res;
+		return $result[0]->result;
 	}
 
 	public function getUploadedFile (string $table, int $multimedia_id ){
 
-		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1,, :p2) as result FROM DUAL", 
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2) as result FROM DUAL", 
 		[
-			$table,
-			$multimedia_id // Passing the output parameter by reference
+			'p1' =>$table,
+			'p2' =>$multimedia_id // Passing the output parameter by reference
 		]);
 
-		return $res;
+
+		return $result[0]->result;
 	}
 
 

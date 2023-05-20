@@ -373,11 +373,14 @@ class NotificationsController extends Controller
 
     }
 
-    public function getNotificationAttachmentName (multimediaIdRequest $request){
+    public function getNotificationAttachmentName (Request $request){
 
-        $validated = $request->validated();
+        $request->validate([
+            "multimedia_id" => "required|numeric",
+        ]);
 
-        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $validated['multimedia_id']);
+
+        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
             return response()->json([
@@ -393,11 +396,13 @@ class NotificationsController extends Controller
     }
 
 
-    public function getNotificationsAttachments(multimediaIdRequest $request){
+    public function getNotificationsAttachments(Request $request){
 
-        $validated = $request->validated();
+        $request->validate([
+            "multimedia_id" => "required|numeric",
+        ]);
 
-        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $validated['multimedia_id']);
+        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_file){
             return response()->json([
