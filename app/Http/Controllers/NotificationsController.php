@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
 use App\Http\Requests\Notifications\getNotificationsAttachmentsRequest;
-use App\Http\Requests\Notifications\userNotificationReadRequest;
+use App\Http\Requests\Notifications\notificationReadRequest;
+use App\Http\Requests\Notifications\getNotificationsAttachmentNameRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use App\Http\Services\ErrorService;
@@ -373,50 +374,45 @@ class NotificationsController extends Controller
 
     }
 
-
-    public function getNotificationsAttachments(getNotificationsAttachmentsRequest $request){
-
+    public function getNotificationAttachmentName (getNotificationsAttachmentNameRequest $request){
 
         $validated = $request->validated();
 
-        $column_name = "MESSAGE_TITLE";
-		$column_value = $validated['message_title'];
-		$table = "NOTIFICATIONS";
-        $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $validated['multimedia_id'];
 
-        if (!empty($notification)) {
-            
-            if ($notification->MULTIMEDIA_ID!=null){
-
-                $attachment = $this->plSqlServices->getUploadedFile($table, $notification->MULTIMEDIA_ID);
-
-                if ($attachment){
-
-                    return response()->json([
-                        'status' => true,
-                        'attachment' => $attachment
-                    ], 200);
-
-                }else{
-
-                    return $this->errorService->databaseReadError();
-
-                }
-            }else{
-
-                return $this->errorService->databaseReadError();
-
-            }
+        if ($attachment_name){
+            return response()->json([
+                'status' => true,
+                'attachment_name' => $attachment_name
+            ], 200);
         }else{
 
             return $this->errorService->databaseReadError();
 
+
         }
+    }
+
+
+    public function getNotificationsAttachments(getNotificationsAttachmentsRequest $request){
+
+        $validated = $request->validated();
+
+        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $validated['multimedia_id'];
+
+        if ($attachment_file){
+            return response()->json([
+                'status' => true,
+                'attachment_file' => $attachment_file
+            ], 200);
+        }else{
+
+            return $this->errorService->databaseReadError();
         
 
     }
 
-    public function userNotificationRead ( userNotificationReadRequest $request){
+    public function userNotificationRead ( notificationReadRequest $request){
        
         $validated = $request->validated();
 

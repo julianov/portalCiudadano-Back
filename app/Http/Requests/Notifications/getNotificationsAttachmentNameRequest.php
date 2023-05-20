@@ -5,7 +5,7 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class userNotificationReadRequest extends FormRequest
+class getNotificationsAttachmentNameRequest extends FormRequest
 {
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class userNotificationReadRequest extends FormRequest
 	public function rules()
 	{
 		return [
-            "notification_id" => "required|numeric",
+            "multimedia_id" => "required|numeric",
           
 		];
 	}
@@ -34,7 +34,7 @@ class userNotificationReadRequest extends FormRequest
 	{
 		return [
 		
-            "notification_id" => 'El campo notification_id es requerido',
+            "multimedia_id" => 'El campo multimedia_id es requerido',
            
 		];
 	}

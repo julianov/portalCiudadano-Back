@@ -71,6 +71,9 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 	Route::middleware(['auth:authentication'])->get('/get/user/attachments', [Controllers\NotificationsController::class, 'getNotificationsAttachments']);
 	Route::middleware(['auth:authentication'])->post('/get/user/read', [Controllers\NotificationsController::class, 'userNotificationRead']);
 	Route::middleware(['auth:authentication'])->get('/get/actor/active/news', [Controllers\NotificationsController::class, 'checkAllNotifications']);
+	Route::middleware(['auth:authentication'])->get('/get/attachment/name', [Controllers\NotificationsController::class, 'getNotificationAttachmentName']);
+
+	
 });
 
 

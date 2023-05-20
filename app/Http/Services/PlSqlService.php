@@ -124,14 +124,6 @@ class PlSqlService
 		
 		$blob_file =file_get_contents($file_path) ;
 
-		//dd($file_type." - ".$file_extension." - ".$table_id." - ".$file_name);
-		
-	/*	$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO(:p_file); END",
-		[
-			'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio]
-			
-		]);
-*/	
 		$inmuebleId = null;
 		$procedimiento = 'CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO';
         $parametros = [
@@ -148,46 +140,24 @@ class PlSqlService
 		return $inmuebleId;
 	}
 
-	function convertFileToBlob(UploadedFile $file) // Se espera que $file sea una instancia de UploadedFile
-	{
-		$extension = $file->getClientOriginalExtension();
-		$blob = null;
-
-		if ($extension === 'pdf') {
-			$pdf = new Pdf($file->getPathname());
-			$image = Image::make($pdf->getImageData())->encode('png');
-			$blob = $image->getEncoded();
-		} elseif (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp'])) {
-			$image = Image::make($file)->encode('png');
-			$blob = $image->getEncoded();
-		} else {
-			return "Bad extension";
-		}
-
-		return $blob;
-	}
 
 
-	function getDocumentFromFront(string $rutaImagen){
-		// Verificar si el archivo existe
-		if (file_exists($rutaImagen)) {
-			// Leer el contenido del archivo
-			$contenidoImagen = file_get_contents($rutaImagen);
+	public function getAttachmentFileName (string $table, int $multimedia_id ){
 
-			// Convertir el contenido a formato base64
-			$blob = base64_encode($contenidoImagen);
 
-			// Imprimir el blob
-			return $blob;
-		}
-		else{
-			return "bad data";
-		}
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_CONT_NOMBRE(:p1,, :p2) as result FROM DUAL", 
+		[
+			$table,
+			$multimedia_id // Passing the output parameter by reference
+		]);
+
+		return $res;
 	}
 
 	public function getUploadedFile (string $table, int $multimedia_id ){
 
-		$res = DB::statement("BEGIN MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2); END;", [
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1,, :p2) as result FROM DUAL", 
+		[
 			$table,
 			$multimedia_id // Passing the output parameter by reference
 		]);
