@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
-use App\Http\Requests\Notifications\multimediaRequest;
+use App\Http\Requests\Notifications\multimediaIdRequest;
 use App\Http\Requests\Notifications\notificationReadRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
@@ -373,7 +373,7 @@ class NotificationsController extends Controller
 
     }
 
-    public function getNotificationAttachmentName (multimediaRequest $request){
+    public function getNotificationAttachmentName (multimediaIdRequest $request){
 
         $validated = $request->validated();
 
@@ -393,7 +393,7 @@ class NotificationsController extends Controller
     }
 
 
-    public function getNotificationsAttachments(multimediaRequest $request){
+    public function getNotificationsAttachments(multimediaIdRequest $request){
 
         $validated = $request->validated();
 
