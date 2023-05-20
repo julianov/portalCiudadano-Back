@@ -380,7 +380,7 @@ class NotificationsController extends Controller
         ]);
 
 
-        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $request['multimedia_id']);
+        $attachment_name = $this->plSqlServices->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
             return response()->json([
