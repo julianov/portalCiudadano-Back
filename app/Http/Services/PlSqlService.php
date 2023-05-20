@@ -133,7 +133,6 @@ class PlSqlService
 		]);
 */	
 		$inmuebleId = null;
-		 
 		$procedimiento = 'CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO';
         $parametros = [
 			'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio],                   
@@ -146,7 +145,6 @@ class PlSqlService
        
         $resultado = DB::executeProcedure($procedimiento, $parametros);
 
-		dd($inmuebleId);
 		return $inmuebleId;
 	}
 
