@@ -403,10 +403,9 @@ class NotificationsController extends Controller
         $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_file){
-            return response()->json([
-                'status' => true,
-                'attachment_file' => $attachment_file
-            ], 200);
+
+            return $attachment_file;
+
         }else{
 
             return $this->errorService->databaseReadError();
