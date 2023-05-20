@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
-use App\Http\Requests\Notifications\multimediaIdRequest;
-use App\Http\Requests\Notifications\notificationReadRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use App\Http\Services\ErrorService;
@@ -416,16 +414,20 @@ class NotificationsController extends Controller
 
     }
 
-    public function userNotificationRead (notificationReadRequest $request){
+    public function userNotificationRead (Request $request){
        
-        $validated = $request->validated();
+        $request->validate([
+
+            "notification_id" => "required|numeric",
+        ]);
+
 
         $user = Auth::guard('authentication')->user();
 
 		if($user){
 
             $column_name = "ID";
-            $column_value = $validated['notification_id'];
+            $column_value = $request['notification_id'];
             $table = "NOTIFICATIONS";
             $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
