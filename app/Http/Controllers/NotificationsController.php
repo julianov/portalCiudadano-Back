@@ -378,7 +378,7 @@ class NotificationsController extends Controller
 
         $validated = $request->validated();
 
-        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $validated['multimedia_id'];
+        $attachment_name = $this->plSqlServices->getgetAttachmentFileNameRow('NOTIFICATIONS_DOC', $validated['multimedia_id']);
 
         if ($attachment_name){
             return response()->json([
@@ -398,7 +398,7 @@ class NotificationsController extends Controller
 
         $validated = $request->validated();
 
-        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $validated['multimedia_id'];
+        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $validated['multimedia_id']);
 
         if ($attachment_file){
             return response()->json([
@@ -408,11 +408,11 @@ class NotificationsController extends Controller
         }else{
 
             return $this->errorService->databaseReadError();
-        
+        }
 
     }
 
-    public function userNotificationRead ( notificationReadRequest $request){
+    public function userNotificationRead (notificationReadRequest $request){
        
         $validated = $request->validated();
 
