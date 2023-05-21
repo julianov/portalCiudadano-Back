@@ -468,8 +468,15 @@ class NotificationsController extends Controller
 
         $validated = $request->validated();
 
-        $res_notifications = $this->plSqlServices->checkNotificationScope($validated['recipients'],  $validated['age_from'], $validated['age_to'], $validated['department_id'], $validated['locality_id'] );
+        $birthday = Carbon::now()->subYears($validated['age_from'] );
+        $min_fecha_nacimiento = $birthday->format('d/m/Y');
 
+        $birthday = Carbon::now()->subYears($validated['age_to']  );
+        $max_fecha_nacimiento = $birthday->format('d/m/Y');
+
+        $res_notifications_scope = $this->plSqlServices->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
+
+        dd($res_notifications_scope);
 
     }
 
