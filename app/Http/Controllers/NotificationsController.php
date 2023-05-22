@@ -483,7 +483,7 @@ class NotificationsController extends Controller
 
             return response()->json([
                 'status' => true,
-                'notification_scope' => res_notifications_scope
+                'notification_scope' => $res_notifications_scope
             ], 200);
 
         }else{
