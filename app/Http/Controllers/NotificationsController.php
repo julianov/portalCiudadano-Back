@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Notifications\NewNotificationRequest;
+use App\Http\Requests\Notifications\CheckNotificationScopeRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\PlSqlService;
 use App\Http\Services\ErrorService;
@@ -381,10 +382,12 @@ class NotificationsController extends Controller
         $attachment_name = $this->plSqlServices->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
+
             return response()->json([
                 'status' => true,
                 'attachment_name' => $attachment_name
             ], 200);
+
         }else{
 
             return $this->errorService->databaseReadError();
@@ -464,7 +467,7 @@ class NotificationsController extends Controller
 
     }
 
-    public function checkNotificationScope ( checkNotificationScopeRequest $request){
+    public function checkNotificationScope ( CheckNotificationScopeRequest $request){
 
         $validated = $request->validated();
 
@@ -476,7 +479,19 @@ class NotificationsController extends Controller
 
         $res_notifications_scope = $this->plSqlServices->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
 
-        dd($res_notifications_scope);
+        if ($res_notifications_scope){
+
+            return response()->json([
+                'status' => true,
+                'notification_scope' => res_notifications_scope
+            ], 200);
+
+        }else{
+
+            return $this->errorService->databaseReadError();
+
+
+        }
 
     }
 
