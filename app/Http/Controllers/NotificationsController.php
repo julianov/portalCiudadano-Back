@@ -41,39 +41,39 @@ class NotificationsController extends Controller
 
         $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
 
-        $result_code=1; //es solo para prueba
+       // $result_code=1; //es solo para prueba
+        
+        $usuarios_unicos = array_unique($usuarios);
+        if (count($usuarios_unicos) > 0 ){
 
-        if ($attachment_type!='none'){
+            if ($attachment_type!='none'){
 
-            $usuarios_unicos = array_unique($usuarios);
+                foreach ($usuarios_unicos as $usuario) {
+                                
+                    Mail::to($usuario)
+                    ->queue((new NotificationEmail($message_title, $message_body))
+                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                        ->subject($message_title)
+                        ->attach($attachment->getPathname(), [
+                            'as' => $attachment->getClientOriginalName(),
+                            'mime' => $attachment->getClientMimeType(),
+                        ]));
+                    }
 
-            foreach ($usuarios_unicos as $usuario) {
+            }else{
+
+            
+                foreach ($usuarios_unicos as $usuario) {
                 
-                //$user = User::where('cuil', $usuario)->first();
-
-                Mail::to($usuario)
-                ->queue((new NotificationEmail( $message_title, $message_body))
-                    ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                    ->subject($message_title)
-                    ->attachData($attachment->getPathname(), $attachment->originalName(), ['mime' => $attachment_type]));
+                    Mail::to($usuario)
+                        ->queue((new NotificationEmail( $message_title, $message_body))
+                            ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                            ->subject($message_title));
                 }
 
-        }else{
-
-            $usuarios_unicos = array_unique($usuarios);
-            
-            foreach ($usuarios_unicos as $usuario) {
-
-                //$user = User::where('cuil', $usuario)->first();
-               
-                Mail::to($usuario)
-                    ->queue((new NotificationEmail( $message_title, $message_body))
-                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject($message_title));
             }
 
         }
-      
 
     }
 
