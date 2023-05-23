@@ -378,7 +378,7 @@ class NotificationsController extends Controller
             "multimedia_id" => "required|numeric",
         ]);
 
-
+        o
         $attachment_name = $this->plSqlServices->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
@@ -479,7 +479,7 @@ class NotificationsController extends Controller
 
         $res_notifications_scope = $this->plSqlServices->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
 
-        if ($res_notifications_scope){
+        if ($res_notifications_scope!=null){
 
             return response()->json([
                 'status' => true,
