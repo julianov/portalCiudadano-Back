@@ -63,7 +63,7 @@ class PlSqlService
 	public function getNewNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
 		
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.NUEVAS_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.NUEVAS_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
 			'user_id' => $userId,
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
@@ -78,7 +78,7 @@ class PlSqlService
 	public function getAllNotifications ($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
 		
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_NOTIFICACIONES(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
 			'localidad_val' => $localidad_val,
@@ -92,7 +92,7 @@ class PlSqlService
 	public function getAllActiveNotifications($fechaActual)
 	{
 		
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val) as result FROM DUAL", [
 			'fecha_val' => $fechaActual
 			
 		]);
@@ -102,7 +102,7 @@ class PlSqlService
 
 	public function getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
 	{
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_EMAIL_USUARIOS(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_EMAIL_USUARIOS(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
 			'min_fecha_nacimiento' => $min_fecha_nacimiento,
 			'max_fecha_nacimiento' => $max_fecha_nacimiento,
 			'localidad_id' => $localidad_id,
@@ -125,7 +125,7 @@ class PlSqlService
 		$blob_file =file_get_contents($file_path) ;
 
 		$inmuebleId = null;
-		$procedimiento = 'CIUD_UTILIDADES_PKG.NOTIFICACIONES_ADJUNTO';
+		$procedimiento = 'CIUD_NOTIFICACIONES_PKG.NOTIFICACIONES_ADJUNTO';
         $parametros = [
 			'p_file' => ["value" => &$blob_file, "type" => PDO::PARAM_LOB, "size" => $tamanio],                   
 			'file_type' => $file_type,
@@ -168,7 +168,7 @@ class PlSqlService
 
 	public function checkNotificationScope ($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
 	{
-		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_ALCANCE_NOTIFICACION(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_ALCANCE_NOTIFICACION(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
 			'min_fecha_nacimiento' => $min_fecha_nacimiento,
 			'max_fecha_nacimiento' => $max_fecha_nacimiento,
 			'localidad_id' => $localidad_id,
