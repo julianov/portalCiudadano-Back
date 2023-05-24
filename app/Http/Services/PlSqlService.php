@@ -114,6 +114,19 @@ class PlSqlService
 
 	}
 
+	public function checkNotificationScope ($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
+	{
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_ALCANCE_NOTIFICACION(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
+			'min_fecha_nacimiento' => $min_fecha_nacimiento,
+			'max_fecha_nacimiento' => $max_fecha_nacimiento,
+			'localidad_id' => $localidad_id,
+			'departamento_id' => $departamento_id,
+			'tipo_de_usuario'=> "'".$tipo_de_usuario."'",
+		]);
+
+		return $result[0]->result;
+	}
+
 
 	//MULTIMEDIA 
 
@@ -166,16 +179,39 @@ class PlSqlService
 		return $result[0]->result;
 	}
 
-	public function checkNotificationScope ($min_fecha_nacimiento, $max_fecha_nacimiento, $localidad_id, $departamento_id, $tipo_de_usuario)
-	{
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_ALCANCE_NOTIFICACION(:min_fecha_nacimiento, :max_fecha_nacimiento, :localidad_id, :departamento_id, :tipo_de_usuario) as result FROM DUAL", [
-			'min_fecha_nacimiento' => $min_fecha_nacimiento,
-			'max_fecha_nacimiento' => $max_fecha_nacimiento,
-			'localidad_id' => $localidad_id,
-			'departamento_id' => $departamento_id,
-			'tipo_de_usuario'=> "'".$tipo_de_usuario."'",
+	public function deleteUploadedFile (string $table, int $multimedia_id ){
+
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA(:p1, :p2) as result FROM DUAL", 
+		[
+			'p1' =>$table,
+			'p2' =>$multimedia_id // Passing the output parameter by reference
 		]);
 
-		return $result[0]->result;
+		if ($result[0]->result== $multimedia_id ){
+
+			return true;
+
+
+		}else{
+
+			return false;
+
+
+		}
 	}
+
+
+	BORRAR_NOTIFICACION
+
+	public function deleteNotification(integer $notification_id){
+
+		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.BORRAR_NOTIFICACION(:p_id); END;",
+		[
+			'p_id' => $notification_id,
+			
+		]);
+
+	return $res;
+	}
+	
 }

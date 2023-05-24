@@ -73,6 +73,7 @@ class NotificationsController extends Controller
 
             }
 
+
         }
 
     }
@@ -81,8 +82,7 @@ class NotificationsController extends Controller
 
         $validated = $request->validated();
 
-             
-            if ($request->has('attachment')) {
+        if ($request->has('attachment')) {
 
                 $table_name = "NOTIFICATIONS";
                 $file_type=""; 
@@ -93,6 +93,7 @@ class NotificationsController extends Controller
                 
                 $tipoArchivo= explode('/', $tipoArchivo)[1];
 
+                
                 if ($tipoArchivo == 'png' || $tipoArchivo == 'jpg' || $tipoArchivo == 'jpeg'){
 
                     $file_type="IMG";                    
@@ -378,7 +379,7 @@ class NotificationsController extends Controller
             "multimedia_id" => "required|numeric",
         ]);
 
-        o
+
         $attachment_name = $this->plSqlServices->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
@@ -403,9 +404,31 @@ class NotificationsController extends Controller
             "multimedia_id" => "required|numeric",
         ]);
 
-        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+        $attachment_file = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_file){
+
+            return response()->json([
+                'status' => true,
+                'deleted' => true
+            ], 200);
+
+        }else{
+
+            return $this->errorService->databaseReadError();
+        }
+
+    }
+
+    public function deleteNotificationsAttachments(Request $request){
+
+        $request->validate([
+            "multimedia_id" => "required|numeric",
+        ]);
+
+        $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+
+        if ($attachment_file_deleted){
 
             return $attachment_file;
 
@@ -478,7 +501,7 @@ class NotificationsController extends Controller
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $res_notifications_scope = $this->plSqlServices->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
-
+       
         if ($res_notifications_scope!=null){
 
             return response()->json([
@@ -490,6 +513,56 @@ class NotificationsController extends Controller
 
             return $this->errorService->databaseReadError();
 
+
+        }
+
+    }
+
+    public function deleteNotification  (Request $request){
+       
+        $request->validate([
+            "notification_id" => "required|numeric",
+        ]);
+
+        $column_name = "ID";
+        $column_value = $request['multimedia_id'];
+        $table = "NOTIFICATIONS";
+        $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+
+        if ($notification){
+
+            if ($notification->MULTIMEDIA_ID !=null){
+
+                $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+
+                if (!$attachment_file_deleted ){
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => "delete file error"
+                    ], 400);
+
+                }
+
+                //borrar implica un softdelete
+                $delete_notification = $this->plSqlServices->deleteNotification($notification->ID);
+                if ($delete_notification){
+
+                    return response()->json([
+                        'status' => true,
+                        'notification_deleted' => true
+                    ], 200);
+
+                }else{
+
+                    return $this->errorService->databaseWriteError();
+
+                }
+            }
+
+        }else{
+
+            return $this->errorService->databaseReadError();
 
         }
 

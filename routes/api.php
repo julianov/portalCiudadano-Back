@@ -74,6 +74,9 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 	Route::middleware(['auth:authentication'])->get('/get/attachment/name', [Controllers\NotificationsController::class, 'getNotificationAttachmentName']);
 	Route::middleware(['auth:authentication'])->get('/new/scope', [Controllers\NotificationsController::class, 'checkNotificationScope']);
 
+	Route::middleware(['auth:authentication'])->post('/attachment/delete', [Controllers\NotificationsController::class, 'deleteNotificationsAttachments']);
+	Route::middleware(['auth:authentication'])->post('/notification/soft-delete', [Controllers\NotificationsController::class, 'deleteNotification']);
+
 	
 });
 
