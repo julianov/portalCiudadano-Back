@@ -574,7 +574,7 @@ class NotificationsController extends Controller
             "notification_id" => "required|numeric",
         ]);
 
-        $users_notification_reached = $this->plSqlServices->notificationUsersReached($request['notification_id'])
+        $users_notification_reached = $this->plSqlServices->notificationUsersReached($request['notification_id']);
 
         if ($users_notification_reached > 0){
 
