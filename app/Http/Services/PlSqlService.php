@@ -201,8 +201,6 @@ class PlSqlService
 	}
 
 
-	BORRAR_NOTIFICACION
-
 	public function deleteNotification(integer $notification_id){
 
 		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.BORRAR_NOTIFICACION(:p_id); END;",
@@ -213,5 +211,17 @@ class PlSqlService
 
 	return $res;
 	}
+
+	public function notificationUsersReached(integer $notification_id){
+
+		
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.OBTENER_USUARIOS_ALCANZADOS(:p_id) as result FROM DUAL", 
+		[
+			'p_id' =>$notification_id,
+		]);
+
+		return $res;
+	}
+	
 	
 }

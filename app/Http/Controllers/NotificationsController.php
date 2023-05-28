@@ -568,5 +568,30 @@ class NotificationsController extends Controller
 
     }
 
+    public function notificationReached (Request $request){
+       
+        $request->validate([
+            "notification_id" => "required|numeric",
+        ]);
+
+        $users_notification_reached = $this->plSqlServices->notificationUsersReached($request['notification_id'])
+
+        if ($users_notification_reached > 0){
+
+            return response()->json([
+                'status' => true,
+                'notification_reached' => $users_notification_reached
+            ], 200);
+
+        }else{
+
+            return response()->json([
+                'status' => true,
+                'notification_reached' => 0
+            ], 200);
+
+        }
+
+    }
 
 }
