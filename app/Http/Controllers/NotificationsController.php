@@ -30,7 +30,7 @@ class NotificationsController extends Controller
 	}
 
     
-    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachment_type,$attachment,$notification_date_from,$notificaion_date_to)
+    public function sendNotificationsEmails ($recipients,$age_from,$age_to,$department_id,$locality_id,$message_title,$message_body,$attachments,$notification_date_from,$notificaion_date_to)
     {
 
         $birthday = Carbon::now()->subYears($age_from);
@@ -40,25 +40,26 @@ class NotificationsController extends Controller
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
         $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
-
-       // $result_code=1; //es solo para prueba
         
         $usuarios_unicos = array_unique($usuarios);
         if (count($usuarios_unicos) > 0 ){
 
-            if ($attachment_type!='none'){
+            if (count($attachments)!=0){
 
                 foreach ($usuarios_unicos as $usuario) {
-                                
-                    Mail::to($usuario)
-                    ->queue((new NotificationEmail($message_title, $message_body))
+                    $mail = (new NotificationEmail($message_title, $message_body))
                         ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject($message_title)
-                        ->attach($attachment->getPathname(), [
+                        ->subject($message_title);
+                
+                    foreach ($attachments as $attachment) {
+                        $mail->attach($attachment->getPathname(), [
                             'as' => $attachment->getClientOriginalName(),
                             'mime' => $attachment->getClientMimeType(),
-                        ]));
+                        ]);
                     }
+                
+                    Mail::to($usuario)->queue($mail);
+                }
 
             }else{
 
@@ -87,31 +88,15 @@ class NotificationsController extends Controller
                 $table_name = "NOTIFICATIONS";
                 $file_type=""; 
 
-                $tipoArchivo = $validated['attachment']->getMimeType();
-                #puede ser application/pdf o image/png así que tengo que hacer un explode de aca para abaja
-                #el word es application/vnd.openxmlformats-officedocument.wordprocessingml.document y el doc comun es application/msword
-                
-                $tipoArchivo= explode('/', $tipoArchivo)[1];
-
-                
-                if ($tipoArchivo == 'png' || $tipoArchivo == 'jpg' || $tipoArchivo == 'jpeg'){
-
-                    $file_type="IMG";                    
-
-                }else{
-
-                    $file_type="DOC";
-                }
-
-
                 $send_email_validation='0';
     
                 if ($validated['send_by_email']=="true"){
                     $send_email_validation='1';
                 }
                
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, ATTACHMENT_TYPE, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."','".$tipoArchivo."', 0 ,(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                //aca elimino el attachment type y debo eliminarlo del json
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."', 0 ,(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
                 $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($insert_notification_row){
@@ -119,16 +104,47 @@ class NotificationsController extends Controller
                     $last_id = $this->plSqlServices->getLastId($table_name); 
                     
                     if ($last_id!=null){
-    
-                        $file_name = $validated['attachment']->getClientOriginalName();
-    
-                        $notification_attachment = $this->plSqlServices->notificationAttachment($validated['attachment'], $validated['attachment']->getSize(), $file_type, $tipoArchivo, intval($last_id), $file_name); 
+
+                        /////////////////////////////////////////////////////////////////////////////
+                        // esto es nuevo
+                        $attachments = $request->file('attachment');
+                        $totalAttachments = count($attachments);
+                        $multimedia_ids = [];
+                        
+                        for ($i = 0; $i < $totalAttachments; $i++) {
                             
-                        if ($notification_attachment!= null) {
-    
+                            $attachment = $attachments[$i];
+
+                            $file_name = $attachments[$i]->getClientOriginalName();
+
+                            $tipoArchivo = $validated['attachment']->getMimeType();
+                            $tipoArchivo= explode('/', $tipoArchivo)[1];
+                            if ($tipoArchivo == 'png' || $tipoArchivo == 'jpg' || $tipoArchivo == 'jpeg'){
+            
+                                $file_type="IMG";                    
+            
+                            }else{
+            
+                                $file_type="DOC";
+                            }
+
+                            $multimedia_ids [] = $this->plSqlServices->notificationAttachment($attachments[$i], $attachments[$i]->getSize(), $file_type, $tipoArchivo, intval($last_id), $file_name); 
+
+
+                        }
+
+                        if (count($multimedia_ids ) === 0) {
+
+                            return response()->json([
+                                'status' => false,
+                                'message' => 'No se pudo adjuntar la imagen',
+                            ], 400);
+
+                        }else{
+
                             if ($validated['send_by_email']=="true"){
 
-                                self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment']->getMimeType(),$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
+                                self::sendNotificationsEmails($validated['recipients'],$validated['age_from'],$validated['age_to'],$validated['department_id'],$validated['locality_id'],$validated['message_title'],$validated['message_body'],$validated['attachment'],$validated['notification_date_from'],$validated['notification_date_to']);
                                         
                             }
         
@@ -136,18 +152,15 @@ class NotificationsController extends Controller
                                 'status' => true,
                                 'message' => 'Notification loaded successfully',
                             ], 201);
-    
-                        }else{
-    
-                            return response()->json([
-                                'status' => false,
-                                'message' => 'No se pudo adjuntar la imagen',
-                            ], 400);
+
                         }
+                        
+
+                        /////////////////////////////////////////////////////////////////////////////////////
+
                     }else{
 
-                            return $this->errorService->databaseReadError();
-
+                        return $this->errorService->databaseReadError();
 
                         }
                 }else{
