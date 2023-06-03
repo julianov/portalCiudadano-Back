@@ -95,8 +95,8 @@ class NotificationsController extends Controller
                 }
                
                 //aca elimino el attachment type y debo eliminarlo del json
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."', 0 ,(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
                 $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($insert_notification_row){
@@ -116,8 +116,8 @@ class NotificationsController extends Controller
                             $attachment = $attachments[$i];
 
                             $file_name = $attachments[$i]->getClientOriginalName();
-
-                            $tipoArchivo = $validated['attachment']->getMimeType();
+                            
+                            $tipoArchivo = $attachments[$i]->getMimeType();
                             $tipoArchivo= explode('/', $tipoArchivo)[1];
                             if ($tipoArchivo == 'png' || $tipoArchivo == 'jpg' || $tipoArchivo == 'jpeg'){
             
