@@ -422,10 +422,7 @@ class NotificationsController extends Controller
 
         if ($attachment_file){
 
-            return response()->json([
-                'status' => true,
-                'deleted' => true
-            ], 200);
+            return $attachment_file;
 
         }else{
 
