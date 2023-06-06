@@ -544,7 +544,7 @@ class NotificationsController extends Controller
 
             if ($notification->MULTIMEDIA_ID !=null){
 
-                $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+                $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['notification_id']);
 
                 if (!$attachment_file_deleted ){
 
