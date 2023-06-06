@@ -536,7 +536,7 @@ class NotificationsController extends Controller
         ]);
 
         $column_name = "ID";
-        $column_value = $request['multimedia_id'];
+        $column_value = $request['notification_id'];
         $table = "NOTIFICATIONS";
         $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
 
