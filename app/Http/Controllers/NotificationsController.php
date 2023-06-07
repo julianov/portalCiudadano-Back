@@ -542,34 +542,37 @@ class NotificationsController extends Controller
 
         if ($notification){
 
-            if ($notification->MULTIMEDIA_ID !=null){
+            if ($notification->MULTIMEDIA_ID !=null  ){
+                dd("no llegó aqui");
+                $multimediaIDs = explode(",", $notification->MULTIMEDIA_ID);
 
-                $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['notification_id']);
+                foreach ($multimediaIDs as $elemento) {
+                    $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $elemento);
 
-                if (!$attachment_file_deleted ){
+                    if (!$attachment_file_deleted ){
 
-                    return response()->json([
-                        'status' => true,
-                        'message' => "delete file error"
-                    ], 400);
-
-                }
-
-                //borrar implica un softdelete
-                $delete_notification = $this->plSqlServices->deleteNotification($notification->ID);
-                if ($delete_notification){
-
-                    return response()->json([
-                        'status' => true,
-                        'notification_deleted' => true
-                    ], 200);
-
-                }else{
-
-                    return $this->errorService->databaseWriteError();
-
+                        return response()->json([
+                            'status' => true,
+                            'message' => "delete file error"
+                        ], 400);
+    
+                    }
                 }
             }
+              //borrar implica un softdelete
+              $delete_notification = $this->plSqlServices->deleteNotification($notification->ID);
+              if ($delete_notification){
+
+                  return response()->json([
+                      'status' => true,
+                      'notification_deleted' => true
+                  ], 200);
+
+              }else{
+
+                  return $this->errorService->databaseWriteError();
+
+              }
 
         }else{
 

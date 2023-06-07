@@ -177,16 +177,20 @@ class PlSqlService
 
 
 		return $result[0]->result;
+
 	}
 
 	public function deleteUploadedFile (string $table, int $multimedia_id ){
 
-		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA(:p1, :p2) as result FROM DUAL", 
-		[
-			'p1' =>$table,
-			'p2' =>$multimedia_id // Passing the output parameter by reference
-		]);
 
+		$result = 0; // Declarar la variable para almacenar el resultado
+
+		DB::statement("BEGIN :result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA(:p1, :p2); END;", [
+			'result' => &$result, // Pasar el parámetro de salida por referencia
+			'p1' => $table,
+			'p2' => $multimedia_id
+		]);
+		dd($result);
 		if ($result[0]->result== $multimedia_id ){
 
 			return true;
@@ -198,10 +202,12 @@ class PlSqlService
 
 
 		}
+
+
 	}
 
 
-	public function deleteNotification(integer $notification_id){
+	public function deleteNotification(int $notification_id){
 
 		$res = DB::statement("DECLARE l_result BOOLEAN; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.BORRAR_NOTIFICACION(:p_id); END;",
 		[
@@ -212,15 +218,15 @@ class PlSqlService
 	return $res;
 	}
 
-	public function notificationUsersReached(integer $notification_id){
+	public function notificationUsersReached(int $notification_id){
 
 		
-		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.OBTENER_USUARIOS_ALCANZADOS(:p_id) as result FROM DUAL", 
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_USUARIOS_ALCANZADOS(:p_id) as result FROM DUAL", 
 		[
 			'p_id' =>$notification_id,
 		]);
 
-		return $res;
+		return $result[0]->result;
 	}
 	
 	
