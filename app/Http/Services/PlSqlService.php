@@ -182,15 +182,24 @@ class PlSqlService
 
 	public function deleteUploadedFile (string $table, int $multimedia_id ){
 
+		$salida = null;
 
-		$result = 0; // Declarar la variable para almacenar el resultado
+		$res = DB::statement("DECLARE result NUMBER; BEGIN result := CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:p_nombre_tabla); :l_result := result; END;",
+			[
+				'l_result' => &$salida,
+				'p_nombre_tabla' => $multimedia_id,
+			]);
 
-		DB::statement("BEGIN :result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA(:p1, :p2); END;", [
-			'result' => &$result, // Pasar el parámetro de salida por referencia
-			'p1' => $table,
-			'p2' => $multimedia_id
+		return $res; 
+		/*
+		dd($res);
+			
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:p1) as result FROM DUAL", 
+		[
+			'p1' =>$multimedia_id 
 		]);
-		dd($result);
+		
+		dd($result[0]->result== $multimedia_id);
 		if ($result[0]->result== $multimedia_id ){
 
 			return true;
@@ -200,9 +209,8 @@ class PlSqlService
 
 			return false;
 
-
 		}
-
+*/
 
 	}
 

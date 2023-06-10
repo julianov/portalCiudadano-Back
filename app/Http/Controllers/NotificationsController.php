@@ -543,10 +543,11 @@ class NotificationsController extends Controller
         if ($notification){
 
             if ($notification->MULTIMEDIA_ID !=null  ){
-                dd("no llegó aqui");
+
                 $multimediaIDs = explode(",", $notification->MULTIMEDIA_ID);
 
                 foreach ($multimediaIDs as $elemento) {
+
                     $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $elemento);
 
                     if (!$attachment_file_deleted ){
@@ -558,6 +559,7 @@ class NotificationsController extends Controller
     
                     }
                 }
+
             }
               //borrar implica un softdelete
               $delete_notification = $this->plSqlServices->deleteNotification($notification->ID);
