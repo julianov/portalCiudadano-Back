@@ -83,6 +83,8 @@ class NotificationsController extends Controller
 
         $validated = $request->validated();
 
+        $user = Auth::guard('authentication')->user();
+
         if ($request->has('attachment')) {
 
                 $table_name = "NOTIFICATIONS";
@@ -95,8 +97,8 @@ class NotificationsController extends Controller
                 }
                
                 //aca elimino el attachment type y debo eliminarlo del json
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',".$user->id.",sysdate";
                 $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
                 if ($insert_notification_row){
@@ -173,14 +175,14 @@ class NotificationsController extends Controller
                 
 
                 $table_name = "NOTIFICATIONS";
-                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL,CREATED_AT";
+                $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT";
                 
                 $send_email_validation='0';
 
                 if ($validated['send_by_email']=="true"){
                     $send_email_validation='1';
                 }
-                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',sysdate";
+                $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',".$user->id.",sysdate";
 
                 $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
 
@@ -471,10 +473,7 @@ class NotificationsController extends Controller
 
                 $notification_id=$notification->ID; 
 
-                $table_name = "USER_NOTIFICATIONS";
-				$columns = "USER_ID, NOTIFICATION_ID, CREATED_AT";
-				$values = $user->id.','.$notification_id.',sysdate';
-				$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+				$result = $this->plSqlServices->readNotification($user->id, $notification_id);
                 
                 if ($result) {
 

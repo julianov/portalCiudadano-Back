@@ -60,6 +60,21 @@ class PlSqlService
 	}
 
 
+	//NOTIFICACIONES 
+
+	public function readNotification ($userId, $notificationId){
+
+		$res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.NOTIFICACION_LEIDA(:user_id, :notificacion_id); END;",
+		[
+			'user_id' => $userId,
+			'notificacion_id' => $notificationId,
+		]);
+
+		return $res;
+
+	}
+
+
 	public function getNewNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
 	{
 		
@@ -131,7 +146,6 @@ class PlSqlService
 	//MULTIMEDIA 
 
 
-
 	public function notificationAttachment ( $file_path, $tamanio, $file_type, $file_extension, $table_id, $file_name)
 	{
 		
@@ -154,7 +168,6 @@ class PlSqlService
 	}
 
 
-
 	public function getAttachmentFileName (string $table, int $multimedia_id ){
 
 
@@ -167,6 +180,7 @@ class PlSqlService
 		return $result[0]->result;
 	}
 
+
 	public function getUploadedFile (string $table, int $multimedia_id ){
 
 		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2) as result FROM DUAL", 
@@ -175,43 +189,20 @@ class PlSqlService
 			'p2' =>$multimedia_id // Passing the output parameter by reference
 		]);
 
-
 		return $result[0]->result;
 
 	}
 
 	public function deleteUploadedFile (string $table, int $multimedia_id ){
 
-		$salida = null;
 
-		$res = DB::statement("DECLARE result NUMBER; BEGIN result := CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:p_nombre_tabla); :l_result := result; END;",
+		$res = DB::statement("DECLARE result NUMBER; BEGIN result := CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:multimedia_id); END;",
 			[
-				'l_result' => &$salida,
-				'p_nombre_tabla' => $multimedia_id,
+				'multimedia_id' => $multimedia_id,
 			]);
 
 		return $res; 
-		/*
-		dd($res);
-			
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:p1) as result FROM DUAL", 
-		[
-			'p1' =>$multimedia_id 
-		]);
-		
-		dd($result[0]->result== $multimedia_id);
-		if ($result[0]->result== $multimedia_id ){
-
-			return true;
-
-
-		}else{
-
-			return false;
-
-		}
-*/
-
+	
 	}
 
 
