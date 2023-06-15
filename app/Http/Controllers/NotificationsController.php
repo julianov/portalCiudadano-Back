@@ -42,39 +42,51 @@ class NotificationsController extends Controller
         $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
         
         $usuarios_unicos = array_unique($usuarios);
+
         if (count($usuarios_unicos) > 0 ){
 
-            if (count($attachments) !== 0 && $attachments !== 'none'){
+            if (is_array($attachments)){
 
-                foreach ($usuarios_unicos as $usuario) {
-                    $mail = (new NotificationEmail($message_title, $message_body))
-                        ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
-                        ->subject($message_title);
-                
-                    foreach ($attachments as $attachment) {
-                        $mail->attach($attachment->getPathname(), [
-                            'as' => $attachment->getClientOriginalName(),
-                            'mime' => $attachment->getClientMimeType(),
-                        ]);
+                if (count($attachments) !== 0 && $attachments !== 'none'){
+
+                    foreach ($usuarios_unicos as $usuario) {
+                        $mail = (new NotificationEmail($message_title, $message_body))
+                            ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                            ->subject($message_title);
+                    
+                        foreach ($attachments as $attachment) {
+                            $mail->attach($attachment->getPathname(), [
+                                'as' => $attachment->getClientOriginalName(),
+                                'mime' => $attachment->getClientMimeType(),
+                            ]);
+                        }
+                    
+                        Mail::to($usuario)->queue($mail);
                     }
+    
+                }else{
+    
                 
-                    Mail::to($usuario)->queue($mail);
+                    foreach ($usuarios_unicos as $usuario) {
+                    
+                        Mail::to($usuario)
+                            ->queue((new NotificationEmail( $message_title, $message_body))
+                                ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
+                                ->subject($message_title));
+                    }
+    
                 }
 
             }else{
 
-            
                 foreach ($usuarios_unicos as $usuario) {
-                
+                    
                     Mail::to($usuario)
                         ->queue((new NotificationEmail( $message_title, $message_body))
                             ->from('ciudadanodigital@entrerios.gov.ar', 'Ciudadano Digital - Provincia de Entre Ríos')
                             ->subject($message_title));
                 }
-
             }
-
-
         }
 
     }
