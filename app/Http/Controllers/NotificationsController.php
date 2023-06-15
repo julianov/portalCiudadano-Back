@@ -258,9 +258,7 @@ class NotificationsController extends Controller
 
                 return $this->errorService->userDataNotFound();
 
-
             }
-
 
         }else{
 
@@ -443,7 +441,10 @@ class NotificationsController extends Controller
 
         if ($attachment_file_deleted){
 
-            return $attachment_file;
+            return response()->json([
+                'status' => true,
+                'message' => 'attachment file deleted'
+            ], 200);
 
         }else{
 
