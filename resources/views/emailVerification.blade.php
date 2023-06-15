@@ -58,7 +58,7 @@
                         <h1 id="username_text">{{$user->name }} {{$user->last_name}}</h1>
                         <h2 id="info_text">Para darte de alta en la plataforma, accede a tu cuenta haciendo clic en este botón.</h2>
                         <br>
-                        <a id="btn_validar_email" href="{{'https://sistemasdesa.entrerios.gov.ar/cdig/html/ciudadanoDigital_Front/build/auth/email/validate?token=s' . $mixto }}">
+                        <a id="btn_validar_email" href="{{'https://sistemasdesa.entrerios.gov.ar/cdig/html/ciudadanoDigital_Front/build/auth/email/validate?token=' . $mixto }}">
                             <p id="btn_validar_email_txt">Validá tu e-mail</p>
                         </a>
                         <br>
