@@ -15,7 +15,10 @@ use App\Http\Services\UserService;
 use App\Services\WebServices\WsEntreRios\EntreRiosWSService;
 
 use Illuminate\Support\Facades\Http;
-use App\Http\Services\PlSqlService;
+
+use App\Repositories\PLSQL\GenericRepository;
+
+
 use App\Http\Requests\Auth\validateFaceToFaceCitizenRequest;
 use App\Http\Requests\Auth\ActorRedirectRequest;
 use App\Models\User;
@@ -30,15 +33,15 @@ class AuthController extends Controller
 
     protected UserService $userService;
 	private EntreRiosWSService $wsService;
-	protected PlSqlService $plSqlServices;
+	protected GenericRepository $genericRepository;
     protected ErrorService $errorService;
 
-    public function __construct(UserService $userService, EntreRiosWSService $wsService, PlSqlService $plSqlServices, ErrorService $errorService)
+    public function __construct(UserService $userService, EntreRiosWSService $wsService, GenericRepository $genericRepository, ErrorService $errorService)
 	{
 
 		$this->userService = $userService;
         $this->wsService = $wsService;
-        $this->plSqlServices = $plSqlServices;
+        $this->genericRepository = $genericRepository;
         $this->errorService = $errorService;
 
 	}
@@ -305,14 +308,14 @@ class AuthController extends Controller
                 $column_name = "USER_ID";
                 $column_value = $user->id;
                 $table = "USER_AUTHENTICATION";
-                $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                $user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);
                 
                 if ($user_auth ){
 
                     $column_name = "USER_ID";
                     $column_value = $user->id;
                     $table = "USER_CONTACT";
-                    $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                    $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
 
                     if ($user_data){
 
@@ -482,7 +485,7 @@ class AuthController extends Controller
                         $column_name = "USER_ID";
                         $column_value = $user->id;
                         $table = "USER_AUTHENTICATION";
-                        $user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                        $user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);
     
                         if (!empty($user_auth)) {
     
@@ -495,10 +498,10 @@ class AuthController extends Controller
                             $column_name = "USER_ID";
                             $column_value = $user->id;
                             $table = "USER_CONTACT";
-                            $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                            $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
     
                             $table = "USER_ACTORS";
-                            $user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+                            $user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
                             $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
                             $is_actor = ($is_actor_empty) ? false : true;
     

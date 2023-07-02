@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Notifications\NewNotificationRequest;
 use App\Http\Requests\Notifications\CheckNotificationScopeRequest;
 use Illuminate\Http\Request;
-use App\Http\Services\PlSqlService;
+use App\Repositories\PLSQL\GenericRepository;
+use App\Repositories\PLSQL\NotificationRepository;
 use App\Http\Services\ErrorService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -17,14 +18,16 @@ use App\Models\User;
 class NotificationsController extends Controller
 {
 
-    protected PlSqlService $plSqlServices;
+    protected GenericRepository $genericRepository;
+    protected NotificationRepository $notificationRepository;
     private ErrorService $errorService;
 
 
-	public function __construct(PlSqlService $plSqlServices, ErrorService $errorService)
+	public function __construct(GenericRepository $genericRepository, NotificationRepository $notificationRepository, ErrorService $errorService)
 	{
 
-		$this->plSqlServices = $plSqlServices;
+		$this->genericRepository = $genericRepository;
+        $this->notificationRepository=$notificationRepository;
         $this->errorService = $errorService;
 
 	}
@@ -39,7 +42,7 @@ class NotificationsController extends Controller
         $birthday = Carbon::now()->subYears($age_to);
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $usuarios= explode(",", $this->plSqlServices->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
+        $usuarios= explode(",", $this->notificationRepository->getEmailsForNotification($min_fecha_nacimiento, $max_fecha_nacimiento, $locality_id, $department_id,$recipients));
         
         $usuarios_unicos = array_unique($usuarios);
 
@@ -111,11 +114,11 @@ class NotificationsController extends Controller
                 //aca elimino el attachment type y debo eliminarlo del json
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT";
                 $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',".$user->id.",sysdate";
-                $insert_notification_row = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+                $insert_notification_row = $this->genericRepository->insertarFila($table_name, $columns, $values);
 
                 if ($insert_notification_row){
 
-                    $last_id = $this->plSqlServices->getLastId($table_name); 
+                    $last_id = $this->genericRepository->getLastId($table_name); 
                     
                     if ($last_id!=null){
 
@@ -142,7 +145,7 @@ class NotificationsController extends Controller
                                 $file_type="DOC";
                             }
 
-                            $multimedia_ids [] = $this->plSqlServices->notificationAttachment($attachments[$i], $attachments[$i]->getSize(), $file_type, $tipoArchivo, intval($last_id), $file_name); 
+                            $multimedia_ids [] = $this->notificationRepository->notificationAttachment($attachments[$i], $attachments[$i]->getSize(), $file_type, $tipoArchivo, intval($last_id), $file_name); 
 
 
                         }
@@ -196,7 +199,7 @@ class NotificationsController extends Controller
                 }
                 $values = "'".$validated['recipients']."',".$validated['age_from'].",".$validated['age_to'].",".$validated['department_id'].",".$validated['locality_id'].",'".$validated['message_title']."','".$validated['message_body']."',"."(TO_DATE('".$validated['notification_date_from']."', 'DD/MM/YYYY')),"."(TO_DATE('".$validated['notification_date_to']."', 'DD/MM/YYYY'))".",'".$send_email_validation."',".$user->id.",sysdate";
 
-                $res= $this->plSqlServices->insertarFila($table_name, $columns, $values);
+                $res= $this->genericRepository->insertarFila($table_name, $columns, $values);
 
                 if ($res){
 
@@ -231,7 +234,7 @@ class NotificationsController extends Controller
             $column_name = "USER_ID";
             $column_value = $user->id;
             $table = "USER_CONTACT";
-            $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+            $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
 
             if (!empty($user_data)) {
 
@@ -244,11 +247,11 @@ class NotificationsController extends Controller
                 $table = "USER_ACTORS";
                 $column_name = "USER_ID";
                 $column_value = $user->id;
-				$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
 				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
 				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
-                $res_notifications = $this->plSqlServices->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+                $res_notifications = $this->notificationRepository->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -292,7 +295,7 @@ class NotificationsController extends Controller
             $column_name = "USER_ID";
             $column_value = $user->id;
             $table = "USER_CONTACT";
-            $user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+            $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
 
             if (!empty($user_data)) {
 
@@ -305,11 +308,11 @@ class NotificationsController extends Controller
                 $table = "USER_ACTORS";
                 $column_name = "USER_ID";
                 $column_value = $user->id;
-				$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
 				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
 				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
-                $res_notifications = $this->plSqlServices->getAllNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+                $res_notifications = $this->notificationRepository->getAllNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -355,7 +358,7 @@ class NotificationsController extends Controller
             $table = "USER_ACTORS";
             $column_name = "USER_ID";
             $column_value = $user->id;
-            $user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+            $user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
             $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
             $is_actor = ($is_actor_empty) ? false : true;
 
@@ -363,7 +366,7 @@ class NotificationsController extends Controller
 
                 $fechaActual = Carbon::now()->format('d/m/Y');
 
-                $res_all_active_notifications = $this->plSqlServices->getAllActiveNotifications($fechaActual);
+                $res_all_active_notifications = $this->notificationRepository->getAllActiveNotifications($fechaActual);
                 
                 if (empty($res_all_active_notifications) || $res_all_active_notifications=='[]') {
 
@@ -406,7 +409,7 @@ class NotificationsController extends Controller
         ]);
 
 
-        $attachment_name = $this->plSqlServices->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
+        $attachment_name = $this->notificationRepository->getAttachmentFileName('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_name){
 
@@ -430,7 +433,7 @@ class NotificationsController extends Controller
             "multimedia_id" => "required|numeric",
         ]);
 
-        $attachment_file = $this->plSqlServices->getUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+        $attachment_file = $this->notificationRepository->getUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_file){
 
@@ -449,7 +452,7 @@ class NotificationsController extends Controller
             "multimedia_id" => "required|numeric",
         ]);
 
-        $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
+        $attachment_file_deleted = $this->notificationRepository->deleteUploadedFile('NOTIFICATIONS_DOC', $request['multimedia_id']);
 
         if ($attachment_file_deleted){
 
@@ -480,13 +483,13 @@ class NotificationsController extends Controller
             $column_name = "ID";
             $column_value = $request['notification_id'];
             $table = "NOTIFICATIONS";
-            $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+            $notification = $this->genericRepository->getRow($table, $column_name, $column_value);
 
             if (!empty($notification)){
 
                 $notification_id=$notification->ID; 
 
-				$result = $this->plSqlServices->readNotification($user->id, $notification_id);
+				$result = $this->notificationRepository->readNotification($user->id, $notification_id);
                 
                 if ($result) {
 
@@ -523,7 +526,7 @@ class NotificationsController extends Controller
         $birthday = Carbon::now()->subYears($validated['age_to']  );
         $max_fecha_nacimiento = $birthday->format('d/m/Y');
 
-        $res_notifications_scope = $this->plSqlServices->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
+        $res_notifications_scope = $this->notificationRepository->checkNotificationScope($min_fecha_nacimiento, $max_fecha_nacimiento, $validated['locality_id'], $validated['department_id'], $validated['recipients'] );
        
         if ($res_notifications_scope!=null){
 
@@ -550,7 +553,7 @@ class NotificationsController extends Controller
         $column_name = "ID";
         $column_value = $request['notification_id'];
         $table = "NOTIFICATIONS";
-        $notification = $this->plSqlServices->getRow($table, $column_name, $column_value);
+        $notification = $this->genericRepository->getRow($table, $column_name, $column_value);
 
         if ($notification){
 
@@ -560,7 +563,7 @@ class NotificationsController extends Controller
 
                 foreach ($multimediaIDs as $elemento) {
 
-                    $attachment_file_deleted = $this->plSqlServices->deleteUploadedFile('NOTIFICATIONS_DOC', $elemento);
+                    $attachment_file_deleted = $this->notificationRepository->deleteUploadedFile('NOTIFICATIONS_DOC', $elemento);
 
                     if (!$attachment_file_deleted ){
 
@@ -574,7 +577,7 @@ class NotificationsController extends Controller
 
             }
               //borrar implica un softdelete
-              $delete_notification = $this->plSqlServices->deleteNotification($notification->ID);
+              $delete_notification = $this->notificationRepository->deleteNotification($notification->ID);
               if ($delete_notification){
 
                   return response()->json([
@@ -602,7 +605,7 @@ class NotificationsController extends Controller
             "notification_id" => "required|numeric",
         ]);
 
-        $users_notification_reached = $this->plSqlServices->notificationUsersReached($request['notification_id']);
+        $users_notification_reached = $this->notificationRepository->notificationUsersReached($request['notification_id']);
 
         if ($users_notification_reached > 0){
 
