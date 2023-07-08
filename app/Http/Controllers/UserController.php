@@ -15,7 +15,9 @@ use App\Http\Requests\User\ChangeUserEmailRequest;
 use App\Http\Requests\User\ChangeNamesRequest;
 use App\Http\Services\UserService;
 
-use App\Http\Services\PlSqlService;
+use App\Repositories\PLSQL\GenericRepository;
+
+
 use App\Http\Services\ErrorService;
 
 use App\Models\User;
@@ -39,13 +41,13 @@ class UserController extends Controller
 	 */
 	protected UserService $userService;
 	private EntreRiosWSService $wsService;
-	protected PlSqlService $plSqlServices;
+    protected GenericRepository $genericRepository;
 	private ErrorService $errorService;
 
-	public function __construct(UserService $userService, PlSqlService $plSqlServices, EntreRiosWSService $wsService, ErrorService $errorService)
+	public function __construct(UserService $userService, GenericRepository $genericRepository, EntreRiosWSService $wsService, ErrorService $errorService)
 	{
 		$this->userService = $userService;
-		$this->plSqlServices = $plSqlServices;
+		$this->genericRepository = $genericRepository;
 		$this->wsService = $wsService;
 		$this->errorService = $errorService;
 	}
@@ -125,7 +127,7 @@ class UserController extends Controller
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 				try {
 
@@ -144,7 +146,7 @@ class UserController extends Controller
 							$table_name = "USER_ACTORS";
 							$columns = "USER_ID, CREATED_AT";
 							$values = $user->id.',sysdate';
-							$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+							$result = $this->genericRepository->insertarFila($table_name, $columns, $values);
 
 							if($result){
 
@@ -236,7 +238,7 @@ class UserController extends Controller
 						$column_name = "USER_ID";
 						$column_value = $user->id;
 						$table = "USER_AUTHENTICATION";
-						$user_auth = $this->plSqlServices->getRow($table, $column_name, $column_value);
+						$user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);
 	
 	
 						if (!empty($user_auth)) {
@@ -250,10 +252,10 @@ class UserController extends Controller
 							$column_name = "USER_ID";
 							$column_value = $user->id;
 							$table = "USER_CONTACT";
-							$user_data = $this->plSqlServices->getRow($table, $column_name, $column_value);
+							$user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
 	
 							$table = "USER_ACTORS";
-							$user_actor = $this->plSqlServices->getRow($table, $column_name, $column_value);
+							$user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
 							$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
 							$is_actor = ($is_actor_empty) ? false : true;
 
@@ -372,7 +374,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
      		$table = "USER_AUTHENTICATION";
-			$json_auth_types = $this->plSqlServices->getRow($table, $column_name, $column_value);
+			$json_auth_types = $this->genericRepository->getRow($table, $column_name, $column_value);
 			
 			if($json_auth_types){
 
@@ -425,7 +427,7 @@ class UserController extends Controller
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 				if (empty($json)) {
 
@@ -433,7 +435,7 @@ class UserController extends Controller
 					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
 					$values = $user->id.','.$code.',sysdate';
 
-					$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+					$result = $this->genericRepository->insertarFila($table_name, $columns, $values);
 
 					if ($result) {
 
@@ -450,7 +452,7 @@ class UserController extends Controller
 					$table_name = "USER_VALIDATION_TOKEN";
 					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
 					$values = 'USER_ID ='.$user->id;
-					$res = $this->plSqlServices->updateFila($table_name, $columns, $values);
+					$res = $this->genericRepository->updateFila($table_name, $columns, $values);
 
 					if ($res) {
 
@@ -495,7 +497,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
 			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+			$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 			if (!empty($json)) {
 
@@ -548,7 +550,7 @@ class UserController extends Controller
 					$column_name = "USER_ID";
 					$column_value = $user->id;
 					$table = "USER_VALIDATION_TOKEN";
-					$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+					$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 					if($json->VAL_TOKEN>9999){
 						$code = random_int(10000, 99999);
@@ -559,7 +561,7 @@ class UserController extends Controller
 					$table_name = "USER_VALIDATION_TOKEN";
 					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
 					$values = 'USER_ID ='.$user->id;
-					$result = $this->plSqlServices->updateFila($table_name, $columns, $values);
+					$result = $this->genericRepository->updateFila($table_name, $columns, $values);
 
 					if ($result){
 
@@ -606,7 +608,7 @@ class UserController extends Controller
 			$column_name = "USER_ID";
 			$column_value = $user->id;
 			$table = "USER_VALIDATION_TOKEN";
-			$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+			$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 			if (empty($json)) {
 
@@ -614,7 +616,7 @@ class UserController extends Controller
 				$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
 				$values = $user->id.','.$code.',sysdate';
 
-				$result = $this->plSqlServices->insertarFila($table_name, $columns, $values);
+				$result = $this->genericRepository->insertarFila($table_name, $columns, $values);
 
 				if ($result) {
 
@@ -631,7 +633,7 @@ class UserController extends Controller
 				$table_name = "USER_VALIDATION_TOKEN";
 				$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
 				$values = 'USER_ID ='.$user->id;
-				$res = $this->plSqlServices->updateFila($table_name, $columns, $values);
+				$res = $this->genericRepository->updateFila($table_name, $columns, $values);
 
 				if ($res) {
 
@@ -670,7 +672,7 @@ class UserController extends Controller
 				$column_name = "USER_ID";
 				$column_value = $user->id;
 				$table = "USER_VALIDATION_TOKEN";
-				$json = $this->plSqlServices->getRow($table, $column_name, $column_value);
+				$json = $this->genericRepository->getRow($table, $column_name, $column_value);
 
 				if (!empty($json)) {
 

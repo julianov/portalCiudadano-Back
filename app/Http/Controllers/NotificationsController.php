@@ -188,7 +188,6 @@ class NotificationsController extends Controller
                
             }else{
                 
-
                 $table_name = "NOTIFICATIONS";
                 $columns = "RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT";
                 
@@ -278,7 +277,6 @@ class NotificationsController extends Controller
         }else{
 
             return $this->errorService->noUser();
-
 
         }
 
