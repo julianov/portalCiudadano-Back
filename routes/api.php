@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 /*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-	
+
 });*/
 
 Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(function () {
@@ -83,3 +83,10 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 
 
 Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
+
+
+Route::prefix('/api/v0')->group(function () {
+    require __DIR__ . '/api/admin/admin.php';
+    require __DIR__ . '/api/procedures/procedures.php';
+    require __DIR__ . '/api/status/status.php';
+});
