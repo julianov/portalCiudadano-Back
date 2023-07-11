@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use Illuminate\Support\Facades\DB;
 
-use App\Repositories\Utitilies\Result;
+use App\Repositories\Utilities\Result;
 use App\Errors\Infrastructure\Database\{
     DatabaseReadError,
     DatabaseWriteError,
@@ -22,23 +22,16 @@ class FormUnitRepository
 {
     private string $pkg = "CIUD_TRAMITES_PKG";
 
-    public function getList(): array
+    public function getList()
     {
         $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORMULARIOS() AS result FROM DUAL";
         $result = DB::select($query);
-
         $json = new Result($result);
         if (!$json->status) {
             throw new DatabaseReadError();
         }
-
-        if (is_array($json->data)) {
-            return array_map(function ($value) {
-                return new Model($value);
-            }, $json->data);
-        }
-
-        return [];
+      
+        return $json->data;
     }
 
     public function getByPk(int $code): Model
@@ -79,12 +72,13 @@ class FormUnitRepository
 
     public function create(CreateData $data): Model
     {
-        $query = "SELECT {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by) AS result FROM DUAL";
-        $bindings = array_merge($data->toArray(), [
-            'elements' => json_encode($data->get('elements'))
-        ]);
-        $result = DB::select($query, $bindings);
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
 
+        $bindings = array_merge($data->toArray(), [
+            'elements' => trim(json_encode($data->get('elements')), '"')
+        ]);
+        
+        $result = DB::statement($query, $bindings);
         $json = new Result($result);
         if (!$json->status) {
             throw new DatabaseWriteError();

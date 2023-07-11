@@ -11,18 +11,18 @@ class FormUnitCreateData
     private $elements;
     private $keywords;
     private $status;
-    private $createdBy;
+    private $created_by;
 
     public function __construct(array $data)
     {
         $this->code = $data['code'];
         $this->title = $data['title'];
-        $this->subtitle = $data['subtitle'];
+        $this->subtitle = "";
         $this->description = $data['description'];
         $this->elements = $data['elements'];
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
-        $this->createdBy = $data['createdBy'];
+        $this->created_by = $data['created_by'];
     }
 
     public function get(string $key)
@@ -42,7 +42,7 @@ class FormUnitCreateData
             'elements' => $this->elements,
             'keywords' => $this->keywords,
             'status' => $this->status,
-            'createdBy' => $this->createdBy,
+            'created_by' => $this->created_by,
         ];
     }
 }

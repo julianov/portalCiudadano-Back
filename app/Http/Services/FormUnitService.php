@@ -21,7 +21,7 @@ class FormUnitService
     /**
      * Get a list of forms.
      */
-    public function getList(): array
+    public function getList()
     {
         $forms = $this->repository->getList();
 
