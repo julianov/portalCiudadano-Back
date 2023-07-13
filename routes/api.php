@@ -82,11 +82,12 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 
 
 
-Route::middleware(['auth:authentication','scope:level_1'])->post('/v0/testroute', [Controllers\UserController::class, 'test']);
+Route::get('/v0/admin/form-units', [Controllers\FormUnitController::class, 'getList']);
 
+Route::post('/v0/admin/form-units', [Controllers\FormUnitController::class, 'create']);
 
 Route::prefix('/api/v0')->group(function () {
     require __DIR__ . '/api/admin/admin.php';
-    require __DIR__ . '/api/procedures/procedures.php';
-    require __DIR__ . '/api/status/status.php';
+    //require __DIR__ . '/api/procedures/procedures.php';
+    //require __DIR__ . '/api/status/status.php';
 });

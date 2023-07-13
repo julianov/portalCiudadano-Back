@@ -34,24 +34,18 @@ class FormUnitRepository
         return $json->data;
     }
 
-    public function getByPk(int $code): Model
+    public function getByPk(string $code)
     {
-        $query = "SELECT {this->pkg}.OBTENER_FORMULARIO_POR_PK(:code); AS result FROM DUAL";
-        $bindings = [
+        $pkg = $this->pkg;
+        $query = "SELECT " . $pkg . ".OBTENER_FORMULARIO_POR_PK(:code) AS result FROM DUAL";        $bindings = [
             'code' => $code,
         ];
         $result = DB::select($query, $bindings);
-
+        
         $json = new Result($result);
-        if (!$json->status) {
-            throw new DatabaseReadError();
-        }
 
-        if (is_array($json->data)) {
-            return new Model($json->data);
-        }
-
-        return null;
+        return $result[0]->result;
+       
     }
 
     public function getByPks(PrimaryKeys $primaryKeys): array
@@ -70,7 +64,7 @@ class FormUnitRepository
         }, $json->data);
     }
 
-    public function create(CreateData $data): Model
+    public function create(CreateData $data)
     {
         $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
 
@@ -79,13 +73,11 @@ class FormUnitRepository
         ]);
         
         $result = DB::statement($query, $bindings);
-        $json = new Result($result);
-        if (!$json->status) {
+        if (!$result) {
             throw new DatabaseWriteError();
         }
 
         $created = $this->getByPk($data->get('code'));
-
         return $created;
     }
 

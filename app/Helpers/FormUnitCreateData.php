@@ -17,7 +17,7 @@ class FormUnitCreateData
     {
         $this->code = $data['code'];
         $this->title = $data['title'];
-        $this->subtitle = "";
+        $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
         $this->elements = $data['elements'];
         $this->keywords = $data['keywords'];

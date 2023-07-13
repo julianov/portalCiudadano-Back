@@ -41,7 +41,7 @@ class FormUnitService
     /**
      * Create a new form.
      */
-    public function create(CreateData $data): Model
+    public function create(CreateData $data):string
     {
         // $code = $data->get('code');
         // $lastVersionRegister = $this->repository->getLastVersionRegisterByCode($code);
