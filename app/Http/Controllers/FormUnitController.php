@@ -81,10 +81,10 @@ class FormUnitController extends BaseController
     /**
      * Delete a form by PK.
      */
-    public function deleteByPk(string $code)
+    public function deleteByPk(DeleteByPkRequest $request)
     {
-        $this->service->removeByPk($code);
+        $deleted =this->service->removeByPk($request['code']);
 
-        return response()->json(true, Response::HTTP_OK);
+        return response()->json($deleted, Response::HTTP_OK);
     }
 }
