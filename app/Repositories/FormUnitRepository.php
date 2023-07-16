@@ -73,7 +73,7 @@ class FormUnitRepository
 
     public function removeByPk(string $code): bool
     {
-        $query = "DECLARE result BOOL; BEGIN result := {$this->pkg}.ELIMINAR_FORMULARIO_POR_PK(:code);END;";
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_FORMULARIO_POR_PK(:code);END;";
         $bindings = [ 'code' => $code ];
         $result = DB::statement($query, $bindings);
 

@@ -11,6 +11,7 @@ use App\Http\Services\FormUnitService;
 use App\Http\Requests\FormUnits\{
     CreateRequest,
     UpdateByPkRequest,
+    DeleteByPkRequest,
 };
 use App\Helpers\FormUnits\{
     CreateData,
@@ -83,7 +84,7 @@ class FormUnitController extends BaseController
      */
     public function deleteByPk(DeleteByPkRequest $request)
     {
-        $deleted =this->service->removeByPk($request['code']);
+        $deleted =$this->service->removeByPk($request['code']);
 
         return response()->json($deleted, Response::HTTP_OK);
     }
