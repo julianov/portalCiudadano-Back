@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\FormUnit;
+namespace App\Http\Requests\FormUnits;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
@@ -37,7 +37,11 @@ class CreateRequest extends FormRequest
             'description' => 'nullable|string|min:1',
             'keywords' => 'required|string|min:1',
             'status' => 'required|string|min:1',
+<<<<<<< HEAD:app/Http/Requests/FormUnit/CreateRequest.php
             'elements' => 'required|min:1',
+=======
+            'elements' => 'required|array|min:1',
+>>>>>>> cce21e740ba8de239657d2282cd675bcebac0214:app/Http/Requests/FormUnits/CreateRequest.php
             // 'elements.*.type' => 'required|string|min:1',
             // 'elements.*.properties' => 'required|mixed',
             // 'elements.*.additionalValidations' => 'required|array',

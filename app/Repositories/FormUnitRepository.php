@@ -34,7 +34,10 @@ class FormUnitRepository
 
     public function create(CreateData $data)
     {
+<<<<<<< HEAD
        
+=======
+>>>>>>> cce21e740ba8de239657d2282cd675bcebac0214
         $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);

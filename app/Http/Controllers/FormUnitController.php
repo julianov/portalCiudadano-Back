@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller as BaseController;
 
 use App\Http\Services\FormUnitService;
-use App\Http\Requests\FormUnit\{
+use App\Http\Requests\FormUnits\{
     CreateRequest,
     UpdateByPkRequest,
 };
-use App\Helpers\{
-    FormUnitCreateData as CreateData,
-    FormUnitUpdateData as UpdateData,
+use App\Helpers\FormUnits\{
+    CreateData,
+    UpdateData,
 };
 
 class FormUnitController extends BaseController
@@ -37,16 +37,6 @@ class FormUnitController extends BaseController
     }
 
     /**
-     * Get a form by PK.
-     */
-    public function getByPk(string $code, int $version)
-    {
-        $form = $this->service->getByPk($code, $version);
-
-        return response()->json($form, Response::HTTP_OK);
-    }
-
-    /**
      * Create a new form.
      */
     public function create(CreateRequest $request)
@@ -63,19 +53,27 @@ class FormUnitController extends BaseController
     }
 
     /**
+     * Get a form by PK.
+     */
+    public function getByPk(string $code)
+    {
+        $form = $this->service->getByPk($code);
+
+        return response()->json($form, Response::HTTP_OK);
+    }
+
+    /**
      * Update a form by PK.
      */
-    public function updateByPk(UpdateByPkRequest $request, string $code, int $version)
+    public function updateByPk(UpdateByPkRequest $request, string $code)
     {
-        $userId = $request->user()->id;
+        //  $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        if ($data['fields']) {
-            return response()->json(['message' => 'Fields cannot be updated'], Response::HTTP_BAD_REQUEST);
-        }
-        $data['updatedBy'] = $userId;
+        $data['updated_by'] = 48;
+        // $data['updated_by'] = $user->id;
 
-        $form = $this->service->updateByPk($code, $version, new UpdateData($data));
+        $form = $this->service->updateByPk($code, new UpdateData($data));
 
         return response()->json($form, Response::HTTP_OK);
     }
@@ -83,9 +81,9 @@ class FormUnitController extends BaseController
     /**
      * Delete a form by PK.
      */
-    public function deleteByPk(string $code, int $version)
+    public function deleteByPk(string $code)
     {
-        $this->service->removeByPk($code, $version);
+        $this->service->removeByPk($code);
 
         return response()->json(true, Response::HTTP_OK);
     }

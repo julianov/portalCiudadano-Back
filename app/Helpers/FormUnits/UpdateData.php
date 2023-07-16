@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\FormUnits;
 
-class FormUnitCreateData
+class UpdateData
 {
     private $code;
     private $title;
@@ -11,6 +11,7 @@ class FormUnitCreateData
     private $elements;
     private $keywords;
     private $status;
+<<<<<<< HEAD:app/Helpers/formUnitUpdateData.php
     private $created_by;
 
     public function __construct(array $data)
@@ -23,6 +24,18 @@ class FormUnitCreateData
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
         $this->created_by = $data['created_by'];
+=======
+    private $updated_by;
+
+    public function __construct(array $data)
+    {
+        $this->title = $data['title'];
+        $this->subtitle = $data['subtitle'];
+        $this->description = $data['description'];
+        $this->elements = json_encode($data['elements']);
+        $this->keywords = $data['keywords'];
+        $this->status = $data['status'];
+        $this->updated_by = $data['updated_by'];
     }
 
     public function get(string $key)
@@ -30,6 +43,7 @@ class FormUnitCreateData
         $array = $this->toArray();
 
         return $array[$key];
+>>>>>>> cce21e740ba8de239657d2282cd675bcebac0214:app/Helpers/FormUnits/UpdateData.php
     }
 
     public function toArray(): array
@@ -42,7 +56,7 @@ class FormUnitCreateData
             'elements' => $this->elements,
             'keywords' => $this->keywords,
             'status' => $this->status,
-            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
         ];
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\FormUnits;
 
-class FormUnitUpdateData
+class CreateData
 {
     private $code;
     private $title;
@@ -19,22 +19,34 @@ class FormUnitUpdateData
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
+<<<<<<< HEAD:app/Helpers/FormUnitCreateData.php
         $this->elements = trim(json_encode($data['elements']), '"');
+=======
+        $this->elements = json_encode($data['elements']);
+>>>>>>> cce21e740ba8de239657d2282cd675bcebac0214:app/Helpers/FormUnits/CreateData.php
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
         $this->created_by = $data['created_by'];
+    }
+
+    public function get(string $key)
+    {
+        $array = $this->toArray();
+
+        return $array[$key];
     }
 
     public function toArray(): array
     {
         return [
             'code' => $this->code,
-            'version' => $this->version,
             'title' => $this->title,
             'subtitle' => $this->subtitle,
             'description' => $this->description,
+            'elements' => $this->elements,
+            'keywords' => $this->keywords,
             'status' => $this->status,
-            'updatedBy' => $this->updatedBy,
+            'created_by' => $this->created_by,
         ];
     }
 }

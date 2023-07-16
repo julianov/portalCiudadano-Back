@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\FormUnits;
 
-class FormUnitPrimaryKeys
+class PrimaryKeys
 {
     private $primaryKeys;
 
