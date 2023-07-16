@@ -11,11 +11,9 @@ use App\Errors\Infrastructure\Database\{
     DatabaseUpdateError,
     DatabaseDeleteError
 };
-use App\Models\FormUnitModel as Model;
-use App\Helpers\{
-    FormUnitCreateData as CreateData,
-    FormUnitUpdateData as UpdateData,
-    FormUnitPrimaryKeys as PrimaryKeys
+use App\Helpers\FormUnits\{
+    CreateData,
+    UpdateData,
 };
 
 class FormUnitRepository
@@ -30,28 +28,27 @@ class FormUnitRepository
         if (!$json->status) {
             throw new DatabaseReadError();
         }
-      
+
         return $json->data;
+    }
+
+    public function create(CreateData $data)
+    {
+       
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
+        $bindings = $data->toArray();
+        $result = DB::statement($query, $bindings);
+        if (!$result) { throw new DatabaseWriteError(); }
+
+        $created = $this->getByPk($data->get('code'));
+
+        return $created;
     }
 
     public function getByPk(string $code)
     {
-        $pkg = $this->pkg;
-        $query = "SELECT " . $pkg . ".OBTENER_FORMULARIO_POR_PK(:code) AS result FROM DUAL";        $bindings = [
-            'code' => $code,
-        ];
-        $result = DB::select($query, $bindings);
-        
-        $json = new Result($result);
-
-        return $result[0]->result;
-       
-    }
-
-    public function getByPks(PrimaryKeys $primaryKeys): array
-    {
-        $query = "SELECT {$this->pkg}.OBTENER_FORMULARIOS_POR_PKS(:primaryKeys) AS result FROM DUAL";
-        $bindings = $primaryKeys->toArray();
+        $query = "SELECT {$this->pkg}.OBTENER_FORMULARIO_POR_PK(:code) AS result FROM DUAL";
+        $bindings = [ 'code' => $code ];
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);
@@ -59,36 +56,17 @@ class FormUnitRepository
             throw new DatabaseReadError();
         }
 
-        return array_map(function ($value) {
-            return new Model($value);
-        }, $json->data);
+        return $json->data;
     }
 
-    public function create(CreateData $data)
-    {
-        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
-
-        $bindings = array_merge($data->toArray(), [
-            'elements' => trim(json_encode($data->get('elements')), '"')
-        ]);
-        
-        $result = DB::statement($query, $bindings);
-        if (!$result) {
-            throw new DatabaseWriteError();
-        }
-
-        $created = $this->getByPk($data->get('code'));
-        return $created;
-    }
-
-    public function updateByPk(string $code, int $version, UpdateData $data): Model
+    public function updateByPk(string $code, UpdateData $data)
     {
         $query = "
-            DECLARE result BOOL;
-            BEGIN result := CIUD_UTILIDADES_PKG.ACTUALIZAR_FORMULARIO_POR_PK(:code, :version, :title, :subtitle, :description, :status, :updatedBy);
+            DECLARE result BOOLEAN;
+            BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by);
             END;
         ";
-        $bindings = $data->toArray();
+        $bindings = array_merge($data->toArray(), [ 'code' => $code ]);
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);
@@ -96,22 +74,19 @@ class FormUnitRepository
             throw new DatabaseUpdateError();
         }
 
-        $updated = $this->getByPk($code, $version);
+        $updated = $this->getByPk($data->get('code'));
 
         return $updated;
     }
 
-    public function removeByPk(string $code, int $version): bool
+    public function removeByPk(string $code): bool
     {
         $query = "
             DECLARE result BOOL;
-            BEGIN result := CIUD_UTILIDADES_PKG.ELIMINAR_FORMULARIO_POR_PK(:code, :version);
+            BEGIN result := {$this->pkg}.ELIMINAR_FORMULARIO_POR_PK(:code);
             END;
         ";
-        $bindings = [
-            'code' => $code,
-            'version' => $version
-        ];
+        $bindings = [ 'code' => $code ];
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);
@@ -120,16 +95,5 @@ class FormUnitRepository
         }
 
         return $json->status;
-    }
-
-    // ****************************************************************************************************
-    // *************************************** Utilities **************************************************
-    // ****************************************************************************************************
-
-    public function validateForms(PrimaryKeys $primaryKeys): bool
-    {
-        $forms = $this->getByPks($primaryKeys);
-
-        return count($forms) == count($primaryKeys->toArray());
     }
 }

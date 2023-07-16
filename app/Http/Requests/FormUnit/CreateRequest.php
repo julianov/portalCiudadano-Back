@@ -31,12 +31,13 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => 'required|string|min:1',
             'title' => 'required|string|min:1',
             'subtitle' => 'nullable|string|min:1',
             'description' => 'nullable|string|min:1',
             'keywords' => 'required|string|min:1',
-            'type' => 'required|string|min:1',
-            'elements' => 'required|array|min:1',
+            'status' => 'required|string|min:1',
+            'elements' => 'required|min:1',
             // 'elements.*.type' => 'required|string|min:1',
             // 'elements.*.properties' => 'required|mixed',
             // 'elements.*.additionalValidations' => 'required|array',

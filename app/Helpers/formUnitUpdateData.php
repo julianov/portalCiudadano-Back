@@ -5,22 +5,24 @@ namespace App\Helpers;
 class FormUnitUpdateData
 {
     private $code;
-    private $version;
     private $title;
     private $subtitle;
     private $description;
+    private $elements;
+    private $keywords;
     private $status;
-    private $updatedBy;
+    private $created_by;
 
     public function __construct(array $data)
     {
         $this->code = $data['code'];
-        $this->version = $data['version'];
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
+        $this->elements = trim(json_encode($data['elements']), '"');
+        $this->keywords = $data['keywords'];
         $this->status = $data['status'];
-        $this->updatedBy = $data['updatedBy'];
+        $this->created_by = $data['created_by'];
     }
 
     public function toArray(): array

@@ -19,7 +19,7 @@ class FormUnitCreateData
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
-        $this->elements = $data['elements'];
+        $this->elements = trim(json_encode($data['elements']), '"');
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
         $this->created_by = $data['created_by'];
