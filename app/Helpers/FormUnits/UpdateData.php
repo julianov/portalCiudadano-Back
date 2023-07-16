@@ -11,20 +11,6 @@ class UpdateData
     private $elements;
     private $keywords;
     private $status;
-<<<<<<< HEAD:app/Helpers/formUnitUpdateData.php
-    private $created_by;
-
-    public function __construct(array $data)
-    {
-        $this->code = $data['code'];
-        $this->title = $data['title'];
-        $this->subtitle = $data['subtitle'];
-        $this->description = $data['description'];
-        $this->elements = trim(json_encode($data['elements']), '"');
-        $this->keywords = $data['keywords'];
-        $this->status = $data['status'];
-        $this->created_by = $data['created_by'];
-=======
     private $updated_by;
 
     public function __construct(array $data)
@@ -32,7 +18,7 @@ class UpdateData
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
-        $this->elements = json_encode($data['elements']);
+        $this->elements = trim(json_encode($data['elements']), '"');
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
         $this->updated_by = $data['updated_by'];
@@ -43,7 +29,6 @@ class UpdateData
         $array = $this->toArray();
 
         return $array[$key];
->>>>>>> cce21e740ba8de239657d2282cd675bcebac0214:app/Helpers/FormUnits/UpdateData.php
     }
 
     public function toArray(): array

@@ -19,11 +19,7 @@ class CreateData
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
-<<<<<<< HEAD:app/Helpers/FormUnitCreateData.php
         $this->elements = trim(json_encode($data['elements']), '"');
-=======
-        $this->elements = json_encode($data['elements']);
->>>>>>> cce21e740ba8de239657d2282cd675bcebac0214:app/Helpers/FormUnits/CreateData.php
         $this->keywords = $data['keywords'];
         $this->status = $data['status'];
         $this->created_by = $data['created_by'];

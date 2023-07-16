@@ -65,7 +65,7 @@ class FormUnitController extends BaseController
     /**
      * Update a form by PK.
      */
-    public function updateByPk(UpdateByPkRequest $request, string $code)
+    public function updateByPk(UpdateByPkRequest $request)
     {
         //  $user = Auth::guard('authentication')->user();
 
@@ -73,7 +73,7 @@ class FormUnitController extends BaseController
         $data['updated_by'] = 48;
         // $data['updated_by'] = $user->id;
 
-        $form = $this->service->updateByPk($code, new UpdateData($data));
+        $form = $this->service->updateByPk($request['code'], new UpdateData($data));
 
         return response()->json($form, Response::HTTP_OK);
     }

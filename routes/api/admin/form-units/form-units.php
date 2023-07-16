@@ -9,10 +9,13 @@ Route::prefix('/form-units')
     ->group(function () {
         Route::get('/', 'getList');
         Route::post('/', 'create');
+        Route::post('/update', 'updateByPk');
+        Route::post('/delete', 'deleteByPk');
 
-        Route::prefix('/{code}')->group(function () {
+
+       /* Route::prefix('/')->group(function () {
             Route::get('/', 'getByPk');
-            Route::put('/', 'updateByPk');
+            Route::post('/', 'updateByPk');
             Route::delete('/', 'deleteByPk');
-        });
+        });*/
     });
