@@ -1,38 +1,48 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\FormUnits;
 
-class FormUnitUpdateData
+class CreateData
 {
     private $code;
-    private $version;
     private $title;
     private $subtitle;
     private $description;
+    private $elements;
+    private $keywords;
     private $status;
-    private $updatedBy;
+    private $created_by;
 
     public function __construct(array $data)
     {
         $this->code = $data['code'];
-        $this->version = $data['version'];
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
+        $this->elements = json_encode($data['elements']);
+        $this->keywords = $data['keywords'];
         $this->status = $data['status'];
-        $this->updatedBy = $data['updatedBy'];
+        $this->created_by = $data['created_by'];
+    }
+
+    public function get(string $key)
+    {
+        $array = $this->toArray();
+
+        return $array[$key];
     }
 
     public function toArray(): array
     {
         return [
             'code' => $this->code,
-            'version' => $this->version,
             'title' => $this->title,
             'subtitle' => $this->subtitle,
             'description' => $this->description,
+            'elements' => $this->elements,
+            'keywords' => $this->keywords,
             'status' => $this->status,
-            'updatedBy' => $this->updatedBy,
+            'created_by' => $this->created_by,
         ];
     }
 }

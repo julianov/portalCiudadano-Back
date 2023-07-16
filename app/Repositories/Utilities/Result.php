@@ -20,6 +20,6 @@ class Result
         // but only the admissible data is in queryResult[0]->result
 
         $this->status = true;
-        $this->data = ($queryResult[0]->result);
+        $this->data = $queryResult[0]->result;
     }
 }

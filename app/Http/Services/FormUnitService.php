@@ -2,12 +2,11 @@
 
 namespace App\Http\Services;
 
-use App\Helpers\{
-    FormUnitCreateData as CreateData,
-    FormUnitUpdateData as UpdateData,
+use App\Helpers\FormUnits\{
+    CreateData,
+    UpdateData,
 };
 use App\Repositories\FormUnitRepository as Repository;
-use App\Models\FormUnitModel as Model;
 
 class FormUnitService
 {
@@ -29,26 +28,21 @@ class FormUnitService
     }
 
     /**
-     * Get a form by PK.
+     * Create a new form.
      */
-    public function getByPk(string $code, int $version): Model
+    public function create(CreateData $data)
     {
-        $form = $this->repository->getByPk($code, $version);
+        $form = $this->repository->create($data);
 
         return $form;
     }
 
     /**
-     * Create a new form.
+     * Get a form by PK.
      */
-    public function create(CreateData $data):string
+    public function getByPk(string $code)
     {
-        // $code = $data->get('code');
-        // $lastVersionRegister = $this->repository->getLastVersionRegisterByCode($code);
-        // if ($lastVersionRegister) {
-        //     $data->setVersion($lastVersionRegister->get('version') + 1);
-        // }
-        $form = $this->repository->create($data);
+        $form = $this->repository->getByPk($code);
 
         return $form;
     }
@@ -56,29 +50,19 @@ class FormUnitService
     /**
      * Update a form by PK.
      */
-    public function updateByPk(string $code, int $version, UpdateData $data): Model
+    public function updateByPk(string $code, UpdateData $data)
     {
-        $form = $this->repository->updateByPk($code, $version, $data);
+        $form = $this->repository->updateByPk($code, $data);
 
         return $form;
     }
 
-    //     /**
-    //      * Delete a form by ID.
-    //      */
-    //     public function deleteById(int $id, int $userId)
-    //     {
-    //         $result = $this->repository->deleteById($id, $userId);
-    //
-    //         return $result;
-    //     }
-
     /**
      * Remove a form by PK.
      */
-    public function removeByPk(string $code, int $version): bool
+    public function removeByPk(string $code)
     {
-        $result = $this->repository->removeByPk($code, $version);
+        $result = $this->repository->removeByPk($code);
 
         return $result;
     }
