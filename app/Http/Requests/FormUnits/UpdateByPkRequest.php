@@ -22,6 +22,7 @@ class UpdateByPkRequest extends CreateRequest
     public function rules(): array
     {
         return [
+            'code' => 'required|string|min:1',
             'title' => 'required|string|min:1',
             'subtitle' => 'nullable|string|min:1',
             'description' => 'nullable|string|min:1',

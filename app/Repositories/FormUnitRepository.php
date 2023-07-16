@@ -34,10 +34,7 @@ class FormUnitRepository
 
     public function create(CreateData $data)
     {
-<<<<<<< HEAD
-       
-=======
->>>>>>> cce21e740ba8de239657d2282cd675bcebac0214
+
         $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
@@ -64,19 +61,11 @@ class FormUnitRepository
 
     public function updateByPk(string $code, UpdateData $data)
     {
-        $query = "
-            DECLARE result BOOLEAN;
-            BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by);
-            END;
-        ";
-        $bindings = array_merge($data->toArray(), [ 'code' => $code ]);
-        $result = DB::select($query, $bindings);
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by); END;";
+        $bindings = $data->toArray();
+        $result = DB::statement($query, $bindings);
 
-        $json = new Result($result);
-        if ($json->status) {
-            throw new DatabaseUpdateError();
-        }
-
+        if (!$result) { throw new DatabaseWriteError(); }
         $updated = $this->getByPk($data->get('code'));
 
         return $updated;

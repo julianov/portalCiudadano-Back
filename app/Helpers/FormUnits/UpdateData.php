@@ -15,6 +15,7 @@ class UpdateData
 
     public function __construct(array $data)
     {
+        $this->code = $data['code'];
         $this->title = $data['title'];
         $this->subtitle = $data['subtitle'];
         $this->description = $data['description'];
