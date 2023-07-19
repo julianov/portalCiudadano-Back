@@ -5,7 +5,7 @@ namespace App\Http\Requests\Notifications;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class checkNotificationScope extends FormRequest
+class CheckNotificationScopeRequest extends FormRequest
 {
 	/**
 	 * Determine if the user is authorized to make this request.
