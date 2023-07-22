@@ -32,19 +32,6 @@ class FormUnitRepository
         return $json->data;
     }
 
-    public function create(CreateData $data)
-    {
-
-        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
-        $bindings = $data->toArray();
-        $result = DB::statement($query, $bindings);
-        if (!$result) { throw new DatabaseWriteError(); }
-
-        $created = $this->getByPk($data->get('code'));
-
-        return $created;
-    }
-
     public function getByPk(string $code)
     {
         $query = "SELECT {$this->pkg}.OBTENER_FORMULARIO_POR_PK(:code) AS result FROM DUAL";
@@ -57,6 +44,18 @@ class FormUnitRepository
         }
 
         return $json->data;
+    }
+
+    public function create(CreateData $data)
+    {
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";
+        $bindings = $data->toArray();
+        $result = DB::statement($query, $bindings);
+        if (!$result) { throw new DatabaseWriteError(); }
+
+        $created = $this->getByPk($data->get('code'));
+
+        return $created;
     }
 
     public function updateByPk(string $code, UpdateData $data)
