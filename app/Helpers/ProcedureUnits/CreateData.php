@@ -9,6 +9,7 @@ class CreateData
     private $description;
     private $forms;
     private $theme;
+    private $attachments;
     private $created_by;
     // attachments
 
@@ -17,8 +18,9 @@ class CreateData
         $this->title = $data['title'];
         $this->state = $data['state'];
         $this->description = $data['description'];
-        $this->forms = $data['forms'];
+        $this->forms = trim(json_encode($data['forms']), '"');;
         $this->theme = $data['theme'];
+        $this->attachments = trim(json_encode($data['attachments']), '"');;
         $this->created_by = $data['created_by'];
     }
 
@@ -35,6 +37,7 @@ class CreateData
             'description' => $this->description,
             'forms' => $this->forms,
             'theme' => $this->theme,
+            'attachments' => $this->attachments,
             'created_by' => $this->created_by,
         ];
     }
