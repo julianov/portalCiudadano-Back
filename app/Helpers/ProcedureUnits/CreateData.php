@@ -24,9 +24,11 @@ class CreateData
         $this->created_by = $data['created_by'];
     }
 
-    public function get(string $property)
+    public function get(string $key)
     {
-        return $this->$property || null;
+        $array = $this->toArray();
+
+        return $array[$key];
     }
 
     public function toArray()
