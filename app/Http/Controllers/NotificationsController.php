@@ -112,6 +112,7 @@ class NotificationsController extends Controller
 
     private function handleAttachments($last_id, $attachments){
         $totalAttachments = count($attachments);
+        $tipoArchivo = $attachment->getMimeType();
         $multimedia_ids = [];
         
         for ($i = 0; $i < $totalAttachments; $i++) {
