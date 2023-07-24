@@ -43,9 +43,11 @@ class ProcedureUnitRepository
 
     public function getByTitle(string $title)
     {
+        
         $query = "SELECT {$this->pkg}.OBTENER_TRAMITE_POR_TITULO(:title) AS result FROM DUAL";
         $bindings = [ 'title' => $title ];
         $result = DB::select($query, $bindings);
+        dd($result);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
@@ -58,15 +60,15 @@ class ProcedureUnitRepository
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
-
+       
         $created = $this->getByTitle($data->get('title'));
 
         return $created;
     }
 
-    public function updateByPk(UpdateData $data)
+    public function updateByTitle(UpdateData $data)
     {
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE_POR_PK(:id, :title, :state, :description, :forms, :theme, :attachments, :updated_by); END;";
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:title, :state, :description, :forms, :theme, :attachments, :updated_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
@@ -76,10 +78,10 @@ class ProcedureUnitRepository
         return $updated;
     }
 
-    public function removeByPk(int $id)
+    public function removeByTitle(string $title)
     {
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_FORMULARIO_POR_PK(:id);END;";
-        $bindings = [ 'id' => $id ];
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_TRAMITE_POR_TITULO(:title);END;";
+        $bindings = [ 'title' => $title ];
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
 

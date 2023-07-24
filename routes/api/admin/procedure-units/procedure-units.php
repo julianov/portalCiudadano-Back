@@ -9,8 +9,8 @@ Route::prefix('/procedures')
     ->group(function () {
         Route::get('/', 'getList');
         Route::post('/', 'create');
-        Route::post('/update', 'updateByPk');
-        Route::post('/delete', 'deleteByPk');
+        Route::post('/update', 'updateByTitle');
+        Route::post('/delete', 'deleteByTitle');
 
         Route::get('/{id}', 'getByPk');
     });

@@ -51,9 +51,9 @@ class ProcedureUnitService
     /**
      * Update a procedure by PK.
      */
-    public function updateByPk(UpdateData $data)
+    public function updateByTitle(UpdateData $data)
     {
-        $procedure = $this->repository->updateByPk($data);
+        $procedure = $this->repository->updateByTitle($data);
 
         return $procedure;
     }
@@ -61,10 +61,11 @@ class ProcedureUnitService
     /**
      * Remove a procedure by PK.
      */
-    public function removeByPk(string $code)
+    public function removeByTitle(string $title)
     {
-        $result = $this->repository->removeByPk($code);
+        $result = $this->repository->removeByTitle($title);
 
         return $result;
     }
 }
+

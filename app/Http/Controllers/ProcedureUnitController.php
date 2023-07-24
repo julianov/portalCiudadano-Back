@@ -57,7 +57,7 @@ class ProcedureUnitController extends BaseController
 
         $data = $request->validated();
         // $data->createdBy = $userId;
-        $data->createdBy = 48;
+        $data['created_by'] = 48;
 
         $procedure = $this->service->create(new CreateData($data));
 
@@ -67,7 +67,7 @@ class ProcedureUnitController extends BaseController
     /**
      * Update a procedure by ID.
      */
-    public function updateByPk(UpdateByPkRequest $request)
+    public function updateByTitle(UpdateByPkRequest $request)
     {
         // $userId = $request->user()->id;
 
@@ -75,7 +75,7 @@ class ProcedureUnitController extends BaseController
         // $data->updatedBy = $userId;
         $data['updated_by'] = 48;
 
-        $procedure = $this->service->updateByPk(new UpdateData($data));
+        $procedure = $this->service->updateByTitle(new UpdateData($data));
 
         return response()->json($procedure, Response::HTTP_OK);
     }
@@ -83,11 +83,11 @@ class ProcedureUnitController extends BaseController
     /**
      * Delete a procedure by ID.
      */
-    public function deleteByPk(DeleteByPkRequest $request)
+    public function deleteByTitle(DeleteByPkRequest $request)
     {
         $data = $request->validated();
 
-        $this->service->removeByPk($data['id']);
+        $this->service->removeByTitle($data['title']);
 
         return response()->json(null, Response::HTTP_OK);
     }
