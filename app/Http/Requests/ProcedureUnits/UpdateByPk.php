@@ -16,16 +16,6 @@ class UpdateByPkRequest extends FormRequest
         return true;
     }
 
-    protected function prepareForValidation()
-    {
-        $lowerCaseTags = $this->tags->foreach(function ($tag) {
-            return strtolower($tag->trim());
-        });
-        $uniqueTags = array_unique($lowerCaseTags);
-
-        $this->merge([ 'tags' => $uniqueTags ]);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -34,17 +24,12 @@ class UpdateByPkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|integer|min:1',
-            'name' => 'required|string|min:1|max:50',
-            'title' => 'required|string|min:1|max:50',
-            'subtitle' => 'required|string|min:1|max:100',
+            'title' => 'required|string|min:1|max:300',
             'description' => 'required|string|min:1',
-            'forms' => 'required|array|min:1',
-            'forms.*' => 'required|integer|min:1',
-            'tags' => 'array|min:0|max:100',
-            'tags.*' => 'string|distinct|min:1',
-            'actor_level' => 'required|integer|min:1|max:3',
-            'citizen_level' => 'required|integer|min:1|max:3',
+            'state' => 'required|string|min:1|max:100',
+            'theme'=> 'required|string|min:1|max:100',
+            'forms' => 'required|string|min:1',
+            'attachments'=> 'required|string|min:1',
         ];
     }
 }

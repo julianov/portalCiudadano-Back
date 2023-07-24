@@ -4,40 +4,42 @@ namespace App\Helpers\ProcedureUnits;
 
 class UpdateData
 {
-    private $id;
     private $title;
     private $state;
     private $description;
     private $forms;
     private $theme;
+    private $attachments;
     private $updated_by;
     // attachments
 
     public function __construct(array $data)
     {
-        $this->id = $data['id'];
         $this->title = $data['title'];
         $this->state = $data['state'];
         $this->description = $data['description'];
-        $this->forms = $data['forms'];
+        $this->forms = trim(json_encode($data['forms']), '"');
         $this->theme = $data['theme'];
-        $this->updated_by = $data['updated_by'];
+        $this->attachments = trim(json_encode($data['attachments']), '"');
+        $this->created_by = $data['updated_by'];
     }
 
-    public function get(string $property)
+    public function get(string $key)
     {
-        return $this->$property || null;
+        $array = $this->toArray();
+
+        return $array[$key];
     }
 
     public function toArray()
     {
         return [
-            'id' => $this->id,
             'title' => $this->title,
             'state' => $this->state,
             'description' => $this->description,
             'forms' => $this->forms,
             'theme' => $this->theme,
+            'attachments' => $this->attachments,
             'updated_by' => $this->updated_by,
         ];
     }
