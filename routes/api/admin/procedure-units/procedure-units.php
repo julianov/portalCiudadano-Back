@@ -7,10 +7,10 @@ use App\Http\Controllers\ProcedureUnitController as Controller;
 Route::prefix('/procedures')
     ->controller(Controller::class)
     ->group(function () {
-        Route::get('/', 'getList');
-        Route::post('/', 'create');
-        Route::post('/update', 'updateByTitle');
-        Route::post('/delete', 'deleteByTitle');
+        Route::middleware(['auth:authentication'])->get('/', 'getList');
+        Route::middleware(['auth:authentication'])->post('/', 'create');
+        Route::middleware(['auth:authentication'])->post('/update', 'updateByTitle');
+        Route::middleware(['auth:authentication'])->post('/delete', 'deleteByTitle');
 
-        Route::get('/{id}', 'getByPk');
+        Route::middleware(['auth:authentication'])->get('/{id}', 'getByPk');
     });
