@@ -9,14 +9,16 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Http\Services\ProcedureUnitService as Service;
 use App\Http\Requests\ProcedureUnits\{
     // GetListRequest,
-    // GetByIdRequest,
+    GetListBySearchRequest,
     CreateRequest,
+    // GetByIdRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
 };
 use App\Helpers\ProcedureUnits\{
     CreateData,
     UpdateData,
+    SearchFilter,
 };
 
 class ProcedureUnitController extends BaseController
@@ -36,6 +38,26 @@ class ProcedureUnitController extends BaseController
         $procedures = $this->service->getList();
 
         return response()->json($procedures, Response::HTTP_OK);
+    }
+
+    /**
+     * Get a list of procedures by search.
+     */
+    public function getListBySearch(GetListBySearchRequest $request)
+    {
+        $query = $request->query();
+
+        $procedures = $this->service->getListBySearch(new SearchFilter($query));
+    }
+
+    /**
+     * Get a list of procedure categories.
+     */
+    public function getCategories()
+    {
+        $categories = $this->service->getCategories();
+
+        return response()->json($categories, Response::HTTP_OK);
     }
 
     /**

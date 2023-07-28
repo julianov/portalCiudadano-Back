@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormUnitController as Controller;
 
 Route::prefix('/form-units')
+    ->middleware(['auth:authentication'])
     ->controller(Controller::class)
     ->group(function () {
         Route::middleware(['auth:authentication'])->get('/', 'getList');

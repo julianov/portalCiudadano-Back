@@ -7,6 +7,7 @@ use App\Repositories\ProcedureUnitRepository as Repository;
 use App\Helpers\ProcedureUnits\{
     CreateData,
     UpdateData,
+    SearchFilter,
 };
 
 class ProcedureUnitService
@@ -26,6 +27,23 @@ class ProcedureUnitService
         $procedures = $this->repository->getList();
 
         return $procedures;
+    }
+
+    public function getListBySearch(SearchFilter $filter)
+    {
+        $procedures = $this->repository->getListBySearch($filter);
+
+        return $procedures;
+    }
+
+    /**
+     * Get a list of categories.
+     */
+    public function getCategories()
+    {
+        $categories = $this->repository->getCategories();
+
+        return $categories;
     }
 
     /**
