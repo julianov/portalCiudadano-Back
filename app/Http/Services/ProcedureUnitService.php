@@ -29,6 +29,16 @@ class ProcedureUnitService
     }
 
     /**
+     * Get a list of categories.
+     */
+    public function getCategories()
+    {
+        $categories = $this->repository->getCategories();
+
+        return $categories;
+    }
+
+    /**
      * Get a procedure by PK.
      */
     public function getByPk(string $id)

@@ -9,8 +9,8 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Http\Services\ProcedureUnitService as Service;
 use App\Http\Requests\ProcedureUnits\{
     // GetListRequest,
-    // GetByIdRequest,
     CreateRequest,
+    // GetByIdRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
 };
@@ -36,6 +36,16 @@ class ProcedureUnitController extends BaseController
         $procedures = $this->service->getList();
 
         return response()->json($procedures, Response::HTTP_OK);
+    }
+
+    /**
+     * Get a list of procedure categories.
+     */
+    public function getCategories()
+    {
+        $categories = $this->service->getCategories();
+
+        return response()->json($categories, Response::HTTP_OK);
     }
 
     /**

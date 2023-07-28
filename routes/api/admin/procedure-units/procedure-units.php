@@ -11,6 +11,8 @@ Route::prefix('/procedures')
         Route::get('/', 'getList');
         Route::post('/', 'create');
 
+        Route::get('/categories', 'getCategories');
+
         Route::post('/update', 'updateByTitle');
         Route::post('/delete', 'deleteByTitle');
 
