@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 
 use App\Http\Controllers\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Services\ProcedureUnitService as Service;
 use App\Http\Requests\ProcedureUnits\{
@@ -75,11 +76,11 @@ class ProcedureUnitController extends BaseController
      */
     public function create(CreateRequest $request)
     {
-        // $userId = $request->user()->id;
+        $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
         // $data->createdBy = $userId;
-        $data['created_by'] = 48;
+        $data['created_by'] =  $user->id;
 
         $procedure = $this->service->create(new CreateData($data));
 
@@ -91,11 +92,11 @@ class ProcedureUnitController extends BaseController
      */
     public function updateByTitle(UpdateByPkRequest $request)
     {
-        // $userId = $request->user()->id;
+        $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
         // $data->updatedBy = $userId;
-        $data['updated_by'] = 48;
+        $data['updated_by'] =  $user->id;
 
         $procedure = $this->service->updateByTitle(new UpdateData($data));
 

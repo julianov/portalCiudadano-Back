@@ -4,6 +4,7 @@ namespace App\Helpers\ProcedureUnits;
 
 class UpdateData
 {
+    private $id;
     private $title;
     private $state;
     private $description;
@@ -15,6 +16,7 @@ class UpdateData
 
     public function __construct(array $data)
     {
+        $this->id = $data['id'];
         $this->title = $data['title'];
         $this->state = $data['state'];
         $this->description = $data['description'];
@@ -34,6 +36,7 @@ class UpdateData
     public function toArray()
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
             'state' => $this->state,
             'description' => $this->description,

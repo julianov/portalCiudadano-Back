@@ -24,6 +24,7 @@ class UpdateByPkRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'required|integer',
             'title' => 'required|string|min:1|max:300',
             'description' => 'required|string|min:1',
             'state' => 'required|string|min:1|max:100',

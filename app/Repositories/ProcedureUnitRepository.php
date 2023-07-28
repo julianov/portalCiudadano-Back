@@ -13,7 +13,6 @@ use App\Errors\Infrastructure\Database\{
 };
 use App\Helpers\ProcedureUnits\{
     CreateData,
-    SearchFilter,
     UpdateData,
 };
 
@@ -24,27 +23,6 @@ class ProcedureUnitRepository
     public function getList()
     {
         $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES() AS result FROM DUAL";
-        $result = DB::select($query);
-        $json = new Result($result);
-        if (!$json->status) { throw new DatabaseReadError(); }
-
-        return $json->data;
-    }
-
-    public function getListBySearch(SearchFilter $filter)
-    {
-        $query = "VARIABLE l_cursor REFCURSOR; EXEC INTERNET.CIUDADANO_PKG.CIU_TRAMITES_BUSCA(:title, :category, l_cursor";
-        $bindings = $filter->getFilter();
-        $result = DB::select($query, $bindings);
-        $json = new Result($result);
-        if (!$json->status) { throw new DatabaseReadError(); }
-
-        return $json->data;
-    }
-
-    public function getCategories()
-    {
-        $query = "SELECT {$this->pkg}.TEMATICAS_TRAMITES() AS result FROM DUAL";
         $result = DB::select($query);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
@@ -65,11 +43,10 @@ class ProcedureUnitRepository
 
     public function getByTitle(string $title)
     {
-
+        
         $query = "SELECT {$this->pkg}.OBTENER_TRAMITE_POR_TITULO(:title) AS result FROM DUAL";
         $bindings = [ 'title' => $title ];
         $result = DB::select($query, $bindings);
-        dd($result);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
@@ -82,7 +59,7 @@ class ProcedureUnitRepository
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
-
+       
         $created = $this->getByTitle($data->get('title'));
 
         return $created;
@@ -90,12 +67,13 @@ class ProcedureUnitRepository
 
     public function updateByTitle(UpdateData $data)
     {
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:title, :state, :description, :forms, :theme, :attachments, :updated_by); END;";
+        
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:id, :title, :theme, :forms, :description, :state, :attachments, :updated_by); END;";        
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
 
-        $updated = $this->getByPk($data->get('id'));
+        $updated =  $this->getByTitle($data->get('title'));
 
         return $updated;
     }
