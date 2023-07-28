@@ -12,6 +12,7 @@ use App\Http\Requests\FormUnits\{
     CreateRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
+    GetByPkRequest
 };
 use App\Helpers\FormUnits\{
     CreateData,
@@ -42,23 +43,26 @@ class FormUnitController extends BaseController
      */
     public function create(CreateRequest $request)
     {
-      //  $user = Auth::guard('authentication')->user();
+        $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        //$data['created_by'] = $user->id;
-        $data['created_by'] = 48;
+        $data['created_by'] = $user->id;
+        //$data['created_by'] = 48;
 
         $form = $this->service->create(new CreateData($data));
 
         return response()->json($form, Response::HTTP_CREATED);
     }
 
+
     /**
      * Get a form by PK.
      */
-    public function getByPk(string $code)
+    public function getByPk(GetByPkRequest $request)
     {
-        $form = $this->service->getByPk($code);
+        $data = $request->validated();
+
+        $form = $this->service->getByPk($data['code']);
 
         return response()->json($form, Response::HTTP_OK);
     }
@@ -68,11 +72,11 @@ class FormUnitController extends BaseController
      */
     public function updateByPk(UpdateByPkRequest $request)
     {
-        //  $user = Auth::guard('authentication')->user();
+        $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        $data['updated_by'] = 48;
-        // $data['updated_by'] = $user->id;
+        //$data['updated_by'] = 48;
+        $data['updated_by'] = $user->id;
 
         $form = $this->service->updateByPk($request['code'], new UpdateData($data));
 

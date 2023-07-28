@@ -11,4 +11,6 @@ Route::prefix('/form-units')
         Route::middleware(['auth:authentication'])->post('/', 'create');
         Route::middleware(['auth:authentication'])->post('/update', 'updateByPk');
         Route::middleware(['auth:authentication'])->post('/delete', 'deleteByPk');
+        Route::middleware(['auth:authentication'])->get('/getByPk', 'getByPk');
+
     });
