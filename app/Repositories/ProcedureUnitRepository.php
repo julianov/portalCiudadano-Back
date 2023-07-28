@@ -13,6 +13,7 @@ use App\Errors\Infrastructure\Database\{
 };
 use App\Helpers\ProcedureUnits\{
     CreateData,
+    SearchFilter,
     UpdateData,
 };
 
@@ -24,6 +25,17 @@ class ProcedureUnitRepository
     {
         $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES() AS result FROM DUAL";
         $result = DB::select($query);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
+    public function getListBySearch(SearchFilter $filter)
+    {
+        $query = "VARIABLE l_cursor REFCURSOR; EXEC INTERNET.CIUDADANO_PKG.CIU_TRAMITES_BUSCA(:title, :category, l_cursor";
+        $bindings = $filter->getFilter();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
@@ -53,7 +65,7 @@ class ProcedureUnitRepository
 
     public function getByTitle(string $title)
     {
-        
+
         $query = "SELECT {$this->pkg}.OBTENER_TRAMITE_POR_TITULO(:title) AS result FROM DUAL";
         $bindings = [ 'title' => $title ];
         $result = DB::select($query, $bindings);
@@ -70,7 +82,7 @@ class ProcedureUnitRepository
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
-       
+
         $created = $this->getByTitle($data->get('title'));
 
         return $created;
