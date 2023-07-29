@@ -85,5 +85,11 @@ class ProcedureUnitService
 
         return $result;
     }
-}
 
+    public function removeById(int $id)
+    {
+        $result = $this->repository->removeById($id);
+
+        return $result;
+    }
+}

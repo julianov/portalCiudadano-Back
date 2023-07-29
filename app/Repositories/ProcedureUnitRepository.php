@@ -87,4 +87,15 @@ class ProcedureUnitRepository
 
         return $result;
     }
+
+    public function removeById (int $id){
+
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_TRAMITE_POR_ID(:id);END;";
+        $bindings = [ 'id' => $id ];
+        $result = DB::statement($query, $bindings);
+        if (!$result) { throw new DatabaseWriteError(); }
+
+        return $result;
+
+    }
 }

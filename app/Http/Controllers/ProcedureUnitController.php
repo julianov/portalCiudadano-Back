@@ -106,11 +106,11 @@ class ProcedureUnitController extends BaseController
     /**
      * Delete a procedure by ID.
      */
-    public function deleteByTitle(DeleteByPkRequest $request)
+    public function deleteById(DeleteByPkRequest $request)
     {
         $data = $request->validated();
 
-        $this->service->removeByTitle($data['title']);
+        $this->service->removeById($data['id']);
 
         return response()->json(null, Response::HTTP_OK);
     }

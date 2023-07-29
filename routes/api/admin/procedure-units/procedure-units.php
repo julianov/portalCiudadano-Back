@@ -15,7 +15,7 @@ Route::prefix('/procedures')
         Route::get('/search', 'getListBySearch');
 
         Route::post('/update', 'updateByTitle');
-        Route::post('/delete', 'deleteByTitle');
+        Route::post('/delete', 'deleteById');
 
         Route::get('/{id}', 'getByPk');
     });

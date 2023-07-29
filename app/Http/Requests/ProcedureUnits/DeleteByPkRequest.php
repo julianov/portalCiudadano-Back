@@ -24,7 +24,7 @@ class DeleteByPkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|min:1'
+            'id' => 'required|integer'
         ];
     }
 }
