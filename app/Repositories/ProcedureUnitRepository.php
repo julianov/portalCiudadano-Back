@@ -98,4 +98,25 @@ class ProcedureUnitRepository
         return $result;
 
     }
+
+    public function getCategories()
+    {
+        $query = "SELECT {$this->pkg}.TEMATICAS_TRAMITES() AS result FROM DUAL";
+        $result = DB::select($query);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
+    public function getListBySearch(SearchFilter $filter)
+    {
+        $query = "VARIABLE l_cursor REFCURSOR; EXEC INTERNET.CIUDADANO_PKG.CIU_TRAMITES_BUSCA(:title, :category, l_cursor";
+        $bindings = $filter->getFilter();
+        $result = DB::select($query, $bindings);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
 }
