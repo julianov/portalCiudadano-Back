@@ -8,14 +8,11 @@ Route::prefix('/procedures')
     ->middleware(['auth:authentication'])
     ->controller(Controller::class)
     ->group(function () {
-        Route::get('/', 'getList');
-        Route::post('/', 'create');
-
-        Route::get('/categories', 'getCategories');
-        Route::get('/search', 'getListBySearch');
-
-        Route::post('/update', 'updateByTitle');
-        Route::post('/delete', 'deleteById');
-
-        Route::get('/{id}', 'getByPk');
+        Route::middleware(['auth:authentication'])->get('/', 'getList');
+        Route::middleware(['auth:authentication'])->post('/', 'create');
+        Route::middleware(['auth:authentication'])->get('/categories', 'getCategories');
+        Route::middleware(['auth:authentication'])->get('/search', 'getListBySearch');
+        Route::middleware(['auth:authentication'])->post('/update', 'updateByTitle');
+        Route::middleware(['auth:authentication'])->post('/delete', 'deleteById');
+        Route::middleware(['auth:authentication'])->get('/{id}', 'getByPk');
     });

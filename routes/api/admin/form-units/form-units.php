@@ -10,7 +10,6 @@ Route::prefix('/form-units')
     ->group(function () {
         Route::middleware(['auth:authentication'])->get('/', 'getList');
         Route::middleware(['auth:authentication'])->get('/published', 'getPublishedList');
-
         Route::middleware(['auth:authentication'])->post('/', 'create');
         Route::middleware(['auth:authentication'])->post('/update', 'updateByPk');
         Route::middleware(['auth:authentication'])->post('/delete', 'deleteByPk');

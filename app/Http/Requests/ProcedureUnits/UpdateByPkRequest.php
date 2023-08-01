@@ -27,6 +27,7 @@ class UpdateByPkRequest extends FormRequest
             'id' => 'required|integer',
             'title' => 'required|string|min:1|max:300',
             'description' => 'required|string|min:1',
+            //'secretary'=> 'required|string|min:1',
             'state' => 'required|string|min:1|max:100',
             'theme'=> 'required|string|min:1|max:100',
             'forms' => 'required|string|min:1',

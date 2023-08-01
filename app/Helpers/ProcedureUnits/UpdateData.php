@@ -8,6 +8,9 @@ class UpdateData
     private $title;
     private $state;
     private $description;
+
+    //private $secretary;
+
     private $forms;
     private $theme;
     private $attachments;
@@ -20,6 +23,7 @@ class UpdateData
         $this->title = $data['title'];
         $this->state = $data['state'];
         $this->description = $data['description'];
+        //$this->secretary = $data['secretary'];
         $this->forms = trim(json_encode($data['forms']), '"');
         $this->theme = $data['theme'];
         $this->attachments = trim(json_encode($data['attachments']), '"');
@@ -40,6 +44,7 @@ class UpdateData
             'title' => $this->title,
             'state' => $this->state,
             'description' => $this->description,
+            //'secretary' => $this->secretary,
             'forms' => $this->forms,
             'theme' => $this->theme,
             'attachments' => $this->attachments,
