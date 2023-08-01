@@ -32,6 +32,19 @@ class FormUnitRepository
         return $json->data;
     }
 
+    public function getPublishedList()
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORM_PUBLICADOS() AS result FROM DUAL";
+        $result = DB::select($query);
+        $json = new Result($result);
+        if (!$json->status) {
+            throw new DatabaseReadError();
+        }
+
+        return $json->data;
+
+    }
+
     public function getByPk(string $code)
     {
         $query = "SELECT {$this->pkg}.OBTENER_FORMULARIO_POR_PK(:code) AS result FROM DUAL";

@@ -27,6 +27,13 @@ class FormUnitService
         return $forms;
     }
 
+    public function getPublishedList()
+    {
+        $forms = $this->repository->getPublishedList();
+
+        return $forms;
+    }
+
     /**
      * Create a new form.
      */
