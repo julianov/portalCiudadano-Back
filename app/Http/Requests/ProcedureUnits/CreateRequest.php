@@ -46,13 +46,13 @@ class CreateRequest extends FormRequest
             'citizen_level' => 'required|integer|min:1|max:3',
         ];*/
         return [
-        'title' => 'required|string|min:1|max:300',
-        'description' => 'required|string|min:1',
-        'secretary'=> 'required|string|min:1',
-        'state' => 'required|string|min:1|max:100',
-        'theme'=> 'required|string|min:1|max:100',
-        'forms' => 'required|string|min:1',
-        'attachments'=> 'required|string|min:1',
+            'title' => 'required|string|min:1|max:300',
+            'description' => 'required|string|min:1',
+            'secretary'=> 'required|string|min:1',
+            'state' => 'required|string|min:1|max:100',
+            'theme'=> 'required|string|min:1|max:100',
+            'forms' => 'required|string|min:1',
+            'attachments'=> 'required|string|min:1',
         ];
     }
 }

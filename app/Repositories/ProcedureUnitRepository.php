@@ -14,6 +14,7 @@ use App\Errors\Infrastructure\Database\{
 use App\Helpers\ProcedureUnits\{
     CreateData,
     UpdateData,
+    SearchFilter,
 };
 
 class ProcedureUnitRepository
@@ -43,7 +44,6 @@ class ProcedureUnitRepository
 
     public function getByTitle(string $title)
     {
-        
         $query = "SELECT {$this->pkg}.OBTENER_TRAMITE_POR_TITULO(:title) AS result FROM DUAL";
         $bindings = [ 'title' => $title ];
         $result = DB::select($query, $bindings);
@@ -59,7 +59,7 @@ class ProcedureUnitRepository
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
-       
+
         $created = $this->getByTitle($data->get('title'));
 
         return $created;
@@ -67,8 +67,7 @@ class ProcedureUnitRepository
 
     public function updateByTitle(UpdateData $data)
     {
-        
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:id, :title, :theme, :forms, :description, :state, :attachments, :updated_by); END;";        
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:id, :title, :theme, :forms, :description, :state, :attachments, :updated_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
@@ -88,8 +87,8 @@ class ProcedureUnitRepository
         return $result;
     }
 
-    public function removeById (int $id){
-
+    public function removeById (int $id)
+    {
         $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_TRAMITE_POR_ID(:id);END;";
         $bindings = [ 'id' => $id ];
         $result = DB::statement($query, $bindings);

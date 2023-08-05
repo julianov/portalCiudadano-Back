@@ -49,6 +49,8 @@ class ProcedureUnitController extends BaseController
         $query = $request->query();
 
         $procedures = $this->service->getListBySearch(new SearchFilter($query));
+
+        return response()->json($procedures, Response::HTTP_OK);
     }
 
     /**
@@ -79,7 +81,6 @@ class ProcedureUnitController extends BaseController
         $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        // $data->createdBy = $userId;
         $data['created_by'] =  $user->id;
 
         $procedure = $this->service->create(new CreateData($data));
