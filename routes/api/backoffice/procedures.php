@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProcedureUnitController as Controller;
 
 Route::prefix('/procedures')
-    // ->middleware(['auth:authentication'])
+    ->middleware(['auth:authentication'])
     ->controller(Controller::class)
     ->group(function () {
         Route::get('/', 'getList');
