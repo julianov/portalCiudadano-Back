@@ -57,9 +57,9 @@ class FormUnitService
     /**
      * Update a form by PK.
      */
-    public function updateByPk(string $code, UpdateData $data)
+    public function updateByPk(UpdateData $data)
     {
-        $form = $this->repository->updateByPk($code, $data);
+        $form = $this->repository->updateByPk($data);
 
         return $form;
     }

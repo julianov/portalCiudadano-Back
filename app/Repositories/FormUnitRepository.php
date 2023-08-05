@@ -71,7 +71,7 @@ class FormUnitRepository
         return $created;
     }
 
-    public function updateByPk(string $code, UpdateData $data)
+    public function updateByPk(UpdateData $data)
     {
         $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by); END;";
         $bindings = $data->toArray();

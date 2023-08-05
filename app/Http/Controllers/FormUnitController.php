@@ -38,13 +38,13 @@ class FormUnitController extends BaseController
         return response()->json($forms, Response::HTTP_OK);
     }
 
-    public function getPublishedList()
-    {
-        $forms = $this->service->getPublishedList();
-
-        return response()->json($forms, Response::HTTP_OK);
-
-    }
+//     public function getPublishedList()
+//     {
+//         $forms = $this->service->getPublishedList();
+//
+//         return response()->json($forms, Response::HTTP_OK);
+//
+//     }
 
     /**
      * Create a new form.
@@ -55,7 +55,6 @@ class FormUnitController extends BaseController
 
         $data = $request->validated();
         $data['created_by'] = $user->id;
-        //$data['created_by'] = 48;
 
         $form = $this->service->create(new CreateData($data));
 
@@ -83,10 +82,9 @@ class FormUnitController extends BaseController
         $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        //$data['updated_by'] = 48;
         $data['updated_by'] = $user->id;
 
-        $form = $this->service->updateByPk($request['code'], new UpdateData($data));
+        $form = $this->service->updateByPk(new UpdateData($data));
 
         return response()->json($form, Response::HTTP_OK);
     }
@@ -96,7 +94,9 @@ class FormUnitController extends BaseController
      */
     public function deleteByPk(DeleteByPkRequest $request)
     {
-        $deleted =$this->service->removeByPk($request['code']);
+        $data = $request->validated();
+
+        $deleted =$this->service->removeByPk($data['code']);
 
         return response()->json($deleted, Response::HTTP_OK);
     }
