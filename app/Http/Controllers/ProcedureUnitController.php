@@ -96,7 +96,6 @@ class ProcedureUnitController extends BaseController
         $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-        // $data->updatedBy = $userId;
         $data['updated_by'] =  $user->id;
 
         $procedure = $this->service->updateByTitle(new UpdateData($data));
