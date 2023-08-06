@@ -10,7 +10,7 @@ Route::prefix('/forms')
     ->group(function () {
         Route::get('/', 'getList');
         Route::get('/getByPk', 'getByPk');
-
+        Route::get('/published', 'getPublishedList');
         Route::post('/', 'create');
         Route::post('/update', 'updateByPk');
         Route::post('/delete', 'deleteByPk');

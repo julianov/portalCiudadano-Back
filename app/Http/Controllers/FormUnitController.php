@@ -38,13 +38,13 @@ class FormUnitController extends BaseController
         return response()->json($forms, Response::HTTP_OK);
     }
 
-//     public function getPublishedList()
-//     {
-//         $forms = $this->service->getPublishedList();
-//
-//         return response()->json($forms, Response::HTTP_OK);
-//
-//     }
+     public function getPublishedList()
+     {
+        $forms = $this->service->getPublishedList();
+
+         return response()->json($forms, Response::HTTP_OK);
+
+    }
 
     /**
      * Create a new form.
