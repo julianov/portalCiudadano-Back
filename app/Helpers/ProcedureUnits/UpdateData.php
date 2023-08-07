@@ -8,9 +8,7 @@ class UpdateData
     private $title;
     private $state;
     private $description;
-
     //private $secretary;
-
     private $forms;
     private $theme;
     private $attachments;
@@ -22,11 +20,12 @@ class UpdateData
     {
         $this->id = $data['id'];
         $this->title = $data['title'];
-        $this->state = $data['state'];
-        $this->description = $data['description'];
-        //$this->secretary = $data['secretary'];
-        $this->forms = trim(json_encode($data['forms']), '"');
         $this->theme = $data['theme'];
+        $this->forms = trim(json_encode($data['forms']), '"');
+        $this->description = $data['description'];
+
+        $this->state = $data['state'];
+        //$this->secretary = $data['secretary'];
         $this->attachments = trim(json_encode($data['attachments']), '"');
         $this->citizen_level = $data['citizen_level'];
         $this->created_by = $data['updated_by'];
@@ -44,12 +43,13 @@ class UpdateData
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'state' => $this->state,
-            'description' => $this->description,
-            //'secretary' => $this->secretary,
-            'forms' => $this->forms,
             'theme' => $this->theme,
+            'forms' => $this->forms,
+            'description' => $this->description,
+            'state' => $this->state,
+            //'secretary' => $this->secretary,
             'attachments' => $this->attachments,
+            'citizen_level' => $this->citizen_level,
             'updated_by' => $this->updated_by,
         ];
     }
