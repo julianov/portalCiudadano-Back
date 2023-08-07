@@ -55,7 +55,7 @@ class ProcedureUnitRepository
 
     public function create(CreateData $data)
     {
-        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE(:title, :state, :secretary, :description, :forms, :theme, :attachments, :created_by); END;";
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE(:title, :state, :secretary, :description, :forms, :theme, :attachments, :citizen_level, :created_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
@@ -67,7 +67,7 @@ class ProcedureUnitRepository
 
     public function updateByTitle(UpdateData $data)
     {
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:id, :title, :theme, :forms, :description, :state, :attachments, :updated_by); END;";
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_TRAMITE(:id, :title, :theme, :forms, :description, :state, :attachments, :citizen_level, :updated_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }

@@ -11,6 +11,7 @@ class CreateData
     private $forms;
     private $theme;
     private $attachments;
+    private $citizen_level;
     private $created_by;
     // attachments
 
@@ -24,6 +25,8 @@ class CreateData
         $this->theme = $data['theme'];
         $this->attachments = trim(json_encode($data['attachments']), '"');;
         $this->created_by = $data['created_by'];
+        $this->citizen_level = $data['citizen_level'];
+
     }
 
     public function get(string $key)
@@ -44,6 +47,7 @@ class CreateData
             'theme' => $this->theme,
             'attachments' => $this->attachments,
             'created_by' => $this->created_by,
+            'citizen_level'=> $this->citizen_level,
         ];
     }
 }

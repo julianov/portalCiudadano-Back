@@ -14,6 +14,7 @@ class UpdateData
     private $forms;
     private $theme;
     private $attachments;
+    private $citizen_level;
     private $updated_by;
     // attachments
 
@@ -27,6 +28,7 @@ class UpdateData
         $this->forms = trim(json_encode($data['forms']), '"');
         $this->theme = $data['theme'];
         $this->attachments = trim(json_encode($data['attachments']), '"');
+        $this->citizen_level = $data['citizen_level'];
         $this->created_by = $data['updated_by'];
     }
 

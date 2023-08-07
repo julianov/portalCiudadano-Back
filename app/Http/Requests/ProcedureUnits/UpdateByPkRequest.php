@@ -32,6 +32,8 @@ class UpdateByPkRequest extends FormRequest
             'theme'=> 'required|string|min:1|max:100',
             'forms' => 'required|string|min:1',
             'attachments'=> 'required|string|min:1',
+            'citizen_level' => 'required|string|min:1',
+
         ];
     }
 }
