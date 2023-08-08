@@ -13,6 +13,7 @@ use App\Http\Requests\User\ValidateNewUserRequest;
 use App\Http\Requests\User\ChangeUserEmailValidationRequest;
 use App\Http\Requests\User\ChangeUserEmailRequest;
 use App\Http\Requests\User\ChangeNamesRequest;
+use App\Http\Requests\User\ChangeEmailLevel1ValidationRequest;
 use App\Http\Services\UserService;
 
 use App\Repositories\PLSQL\GenericRepository;
@@ -763,5 +764,80 @@ class UserController extends Controller
 		} else {
 			return $this->errorService->noUser();
 		}
+	}
+
+	public function changeEmailLevel1 (ChangeEmailLevel1ValidationRequest $request): JsonResponse
+	{
+
+		$validated = $request->validated();
+
+		$user = User::where('cuil', $validated['cuil'])->first();
+
+		if ($user) {
+
+			$column_name = "USER_ID";
+			$column_value = $user->id;
+			$table = "USER_AUTHENTICATION";
+			$user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);																					
+			
+			if ($user_auth->AUTH_LEVEL =='level_1'){
+
+				$user->email = $validated['new_email'];
+				$user->save();
+
+				$code = random_int(1000, 9999);
+
+				$column_name = "USER_ID";
+				$column_value = $user->id;
+				$table = "USER_VALIDATION_TOKEN";
+				$json = $this->genericRepository->getRow($table, $column_name, $column_value);
+
+				if (empty($json)) {
+
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = "USER_ID, VAL_TOKEN, CREATED_AT";
+					$values = $user->id.','.$code.',sysdate';
+
+					$result = $this->genericRepository->insertarFila($table_name, $columns, $values);
+
+					if ($result) {
+
+						return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+
+					} else {
+
+						return $this->errorService->databaseWriteError();
+
+					}
+
+				} else {
+
+					$table_name = "USER_VALIDATION_TOKEN";
+					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
+					$values = 'USER_ID ='.$user->id;
+					$res = $this->genericRepository->updateFila($table_name, $columns, $values);
+
+					if ($res) {
+
+						return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+
+					} else {
+
+						return $this->errorService->databaseWriteError();
+					}
+
+				}
+
+			}else{
+
+				//aca mostrar que el user no es level 1
+			}
+
+			}else {
+
+				return $this->errorService->badUser();
+
+			}
+		
 	}
 }
