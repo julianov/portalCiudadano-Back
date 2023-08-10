@@ -235,20 +235,22 @@ class NotificationsController extends Controller
             $table = "USER_CONTACT";
             $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
 
+            $table = "USER_ACTORS";
+            $column_name = "USER_ID";
+            $column_value = $user->id;
+            $user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
+            $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
+            $is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
+
+            $fechaActual = Carbon::now()->format('d/m/Y');
+
             if (!empty($user_data)) {
 
                 //$fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val
-                $fechaActual = Carbon::now()->format('d/m/Y');
                 $fechaCumpleanos = Carbon::parse($user_data->BIRTHDAY);
                 // Calcular la edad
                 $edad = $fechaCumpleanos->age;
 
-                $table = "USER_ACTORS";
-                $column_name = "USER_ID";
-                $column_value = $user->id;
-				$user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
-				$is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
-				$is_actor = ($is_actor_empty) ? 'citizen' : 'actor';
 
                 $res_notifications = $this->notificationRepository->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
 
@@ -270,7 +272,23 @@ class NotificationsController extends Controller
 
             }else{
 
-                return $this->errorService->userDataNotFound();
+                //muestro notificaciones dirigidas a usuarios level 1
+                $res_notifications = $this->notificationRepository->getNewNotificationsLevel1($user->id, $fechaActual, $is_actor  );
+
+                if (empty($res_notifications) || $res_notifications=='[]') {
+
+                    return response()->json([
+                        'status' => false,
+                        'notifications' => "without new notifications"
+                    ], 204);
+
+                } else {
+
+                    return response()->json([
+                        'status' => true,
+                        'notifications' => $res_notifications
+                    ], 200);
+                }
 
             }
 
