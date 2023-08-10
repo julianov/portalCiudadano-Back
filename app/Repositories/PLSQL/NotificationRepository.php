@@ -69,6 +69,18 @@ class NotificationRepository
 		return $result[0]->result;
 	}
 
+	public function getAllNotificationsLevel1 ($userId, $fecha_val, $destinatario_val)
+	{
+		
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES_NIVEL_1(:fecha_val, :destinatario_val) as result FROM DUAL", [
+			'fecha_val' => $fecha_val,
+			'destinatario_val' => $destinatario_val
+		]);
+
+		return $result[0]->result;
+	}
+
+	
 	public function getAllActiveNotifications($fechaActual)
 	{
 		
