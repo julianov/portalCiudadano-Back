@@ -464,7 +464,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         'status' => false,
-                        'message' => 'bad dni'
+                        'message' => 'bad dni or ERWS error'
                     ], 404);
 
             }else{
