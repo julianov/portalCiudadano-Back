@@ -17,7 +17,8 @@ class NotificationRepository
 
 	public function readNotification ($userId, $notificationId){
 
-		$res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.NOTIFICACION_LEIDA(:user_id, :notificacion_id); END;",
+		
+		$res = DB::statement("DECLARE l_result CLOB; BEGIN l_result := CIUD_NOTIFICACIONES_PKG.NOTIFICACION_LEIDA(:user_id, :notificacion_id); END;",
 		[
 			'user_id' => $userId,
 			'notificacion_id' => $notificationId,
