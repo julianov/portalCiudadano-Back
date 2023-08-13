@@ -55,6 +55,49 @@ class UserService
 		return $dni;
 	}
 
+	public function getCuilFromDNI($dni) {
+		$tipos = [
+			'Masculino' => '20',
+			'Masculino2'=> '23',
+			'Femenino' => '27',
+			'Empresa' => '30'
+		];
+	
+		foreach ($tipos as $genero => $xy) {
+			$suma = 0;
+	
+			for ($i = 0; $i < strlen($xy); $i++) {
+				$suma += intval($xy[$i]) * (strlen($xy) - $i + 1);
+			}
+	
+			for ($i = 0; $i < strlen($dni); $i++) {
+				$suma += intval($dni[$i]) * (strlen($dni) - $i + 2);
+			}
+	
+			$resto = $suma % 11;
+	
+			if ($resto === 0) {
+				$z = '0';
+			} elseif ($resto === 1) {
+				if ($genero === 'Masculino' || $genero === 'Femenino') {
+					$z = ($genero === 'Masculino') ? '9' : '4';
+					$xy = '23';
+				} else {
+					$xy = '11' - $resto;
+				}
+			} else {
+				$xy = '11' - $resto;
+			}
+	
+			$cuil = $xy . '-' . $dni . '-' . $z;
+			
+			return $cuil;
+			
+		}
+	
+		return null; // No se pudo generar un CUIL válido
+	}
+
 	public function createUser(array $request){
 		
 		$user = new User();
