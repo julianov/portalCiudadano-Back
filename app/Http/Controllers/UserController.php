@@ -780,7 +780,7 @@ class UserController extends Controller
 			$table = "USER_AUTHENTICATION";
 			$user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);																					
 			
-			if ($user_auth->AUTH_LEVEL === null || !isset($user_auth->AUTH_LEVEL)) {
+			if ( !isset($user_auth->AUTH_LEVEL)) {
 
 				$user->email = $validated['new_email'];
 				$user->save();
@@ -840,4 +840,5 @@ class UserController extends Controller
 			}
 		
 	}
+	
 }

@@ -25,6 +25,16 @@ class GenericRepository
 		return $result[0]->result;
 	}
 
+	public function getCuilFromDNI ($dni){
+		
+		$result = DB::select("SELECT CIUD_UTILIDADES_PKG.OBTENER_USER_POR_DNI(:dni) as result FROM DUAL", 
+		[
+			'dni' => $dni
+		]);
+		
+		return $result[0]->result;
+	}
+
     public function insertarFila(string $table_name, string $columns, string $values): bool{
 
 

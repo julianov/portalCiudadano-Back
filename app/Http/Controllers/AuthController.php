@@ -444,97 +444,71 @@ class AuthController extends Controller
         
     }
 
-    public function ActorRedirect ( ActorRedirectRequest $request){
-
+    public function ActorRedirect(ActorRedirectRequest $request)
+    {
         $validated = $request->validated();
-
         $host = env('BASEUR_ER_WS_TOKEN');
-               
         $response = Http::post($host, [
             '_tk' => $validated['token'],
         ]);
-
         $responseBody = $response->body();
-
-        if($responseBody == 1) {
-
+    
+        if ($responseBody == 1) {
             $prs_id = $this->wsService->getPrs_id($validated['dni']);
-
-            if ($prs_id == "bad dni"){
-
+            $user = null;
+            $errorMessage = null;
+    
+            if ($prs_id == "bad dni") {
+    
+                $errorMessage = 'User not found or ERWS error';
                 $cuil = $this->userService->getCuilFromDNI($validated['dni']);
 
-                if ($cuil==null){
-
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'bad dni or ERWS error'
-                    ], 404);
-
-                }else{
-                    self::checkActorData($cuil, true);
+                if ($cuil) {
+                    $user = User::where('cuil', $cuil)->first();
                 }
-
-            }else{
-                self::checkActorData($prs_id, false);
-            }
-        }else{
-            return $this->errorService->badToken();
-        }
-    }
-
-
-    public function checkActorData ($param, $isCuil){
-
-        $user = null; 
-
-        if ($isCuil){
-            $user = User::where('cuil', $param)->first();
-
-        }else{
-            $user = User::where('prs_id', $param)->first();
-        }
-
-        if ($user){
-
-            if ($user->email_verified_at == null) {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => 'email validation still pending'
-                ], 400);
 
             } else {
 
+                $user = User::where('prs_id', $prs_id)->first();
+
+            }
+            if ($user) {
+
+                if ($user->email_verified_at == null) {
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'email validation still pending'
+                    ], 400);
+
+                }
+    
                 $column_name = "USER_ID";
                 $column_value = $user->id;
                 $table = "USER_AUTHENTICATION";
                 $user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);
-
+    
                 if (!empty($user_auth)) {
-
                     $token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;
-
-                    //a solo modo informativo se envia que expira en 1 días. Tener en cuenta que la expiración del token se modifica en AuthServiceProvider
                     $timestamp = now()->addDays(1);
                     $expires_at = date('M d, Y H:i A', strtotime($timestamp));
-
+    
                     $column_name = "USER_ID";
                     $column_value = $user->id;
                     $table = "USER_CONTACT";
                     $user_data = $this->genericRepository->getRow($table, $column_name, $column_value);
-
+    
                     $table = "USER_ACTORS";
                     $user_actor = $this->genericRepository->getRow($table, $column_name, $column_value);
-                    $is_actor_empty = empty($user_actor); // Verificar si $user_actor es una cadena vacía ('')
-                    $is_actor = ($is_actor_empty) ? false : true;
-
+                    $is_actor_empty = empty($user_actor);
+                    $is_actor = !$is_actor_empty;
+    
                     $user_data = [
                         "user" => $user,
                         "user_contact" => $user_data,
                         "is_actor" => $is_actor
                     ];
-
+    
                     return response()->json([
                         'status' => true,
                         'message' => 'Login successful',
@@ -543,19 +517,19 @@ class AuthController extends Controller
                         'expires_at' => $expires_at,
                         'user_data' => $user_data
                     ]);
-
                 } else {
-
-                    //enviar error de nivel de autenticación
                     return $this->errorService->databaseReadError();
                 }
+            } else {
+    
+                return response()->json([
+                    'status' => false,
+                    'message' => $errorMessage
+                ], 400);
+                
             }
-
-        }else{
-            return $this->errorService->badUser();
+        } else {
+            return $this->errorService->badToken();
         }
-
     }
-
 }
-
