@@ -755,12 +755,14 @@ class UserController extends Controller
 		$user = User::where('cuil', $cuil)->first();
 
 		if ($user) {
+
 			$user->delete();
 
 			return response()->json([
 				'status' => true,
 				'message' => 'User removed'
 			], 201);
+		
 		} else {
 			return $this->errorService->noUser();
 		}
@@ -802,7 +804,7 @@ class UserController extends Controller
 
 					if ($result) {
 
-						return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+						return $this->userService->sendEmail($user, $code, "EmailVerification" );
 
 					} else {
 
@@ -812,6 +814,12 @@ class UserController extends Controller
 
 				} else {
 
+					if($json->VAL_TOKEN>9999){
+						$code = random_int(10000, 99999);
+					}else{
+						$code = random_int(1000, 9999);
+					}
+					
 					$table_name = "USER_VALIDATION_TOKEN";
 					$columns = 'VAL_TOKEN = '.$code.' ,UPDATED_AT = sysdate';
 					$values = 'USER_ID ='.$user->id;
@@ -819,7 +827,7 @@ class UserController extends Controller
 
 					if ($res) {
 
-						return $this->userService->sendEmailForNewEmail($user,$validated['new_email'], $code );
+						return $this->userService->sendEmail($user, $code, "EmailVerification" );
 
 					} else {
 
@@ -830,7 +838,11 @@ class UserController extends Controller
 
 			}else{
 
-				//aca mostrar que el user no es level 1
+				return response()->json([
+					'status' => false,
+					'message' => 'User is not level 1'
+				], 403);
+
 			}
 
 			}else {
