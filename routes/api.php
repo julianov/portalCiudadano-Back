@@ -85,6 +85,6 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 // Route modularization
 Route::prefix('/v0')
     ->group(function () {
-    //require __DIR__ . '/api/procedures/procedures.php';
+        require __DIR__ . '/api/dashboard/dashboard.php';
         require __DIR__ . '/api/backoffice/backoffice.php';
 });

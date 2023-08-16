@@ -31,6 +31,15 @@ class ProcedureUnitRepository
         return $json->data;
     }
 
+    public function getPublicList() {
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES_PUBLICOS() AS result FROM DUAL";
+        $result = DB::select($query);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
     public function getByPk(string $id)
     {
         $query = "SELECT {$this->pkg}.OBTENER_FORMULARIO_POR_PK(:id) AS result FROM DUAL";

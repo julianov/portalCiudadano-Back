@@ -47,6 +47,16 @@ class ProcedureUnitService
     }
 
     /**
+     * Get a list of public procedures.
+     */
+    public function getPublicList()
+    {
+        $procedures = $this->repository->getPublicList();
+
+        return $procedures;
+    }
+
+    /**
      * Get a procedure by PK.
      */
     public function getByPk(string $id)
