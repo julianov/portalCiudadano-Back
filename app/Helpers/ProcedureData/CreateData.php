@@ -4,19 +4,13 @@ namespace App\Helpers\ProcedureData;
 
 class CreateData
 {
-
     public $user_id;
-    public $actor_id;
-    public $reason;
-    public $forms;
-    public $attachments;
-    public $status;
-    public $date_approv;
+    public $procedure_unit_id;
 
     public function __construct(array $data)
     {
         $this->user_id = $data['user_id'];
-        $this->status = Status::CREATED;
+        $this->procedure_unit_id = $data['procedure_unit_id'];
     }
 
     public function get(string $key)
@@ -35,7 +29,7 @@ class CreateData
     {
         return [
             'user_id' => $this->user_id,
-            'status' => $this->status,
+            'procedure_unit_id' => $this->procedure_unit_id,
         ];
     }
 }

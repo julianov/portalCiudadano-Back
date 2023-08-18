@@ -24,7 +24,7 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'procedure_unit_code' => 'required|string',
+            'procedure_unit_id' => 'required|int',
         ];
     }
 }

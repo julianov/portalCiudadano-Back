@@ -59,9 +59,9 @@ class ProcedureUnitService
     /**
      * Get a procedure by PK.
      */
-    public function getByPk(string $id)
+    public function getById(int $id)
     {
-        $procedure = $this->repository->getByPk($id);
+        $procedure = $this->repository->getById($id);
 
         return $procedure;
     }

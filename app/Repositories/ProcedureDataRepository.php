@@ -21,6 +21,16 @@ class ProcedureDataRepository
 {
     private string $pkg = "CIUD_TRAMITES_DATA_PKG";
 
+    public function getList()
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAM_DATA() AS result FROM DUAL";
+        $result = DB::select($query);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
     public function getListByUser(int $userId)
     {
         $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_USER(:userId) AS result FROM DUAL";
@@ -45,7 +55,7 @@ class ProcedureDataRepository
 
     public function getLastByUser(int $user_id)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_ULTIMO_TRAM_DATA_POR_USUARIO(:user_id) AS result FROM DUAL";
+        $query = "SELECT {$this->pkg}.OBTENER_ULT_TRAM_DATA_POR_USR(:user_id) AS result FROM DUAL";
         $bindings = [ 'user_id' => $user_id ];
         $result = DB::select($query, $bindings);
         $json = new Result($result);

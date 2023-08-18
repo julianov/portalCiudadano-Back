@@ -73,8 +73,7 @@ class ProcedureDataController extends BaseController
 
         $data = $request->validated();
 
-        // TODO: change to getById if possible
-        $procedure_unit = $this->procedureUnitService->getByPk($data['procedure_unit_code']);
+        $procedure_unit = $this->procedureUnitService->getById($data['procedure_unit_id']);
         if (!$procedure_unit) return response()->status(Response::HTTP_BAD_REQUEST);
 
         $data['user_id'] =  $user->id;
