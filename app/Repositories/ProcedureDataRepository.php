@@ -44,6 +44,7 @@ class ProcedureDataRepository
 
     public function getById(int $id)
     {
+        
         $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_ID(:id) AS result FROM DUAL";
         $bindings = [ 'id' => $id ];
         $result = DB::select($query, $bindings);
@@ -55,7 +56,7 @@ class ProcedureDataRepository
 
     public function getLastByUser(int $user_id)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_ULT_TRAM_DATA_POR_USR(:user_id) AS result FROM DUAL";
+        $query = "SELECT {$this->pkg}.OBTENER_ULT_TRAM_DATA_USER(:user_id) AS result FROM DUAL";
         $bindings = [ 'user_id' => $user_id ];
         $result = DB::select($query, $bindings);
         $json = new Result($result);
@@ -65,8 +66,8 @@ class ProcedureDataRepository
     }
 
     public function create(CreateData $data)
-    {
-        $query = "DECLARE l_result ID; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE_DATA(:user_id, :procedure_unit_id); END;";
+    {    
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE_DATA(:user_id, :procedure_unit_id); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }

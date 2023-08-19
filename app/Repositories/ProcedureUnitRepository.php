@@ -42,7 +42,7 @@ class ProcedureUnitRepository
 
     public function getById(int $id)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_FORMULARIO_POR_ID(:id) AS result FROM DUAL";
+        $query = "SELECT {$this->pkg}.OBTENER_TRAMITE_POR_ID(:id) AS result FROM DUAL";
         $bindings = [ 'id' => $id ];
         $result = DB::select($query, $bindings);
         $json = new Result($result);
