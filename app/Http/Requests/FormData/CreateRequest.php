@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\FormUnits;
+namespace App\Http\Requests\FormData;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,13 +24,11 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string|min:1',
-            'title' => 'required|string|min:1',
-            'subtitle' => 'nullable|string|min:1',
-            'description' => 'nullable|string|min:1',
-            'keywords' => 'required|string|min:1',
-            'status' => 'required|string|min:1',
-            'elements' => 'required|min:1',
+            'prodecure_data_id' => 'required|int',
+            'form_unit_code' => 'required|string',
+            'form_data' => 'required|array',
+            'attachments' => 'nullable|array|file',
+            'attachments.*' => 'nullable|file|mime:pdf,jpg,jpeg,png',
         ];
     }
 }
