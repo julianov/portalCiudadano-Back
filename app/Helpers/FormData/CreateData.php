@@ -13,9 +13,9 @@ class CreateData
     public function __construct(array $data)
     {
         $this->form_unit_code = $data['form_unit_code'];
-        $this->procedure_data_id = $data['procedure_data_id'];
+        $this->procedure_data_id = intval($data['procedure_data_id']);
         $this->user_id = $data['user_id'];
-        $this->elements = json_encode($data['elements']);
+        $this->elements = trim(json_encode($data['form_data']),'"');
     }
 
     public function get(string $key)

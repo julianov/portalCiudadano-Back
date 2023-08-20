@@ -24,11 +24,10 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prodecure_data_id' => 'required|int',
+            'procedure_data_id' => 'required|int',
             'form_unit_code' => 'required|string',
-            'form_data' => 'required|array',
-            'attachments' => 'nullable|array|file',
-            'attachments.*' => 'nullable|file|mime:pdf,jpg,jpeg,png',
+            'form_data' => 'required',
+            'attachments' => 'nullable',
         ];
     }
 }
