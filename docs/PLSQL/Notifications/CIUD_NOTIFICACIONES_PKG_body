@@ -1,0 +1,613 @@
+create or replace PACKAGE BODY            CIUD_NOTIFICACIONES_PKG AS
+
+
+
+
+FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
+RETURN VARCHAR2
+AS
+     l_query      CLOB;
+     l_result     CLOB;
+     l_temp       SYS_REFCURSOR;
+    l_row NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || p_column_name || ' = :value';
+    OPEN l_temp FOR l_query USING p_column_value;
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT || '"}';
+    END LOOP;
+IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  RETURN l_result;
+END;
+
+
+FUNCTION NOTIFICACION_LEIDA(user_id IN NUMBER, notificacion_id IN NUMBER) 
+RETURN CLOB IS
+BEGIN
+    -- Intenta insertar directamente
+    INSERT INTO CIUDADANOS.USER_NOTIFICATIONS
+        (USER_ID, NOTIFICATION_ID, READINGS)
+    VALUES
+        (user_id, notificacion_id, 1);
+        
+    RETURN 'INSERTED';
+EXCEPTION
+    WHEN DUP_VAL_ON_INDEX THEN -- Asume que hay un índice único para USER_ID y NOTIFICATION_ID
+        -- En caso de que ya exista una fila, realizar la actualización incrementando READINGS_NUMBER en 1
+        UPDATE CIUDADANOS.USER_NOTIFICATIONS
+        SET READINGS = READINGS + 1
+        WHERE USER_ID = user_id AND NOTIFICATION_ID = notificacion_id;
+        
+        RETURN 'UPDATED';
+    WHEN OTHERS THEN
+        RETURN 'ERROR: ' || SQLERRM; -- Devuelve el mensaje de error
+END;
+
+
+--BUSQUEDA DE TODAS LAS NOTIFICACIONES ACTIVAS - UTILIZADO POR EL ACTOR PARA CORROBORAR
+FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB;
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO)';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT ||'"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;
+
+
+--BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO
+FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB;
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO) AND ' ||
+               '((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = :departamento_val)) AND ' ||
+               '((LOCALITY_ID = 0) OR (LOCALITY_ID = :localidad_val)) AND ' ||
+               '(:edad_val >= AGE_FROM) AND ' ||
+               '(:edad_val <= AGE_TO) AND ' ||
+               '((RECIPIENTS = :destinatario_val) OR (RECIPIENTS = ''both'')) AND ' ||
+               'ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = :user_id) AND ' ||
+               'DELETED_AT IS NULL';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val, departamento_val, localidad_val, edad_val, edad_val, destinatario_val, user_id;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;
+
+--BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO QUE ES LEVEL 1
+FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB;
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO) AND ' ||
+               '(DEPARTMENT_ID = 0) AND ' ||
+               '(LOCALITY_ID = 0) AND ' ||
+               '(AGE_FROM >= 1) AND ' ||
+               '(AGE_TO <= 120) AND ' ||
+               '((RECIPIENTS = :destinatario_val) OR (RECIPIENTS = ''both'')) AND ' ||
+               'ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = :user_id) AND ' ||
+               'DELETED_AT IS NULL';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val, destinatario_val, user_id;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;
+
+--BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO
+FUNCTION OBTENER_NOTIFICACIONES(fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB; -- Cambio de tipo de dato a CLOB
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO) AND ' ||
+               '((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = :departamento_val)) AND ' ||
+               '((LOCALITY_ID = 0) OR (LOCALITY_ID = :localidad_val)) AND ' ||
+               '(:edad_val >= AGE_FROM) AND ' ||
+               '(:edad_val <= AGE_TO) AND ' ||
+               '((RECIPIENTS = :destinatario_val) OR (RECIPIENTS = ''both'')) AND ' ||
+               'DELETED_AT IS NULL';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val, departamento_val, localidad_val, edad_val, edad_val, destinatario_val;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY ||'","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;
+
+--BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO NIVEL 1
+FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB; -- Cambio de tipo de dato a CLOB
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO) AND ' ||
+               '(DEPARTMENT_ID = 0) AND ' ||
+               '(LOCALITY_ID = 0) AND ' ||
+               '(AGE_FROM >= 1) AND ' ||
+               '(AGE_TO <= 120) AND ' ||
+               '((RECIPIENTS = :destinatario_val) OR (RECIPIENTS = ''both'')) AND ' ||
+               'DELETED_AT IS NULL';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val, destinatario_val;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY ||'","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;
+
+
+--BÚSQUEDA DE EMAIL DE USUARIOS PARA REDIRIGIR UNA NOTIFICACIÓN POR EMAIL
+FUNCTION OBTENER_EMAIL_USUARIOS(min_fecha_nacimiento IN VARCHAR2,max_fecha_nacimiento IN VARCHAR2,localidad_id IN VARCHAR2,departamento_id IN VARCHAR2, tipo_de_usuario IN VARCHAR2)
+RETURN CLOB
+AS
+  l_query      VARCHAR2(2000);
+  l_result     CLOB;
+  l_temp       SYS_REFCURSOR;
+  l_row        USERS.email%TYPE;
+BEGIN
+    IF (localidad_id = '0' OR localidad_id IS NULL OR localidad_id = '') AND (departamento_id = '0' OR departamento_id IS NULL OR departamento_id = '') THEN
+        -- EJECUTAR CONSULTA CON PARÁMETROS MÍNIMOS
+        IF (tipo_de_usuario = 'actor') THEN  
+            l_query := 'SELECT us.email
+                    FROM user_actors usa 
+                    JOIN user_contact usc ON usc.user_id = us.id 
+                    JOIN users us ON usa.user_id = us.id 
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) ';
+        
+        ELSIF (tipo_de_usuario = 'citizen') THEN
+            l_query := 'SELECT us.email
+                        FROM users us
+                        JOIN user_contact usc ON usc.user_id = us.id 
+                        WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                        AND NOT EXISTS ( 
+                            SELECT 1
+                            FROM user_actors usa 
+                            WHERE usa.user_id = us.id
+                        )';
+        ELSE
+            l_query := 'SELECT us.email
+                    FROM users us 
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) ';
+        
+        END IF;
+    OPEN l_temp FOR l_query USING min_fecha_nacimiento, max_fecha_nacimiento;
+    
+    ELSIF (localidad_id = '0' OR localidad_id IS NULL OR localidad_id = '') AND (departamento_id != '0' OR departamento_id IS NOT NULL OR departamento_id != '') THEN
+        -- EJECUTAR CONSULTA CON PARÁMETROS COMPLETOS
+        IF (tipo_de_usuario = 'actor') THEN
+            l_query := 'SELECT us.email
+                    FROM user_actors usa
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    JOIN users us ON usa.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.department_id = :departamento_id';
+        
+        ELSIF (tipo_de_usuario = 'citizen') THEN
+            l_query := 'SELECT us.email
+                        FROM users us
+                        JOIN user_contact usc ON usc.user_id = us.id
+                        WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.department_id = :departamento_id
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM user_actors usa
+                            WHERE usa.user_id = us.id
+                        )';
+        ELSE
+            l_query := 'SELECT us.email
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.department_id = :departamento_id';
+        
+        END IF;
+    OPEN l_temp FOR l_query USING min_fecha_nacimiento, max_fecha_nacimiento, departamento_id;
+    
+    ELSIF (localidad_id != '0' OR localidad_id IS NOT NULL OR localidad_id != '') AND (departamento_id = '0' OR departamento_id IS NULL OR departamento_id != '') THEN
+        
+        IF (tipo_de_usuario = 'actor') THEN
+            l_query := 'SELECT us.email
+                    FROM user_actors usa
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    JOIN users us ON usa.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.locality_id = :localidad_id';
+        
+        ELSIF (tipo_de_usuario = 'citizen') THEN
+            l_query := 'SELECT us.email
+                        FROM users us
+                        JOIN user_contact usc ON usc.user_id = us.id
+                        WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.locality_id = :localidad_id
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM user_actors usa
+                            WHERE usa.user_id = us.id
+                        )';
+        ELSE
+            l_query := 'SELECT us.email
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.locality_id = :localidad_id';
+        
+        END IF;
+    OPEN l_temp FOR l_query USING min_fecha_nacimiento, max_fecha_nacimiento, localidad_id;
+        
+    ELSE
+        -- EJECUTAR CONSULTA CON PARÁMETROS COMPLETOS
+        IF (tipo_de_usuario = 'actor') THEN
+            l_query := 'SELECT us.email
+                    FROM user_actors usa
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    JOIN users us ON usa.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYY''))
+                    AND usc.locality_id = :localidad_id
+                    AND usc.department_id = :departamento_id';
+        
+        ELSIF (tipo_de_usuario = 'citizen') THEN
+            l_query := 'SELECT us.email
+                        FROM users us
+                        JOIN user_contact usc ON usc.user_id = us.id
+                        WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                        AND usc.locality_id = :localidad_id
+                        AND usc.department_id = :departamento_id
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM user_actors usa
+                            WHERE usa.user_id = us.id
+                        )';
+        ELSE
+            l_query := 'SELECT us.email
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.locality_id = :localidad_id
+                    AND usc.department_id = :departamento_id';
+        
+        END IF;
+    OPEN l_temp FOR l_query USING min_fecha_nacimiento, max_fecha_nacimiento, localidad_id, departamento_id;
+  END IF;
+
+  LOOP
+    FETCH l_temp INTO l_row;
+    EXIT WHEN l_temp%NOTFOUND;
+    l_result := l_result  || l_row || ',';
+  END LOOP;
+
+  IF l_temp%ISOPEN THEN
+    CLOSE l_temp;
+  END IF;
+  l_result := RTRIM(l_result, ',') ; -- ELIMINAMOS LA ÚLTIMA COMA Y AGREGAMOS EL CORCHETE DE CIERRE DEL ARRAY JSON
+  RETURN l_result;
+END;
+
+
+--ALCANCE DE NOTIFICACIÓN
+FUNCTION OBTENER_ALCANCE_NOTIFICACION (min_fecha_nacimiento IN VARCHAR2,max_fecha_nacimiento IN VARCHAR2,localidad_id IN VARCHAR2,departamento_id IN VARCHAR2, tipo_de_usuario IN VARCHAR2)
+RETURN NUMBER
+AS
+  l_query      VARCHAR2(2000);
+  l_result     NUMBER;
+  l_temp       SYS_REFCURSOR;
+BEGIN
+IF (localidad_id = '0' OR localidad_id = '') AND (departamento_id = '0' OR departamento_id = '') THEN
+    -- EJECUTAR CONSULTA CON PARÁMETROS MÍNIMOS
+    IF (tipo_de_usuario = 'actor') THEN  
+        l_query := 'SELECT COUNT(us.id)
+                FROM user_actors usa 
+                JOIN user_contact usc ON usc.user_id = us.id 
+                JOIN users us ON usa.user_id = us.id 
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) ';
+    ELSIF (tipo_de_usuario = 'citizen') THEN
+        l_query := 'SELECT COUNT(us.id)
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id 
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                    AND NOT EXISTS ( 
+                        SELECT 1
+                        FROM user_actors usa 
+                        WHERE usa.user_id = us.id
+                    )';
+    ELSE
+        l_query := 'SELECT COUNT(us.id)
+                FROM users us 
+                JOIN user_contact usc ON usc.user_id = us.id
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) ';
+    END IF;
+    EXECUTE IMMEDIATE l_query INTO l_result USING min_fecha_nacimiento, max_fecha_nacimiento;
+
+ELSIF (localidad_id = '0' OR localidad_id = '') AND (departamento_id != '0' OR departamento_id != '') THEN
+    -- EJECUTAR CONSULTA CON PARÁMETROS MÍNIMOS
+    IF (tipo_de_usuario = 'actor') THEN  
+        l_query := 'SELECT COUNT(us.id)
+                FROM user_actors usa 
+                JOIN user_contact usc ON usc.user_id = us.id 
+                JOIN users us ON usa.user_id = us.id 
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.department_id = :departamento_id';
+    ELSIF (tipo_de_usuario = 'citizen') THEN
+        l_query := 'SELECT COUNT(us.id)
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id 
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                    AND usc.department_id = :departamento_id
+                    AND NOT EXISTS ( 
+                        SELECT 1
+                        FROM user_actors usa 
+                        WHERE usa.user_id = us.id
+                    )';
+    ELSE
+        l_query := 'SELECT COUNT(us.id)
+                FROM users us 
+                JOIN user_contact usc ON usc.user_id = us.id
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.department_id = :departamento_id';
+    END IF;
+    EXECUTE IMMEDIATE l_query INTO l_result USING min_fecha_nacimiento, max_fecha_nacimiento, departamento_id;
+
+ELSIF (localidad_id != '0' OR localidad_id != '') AND (departamento_id = '0' OR departamento_id != '') THEN
+    -- EJECUTAR CONSULTA CON PARÁMETROS MÍNIMOS
+    IF (tipo_de_usuario = 'actor') THEN  
+        l_query := 'SELECT COUNT(us.id)
+                FROM user_actors usa 
+                JOIN user_contact usc ON usc.user_id = us.id 
+                JOIN users us ON usa.user_id = us.id 
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.locality_id = :localidad_id';
+    ELSIF (tipo_de_usuario = 'citizen') THEN
+        l_query := 'SELECT COUNT(us.id)
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id 
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                    AND usc.locality_id = :localidad_id
+                    AND NOT EXISTS ( 
+                        SELECT 1
+                        FROM user_actors usa 
+                        WHERE usa.user_id = us.id
+                    )';
+    ELSE
+        l_query := 'SELECT COUNT(us.id)
+                FROM users us 
+                JOIN user_contact usc ON usc.user_id = us.id
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY'')) 
+                AND usc.locality_id = :localidad_id';
+    END IF;
+    EXECUTE IMMEDIATE l_query INTO l_result USING min_fecha_nacimiento, max_fecha_nacimiento, localidad_id;
+
+ELSE
+    -- EJECUTAR CONSULTA CON PARÁMETROS COMPLETOS
+    IF (tipo_de_usuario = 'actor') THEN
+        l_query := 'SELECT COUNT(us.id)
+                FROM user_actors usa
+                JOIN user_contact usc ON usc.user_id = us.id
+                JOIN users us ON usa.user_id = us.id
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYY''))
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYY''))
+                AND usc.locality_id = :localidad_id
+                AND usc.department_id = :departamento_id';
+    ELSIF (tipo_de_usuario = 'citizen') THEN
+        l_query := 'SELECT COUNT(us.id)
+                    FROM users us
+                    JOIN user_contact usc ON usc.user_id = us.id
+                    WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                    AND usc.locality_id = :localidad_id
+                    AND usc.department_id = :departamento_id
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM user_actors usa
+                        WHERE usa.user_id = us.id
+                    )';
+    ELSE
+        l_query := 'SELECT COUNT(us.id)
+                FROM users us
+                JOIN user_contact usc ON usc.user_id = us.id
+                WHERE usc.birthday < (TO_DATE(:min_fecha_nacimiento, ''DD/MM/YYYY''))
+                AND usc.birthday > (TO_DATE(:max_fecha_nacimiento, ''DD/MM/YYYY''))
+                AND usc.locality_id = :localidad_id
+                AND usc.department_id = :departamento_id';
+    END IF;
+    EXECUTE IMMEDIATE l_query INTO l_result USING min_fecha_nacimiento, max_fecha_nacimiento, localidad_id, departamento_id;
+  END IF;
+
+  RETURN l_result;
+END;
+
+
+FUNCTION OBTENER_USUARIOS_ALCANZADOS (p_id IN NUMBER)RETURN NUMBER IS
+  v_count NUMBER := 0;
+BEGIN
+  SELECT COUNT(*)
+  INTO v_count
+  FROM (
+    SELECT USER_ID
+    FROM CIUDADANOS.USER_NOTIFICATIONS
+    WHERE NOTIFICATION_ID = p_id
+    GROUP BY USER_ID
+    HAVING COUNT(*) = 1
+  );
+
+  RETURN v_count;
+END;
+
+
+--INSERTAR ADJUNTO DE NOTIFICACIÓN
+PROCEDURE NOTIFICACIONES_ADJUNTO(
+  p_file BLOB,
+  file_type VARCHAR2,
+  file_extension VARCHAR2,
+  notification_table_id NUMBER,
+  file_name VARCHAR2,
+  P_multimedia_id OUT NUMBER
+) AS
+  multimedia_id NUMBER;
+
+BEGIN
+  -- Insertar archivo multimedia y obtener el ID
+  MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(
+    'CIUDADANOS',
+    'NOTIFICATIONS_DOC',
+    file_type,
+    file_extension,
+    notification_table_id,
+    file_name,
+    p_file,
+    multimedia_id
+  );
+  
+    P_multimedia_id := multimedia_id;
+
+    -- Actualizar la columna MULTIMEDIA_ID en la tabla NOTIFICATIONS
+   UPDATE CIUDADANOS.NOTIFICATIONS
+    SET MULTIMEDIA_ID = CASE 
+                            WHEN MULTIMEDIA_ID IS NULL THEN TO_CHAR(P_multimedia_id)
+                            ELSE COALESCE(MULTIMEDIA_ID || ',', '') || TO_CHAR(P_multimedia_id)
+                       END
+    WHERE ID = notification_table_id;
+
+  
+END;
+
+--BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO
+FUNCTION BORRAR_NOTIFICACION(p_id IN NUMBER)
+  RETURN BOOLEAN
+AS
+  l_stmt VARCHAR2(4000);
+  l_resultado BOOLEAN;
+BEGIN
+  l_stmt := 'UPDATE CIUDADANOS.NOTIFICATIONS SET DELETED_AT = sysdate, MULTIMEDIA_ID = NULL WHERE ID = ' || p_id;
+
+  BEGIN
+    EXECUTE IMMEDIATE l_stmt;
+    l_resultado := TRUE;
+  EXCEPTION
+    WHEN OTHERS THEN
+    l_resultado := FALSE;
+  END;
+
+  RETURN l_resultado;
+END;
+
+
+FUNCTION BORRAR_ADJUNTO (p_multimedia_id IN NUMBER) RETURN NUMBER
+AS
+    result NUMBER(10);
+BEGIN
+    BEGIN
+        result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA('NOTIFICATIONS_DOC', p_multimedia_id);
+        RETURN result;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            -- Manejar la excepción cuando no se encuentra ningún dato y devolver un valor predeterminado, como -1
+            RETURN -1;
+        WHEN OTHERS THEN
+            -- Manejar cualquier otra excepción y devolver 0 en caso de error
+            RETURN 0;
+    END;
+END;
+
+
+END CIUD_NOTIFICACIONES_PKG;
