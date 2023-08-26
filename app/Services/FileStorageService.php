@@ -21,6 +21,7 @@ class FileStorageService
     public function store(UploadedFile|array $files, string $row)
     {
         $ids = [];
+
         foreach ($files as $file) {
             $id = $this->storeSingleFile($file, $this->getId($row));
             array_push($ids, $id);
@@ -36,10 +37,13 @@ class FileStorageService
         return $file_id;
     }
 
-    private function getId(string $json_string): int
+    private function getId(string $json_string): ?int
     {
         $row = json_decode($json_string);
 
-        return $row->id;
+        if (hasKey($row['id'])) return $row['id'];
+        if (hasKey($row['ID'])) return $row['ID'];
+
+        return null;
     }
 }
