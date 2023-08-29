@@ -18,26 +18,28 @@ class FileStorageRepository
     public function store(UploadedFile $file, int $id): int | null
     {
         $pointer = null;
+		$blob_file =file_get_contents($file);
 
-        $query = "{$this->pkg}.FORM_DATA_ADJUNTO(p_file, file_type, file_extension, form_data_table_id, file_name, P_multimedia_id);";
+        $query = "{$this->pkg}.FORM_DATA_ADJUNTO";
         $bindings = [
             'p_file' => [
-                "value" => file_get_contents($file),
+                "value" => &$blob_file,
                 "type" => PDO::PARAM_LOB,
                 "size" => $file->getSize()
             ],
-            'file_size' => $file->getSize(),
             'file_type' => $this->getFileType($file),
             'file_extension' => $file->getClientOriginalExtension(),
-            'form_data_table_id' => $id,
+            'form_data_table_id' => intval($id),
             'file_name' => $file->getClientOriginalName(),
             'P_multimedia_id' => [
                 'value' => &$pointer,
                 'type' => PDO::PARAM_INT
             ]
         ];
+     
         DB::executeProcedure($query, $bindings);
 
+        dd($pointer);
         return $pointer;
     }
 
