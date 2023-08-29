@@ -22,8 +22,12 @@ class FileStorageService
     {
         $ids = [];
 
+        $dataArray = json_decode($row, true);
+        // Obtener el valor del campo "ID"
+        $id = $dataArray[0]['ID'];
+
         foreach ($files as $file) {
-            $id = $this->storeSingleFile($file, $this->getId($row));
+            $id = $this->storeSingleFile($file, $id );
             array_push($ids, $id);
         }
 
@@ -40,10 +44,13 @@ class FileStorageService
     private function getId(string $json_string): ?int
     {
         $row = json_decode($json_string);
-
-        if (hasKey($row['id'])) return $row['id'];
-        if (hasKey($row['ID'])) return $row['ID'];
-
-        return null;
+    
+        if (array_key_exists('id', $row)) {
+            return $row['id'];
+        } else if (array_key_exists('ID', $row)) {
+            return $row['ID'];
+        } else {
+            return null;
+        }
     }
 }
