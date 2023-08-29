@@ -39,7 +39,6 @@ class FileStorageRepository
      
         DB::executeProcedure($query, $bindings);
 
-        dd($pointer);
         return $pointer;
     }
 
