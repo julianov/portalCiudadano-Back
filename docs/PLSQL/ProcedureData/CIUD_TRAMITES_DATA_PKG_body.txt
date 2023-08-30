@@ -10,7 +10,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA';
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA';
 
     l_result := '[ ';
 
@@ -18,7 +18,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -45,7 +45,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE ID = :id' USING id;
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE ID = :id' USING id;
 
     l_result := '[ ';
 
@@ -53,7 +53,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -79,7 +79,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE CODE = :code' USING code;
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE CODE = :code' USING code;
 
     l_result := '[ ';
 
@@ -87,7 +87,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -114,7 +114,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE USER_ID = :user' USING user;
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA WHERE USER_ID = :user' USING user;
 
     l_result := '[ ';
 
@@ -122,7 +122,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -149,7 +149,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM (SELECT * FROM FORMS_DATA WHERE USER_ID = ' || user_id || ' ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1';
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM (SELECT * FROM FORMS_DATA WHERE USER_ID = ' || user_id || ' ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1';
 
     l_result := '[ ';
 
@@ -157,7 +157,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "FORM_UNIT":"' || l_row.FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || l_row.PROCEDURE_DATA_ID || '", "USER_ID":' || l_row.USER_ID || ', "ELEMENTS":"' || l_row.ELEMENTS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "APPROVED_AT":"' || l_row.APPROVED_AT || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -252,7 +252,7 @@ IS
     l_row PROCEDURE_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA';
+        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA';
 
     l_result := '[ ';
 
@@ -260,7 +260,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -287,7 +287,7 @@ IS
     l_row PROCEDURE_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA WHERE ID = :id' USING id;
+        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA WHERE ID = :id' USING id;
 
     l_result := '[ ';
 
@@ -295,7 +295,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -325,7 +325,7 @@ IS
     l_row PROCEDURE_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, USER_ID, PROCEDURE_UNITS_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA WHERE USER_ID = :user_id' USING user_id;
+        'SELECT ID, USER_ID, PROCEDURE_UNITS_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA WHERE USER_ID = :user_id' USING user_id;
 
     l_result := '[ ';
 
@@ -333,7 +333,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -355,7 +355,7 @@ IS
     l_row PROCEDURE_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, USER_ID, PROCEDURE_UNITS_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM (SELECT * FROM PROCEDURE_DATA WHERE USER_ID = ' || user_id || ' ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1';
+        'SELECT ID, USER_ID, PROCEDURE_UNITS_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM (SELECT * FROM PROCEDURE_DATA WHERE USER_ID = ' || user_id || ' ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1';
 
     l_result := '[ ';
 
@@ -363,7 +363,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -451,7 +451,7 @@ BEGIN
   -- Insertar archivo multimedia y obtener el ID
   MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_INSERTA_ARCHIVO(
     'CIUDADANOS',
-    'FORMS_DATA_DOC',
+    'NOTIFICATIONS_DOC',
     file_type,
     file_extension,
     form_data_table_id,
@@ -464,8 +464,8 @@ BEGIN
 
     -- Actualizar la columna MULTIMEDIA_ID en la tabla FORMS_DATA
    UPDATE CIUDADANOS.FORMS_DATA
-    SET ATTACHMENTS = CASE 
-                            WHEN ATTACHMENTS IS NULL THEN TO_CHAR(P_multimedia_id)
+    SET MULTIMEDIA_ID = CASE 
+                            WHEN MULTIMEDIA_ID IS NULL THEN TO_CHAR(P_multimedia_id)
                             ELSE COALESCE(MULTIMEDIA_ID || ',', '') || TO_CHAR(P_multimedia_id)
                        END
     WHERE ID = form_data_table_id;
@@ -522,8 +522,8 @@ BEGIN
 
     -- Actualizar la columna MULTIMEDIA_ID en la tabla FORMS_DATA
    UPDATE CIUDADANOS.PROCEDURE_DATA
-    SET ATTACHMENTS = CASE 
-                            WHEN ATTACHMENTS IS NULL THEN TO_CHAR(P_multimedia_id)
+    SET MULTIMEDIA_ID = CASE 
+                            WHEN MULTIMEDIA_ID IS NULL THEN TO_CHAR(P_multimedia_id)
                             ELSE COALESCE(MULTIMEDIA_ID || ',', '') || TO_CHAR(P_multimedia_id)
                        END
     WHERE ID = procedure_data_table_id;

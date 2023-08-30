@@ -10,7 +10,7 @@ Route::prefix('/procedures')
     ->group(function () {
         Route::get('/', 'getList');
         Route::get('/categories', 'getCategories');
-        Route::get('/search', 'getListBySearch');
+        Route::get('/searchbyweb', 'getListBySearch'); //search procedures in expedintes system
         Route::get('/{id}', 'getByPk');
 
         Route::post('/', 'create');
