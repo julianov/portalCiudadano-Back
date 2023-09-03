@@ -54,8 +54,7 @@ class AuthController extends Controller
     ]);
         $redirectUri = config("autenticar.redirect_uri_afip");
 
-        return "https://tst.autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
-   
+        return "https://autenticar.gob.ar/auth/realms/appentrerios-afip/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";   
     }
 
     public function getUrlMiArgentina(Request $request)
@@ -66,8 +65,29 @@ class AuthController extends Controller
         ]);
         $redirectUri = config("autenticar.redirect_uri_miargentina");
 
-        return "https://hml.autenticar.gob.ar/auth/realms/appentrerios-miarg/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";
-                
+        return "https://autenticar.gob.ar/auth/realms/appentrerios-miargentina/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";                
+    }
+
+    public function getUrlAnses(Request $request)
+    {
+        $request->validate([
+        // "cuil" => "required|min:11|max:11",
+        'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+        ]);
+        $redirectUri = config("autenticar.redirect_uri_anses");
+
+        return "https://autenticar.gob.ar/auth/realms/appentrerios-anses/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";                
+    }
+
+    public function getUrlRenaper(Request $request)
+    {
+        $request->validate([
+        // "cuil" => "required|min:11|max:11",
+        'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+        ]);
+        $redirectUri = config("autenticar.redirect_uri_renaper");
+
+        return "https://autenticar.gob.ar/auth/realms/appentrerios-renaper/protocol/openid-connect/auth?response_type=code&client_id=appentrerios&redirect_uri=".$redirectUri."&scope=openid";                
     }
 
     public function getValidationAfip(Request $request): \Illuminate\Http\JsonResponse
@@ -240,6 +260,216 @@ class AuthController extends Controller
                     //datos consistentes sube a nivel 3
                     
                     $res_user_auth = $this->userService->setAuthType($user, "MIARGENTINA", "level_3");
+
+					if ($res_user_auth) {
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Application Validated User Identity',
+							'token' => $user->createToken("user_token", ['level_3'])->accessToken
+						]);
+
+					} else {
+
+						return $this->errorService->databaseWriteError();
+
+					}
+
+                }else{
+
+                    return $this->errorService->dataInconsistency();
+                    
+                }
+
+            }else{
+                return $this->errorService->badUser();
+            }
+
+
+
+        } catch (\Exception $e) {
+
+            if ($e instanceof BadResponseException) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                return response()->json(json_decode($responseBodyAsString), $e->getCode());
+            }
+
+            return response()->json([
+                "error" => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getValidationAnses(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+                "code" => "required|string",
+            ]);
+            
+            $cuil = $request->cuil;
+            $code = $request->code;
+
+            $client = new \GuzzleHttp\Client();
+
+            $url = config("autenticar.base_url_api_anses")."protocol/openid-connect/token";
+
+            $redirectUri = config("autenticar.redirect_uri_anses");
+
+            $response = $client->post($url, [
+                RequestOptions::FORM_PARAMS => [
+                    "grant_type" => config("autenticar.grant_type"),
+                    "code" => $code,
+                    "redirect_uri" => $redirectUri,
+                    "client_id" => config("autenticar.client_id"),
+                    "client_secret" => config("autenticar.secret_anses"),
+                ],
+                "headers" => [
+                    "Content-Type" => "application/x-www-form-urlencoded",
+                ],
+            ]);
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            $access_token = $data['access_token'];
+
+/*            $decoded_token = base64_decode($access_token);*/
+
+            list($header, $payload, $signature) = explode('.', $access_token);
+            $jsonToken = base64_decode($payload);
+            $decoded_token = json_decode($jsonToken, true);
+                        
+            $cuit = $decoded_token['cuit'];
+            $tipo_persona = $decoded_token['tipo_persona'];
+            $proveedor = $decoded_token['proveedor'];
+            $preferred_username = $decoded_token['preferred_username'];
+            $given_name = $decoded_token['given_name'];
+            $family_name = $decoded_token['family_name'];
+            $nivel = $decoded_token['nivel'];
+            
+            $user = $this->userService->getUser($cuil);
+
+            if($user){
+
+                $user_cuil = $user->cuil;
+                $user_name = $user->name;
+                $user_last_name = $user->last_name;
+
+                $normalizedName1 = mb_strtolower(strtolower($user_name));
+                $normalizedName2 = mb_strtolower(strtolower($given_name));
+                $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
+                $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
+
+                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                    //datos consistentes sube a nivel 3
+                    
+                    $res_user_auth = $this->userService->setAuthType($user, "ANSES", "level_3");
+
+					if ($res_user_auth) {
+
+						return response()->json([
+							'status' => true,
+							'message' => 'Application Validated User Identity',
+							'token' => $user->createToken("user_token", ['level_3'])->accessToken
+						]);
+
+					} else {
+
+						return $this->errorService->databaseWriteError();
+
+					}
+
+                }else{
+
+                    return $this->errorService->dataInconsistency();
+                    
+                }
+
+            }else{
+                return $this->errorService->badUser();
+            }
+
+
+
+        } catch (\Exception $e) {
+
+            if ($e instanceof BadResponseException) {
+                $response = $e->getResponse();
+                $responseBodyAsString = $response->getBody()->getContents();
+                return response()->json(json_decode($responseBodyAsString), $e->getCode());
+            }
+
+            return response()->json([
+                "error" => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getValidationRenaper(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'cuil' => 'required|numeric|regex:/^[0-9]{11}$/',
+                "code" => "required|string",
+            ]);
+            
+            $cuil = $request->cuil;
+            $code = $request->code;
+
+            $client = new \GuzzleHttp\Client();
+
+            $url = config("autenticar.base_url_api_renaper")."protocol/openid-connect/token";
+
+            $redirectUri = config("autenticar.redirect_uri_renaper");
+
+            $response = $client->post($url, [
+                RequestOptions::FORM_PARAMS => [
+                    "grant_type" => config("autenticar.grant_type"),
+                    "code" => $code,
+                    "redirect_uri" => $redirectUri,
+                    "client_id" => config("autenticar.client_id"),
+                    "client_secret" => config("autenticar.secret_renaper"),
+                ],
+                "headers" => [
+                    "Content-Type" => "application/x-www-form-urlencoded",
+                ],
+            ]);
+            $data = json_decode($response->getBody()->getContents(), true);
+
+            $access_token = $data['access_token'];
+
+/*            $decoded_token = base64_decode($access_token);*/
+
+            list($header, $payload, $signature) = explode('.', $access_token);
+            $jsonToken = base64_decode($payload);
+            $decoded_token = json_decode($jsonToken, true);
+                        
+            $cuit = $decoded_token['cuit'];
+            $tipo_persona = $decoded_token['tipo_persona'];
+            $proveedor = $decoded_token['proveedor'];
+            $preferred_username = $decoded_token['preferred_username'];
+            $given_name = $decoded_token['given_name'];
+            $family_name = $decoded_token['family_name'];
+            $nivel = $decoded_token['nivel'];
+            
+            $user = $this->userService->getUser($cuil);
+
+            if($user){
+
+                $user_cuil = $user->cuil;
+                $user_name = $user->name;
+                $user_last_name = $user->last_name;
+
+                $normalizedName1 = mb_strtolower(strtolower($user_name));
+                $normalizedName2 = mb_strtolower(strtolower($given_name));
+                $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
+                $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
+
+                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                    //datos consistentes sube a nivel 3
+                    
+                    $res_user_auth = $this->userService->setAuthType($user, "RENAPER", "level_3");
 
 					if ($res_user_auth) {
 

@@ -49,6 +49,12 @@ Route::prefix("/v0/authentication")->controller(Controllers\AuthController::clas
 	Route::middleware(['auth:authentication'])->get('/miargentina/getUrl',[Controllers\AuthController::class, 'getUrlMiArgentina']);
 	Route::middleware(['auth:authentication'])->get('/miargentina/getToken', [Controllers\AuthController::class, 'getValidationMiArgentina']);
 
+	Route::middleware(['auth:authentication'])->get('/anses/getUrl',[Controllers\AuthController::class, 'getUrlAnses']);
+	Route::middleware(['auth:authentication'])->get('/anses/getToken', [Controllers\AuthController::class, 'getValidationAnses']);
+
+	Route::middleware(['auth:authentication'])->get('/renaper/getUrl',[Controllers\AuthController::class, 'getUrlRenaper']);
+	Route::middleware(['auth:authentication'])->get('/renaper/getToken', [Controllers\AuthController::class, 'getValidationRenaper']);
+
 	Route::get('/facetoface/user/GetData', [Controllers\AuthController::class, 'validateFaceToFaceGetData']);
 	Route::post('/facetoface/user/Validate', [Controllers\AuthController::class, 'validateFaceToFaceCitizen']);
 
