@@ -28,6 +28,7 @@ class CreateRequest extends FormRequest
             'form_unit_code' => 'required|string',
             'form_data' => 'required',
             'attachments' => 'nullable',
+            'attachments_names'=> 'nullable',
         ];
     }
 }

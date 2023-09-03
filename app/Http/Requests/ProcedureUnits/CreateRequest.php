@@ -50,10 +50,16 @@ class CreateRequest extends FormRequest
             'description' => 'required|string|min:1',
             'secretary'=> 'required|string|min:1',
             'state' => 'required|string|min:1|max:100',
-            'theme'=> 'required|string|min:1|max:100',
             'forms' => 'required|string|min:1',
             'attachments' => 'required|string|min:1',
             'citizen_level' => 'required|string|min:1',
+            'price' => 'required|string|min:1',
+            'c' => 'nullable|string|min:1',
+            'content_id' => 'nullable|string|min:1',
+            'orf_id' => 'nullable|min:1',
+            'url' => 'required|string|min:1',
+            'theme' => 'nullable|string|min:1|max:100',
+
         ];
     }
 }

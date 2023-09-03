@@ -20,7 +20,6 @@ class UpdateData
     {
         $this->id = $data['id'];
         $this->title = $data['title'];
-        $this->theme = $data['theme'];
         $this->forms = trim(json_encode($data['forms']), '"');
         $this->description = $data['description'];
 
@@ -28,7 +27,13 @@ class UpdateData
         //$this->secretary = $data['secretary'];
         $this->attachments = trim(json_encode($data['attachments']), '"');
         $this->citizen_level = $data['citizen_level'];
-        $this->created_by = $data['updated_by'];
+        $this->updated_by = $data['updated_by'];
+
+        if (isset($data['theme'])) {
+            $this->theme = $data['theme'];
+        }else{
+            $this->theme = "";
+        }
     }
 
     public function get(string $key)
