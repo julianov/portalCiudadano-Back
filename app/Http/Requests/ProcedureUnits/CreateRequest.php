@@ -58,7 +58,9 @@ class CreateRequest extends FormRequest
             'content_id' => 'nullable|string|min:1',
             'orf_id' => 'nullable|min:1',
             'url' => 'required|string|min:1',
-            'theme' => 'nullable|string|min:1|max:100',
+            'theme' => 'nullable|string|min:1|max:250',
+            'icon'=> 'nullable|string|min:1|max:200',
+            'sys_exp_id'=> 'nullable|string|min:1|max:20',
 
         ];
     }

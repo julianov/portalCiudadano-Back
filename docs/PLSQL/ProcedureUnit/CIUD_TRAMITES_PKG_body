@@ -239,6 +239,8 @@ FUNCTION TRAMITES_BUSCA_WEB RETURN CLOB IS
   l_column7 VARCHAR2(1024);  -- Corregir el tipo de dato si es diferente
   l_column8 VARCHAR2(1024);
   l_column9 VARCHAR2(1024);
+  l_column10 VARCHAR2(1024);
+  l_column11 VARCHAR2(1024);
 
 BEGIN
   -- Llamada al procedimiento para llenar el cursor
@@ -246,15 +248,15 @@ BEGIN
 
   -- Procesar el cursor y construir la cadena JSON
   LOOP
-    FETCH l_cursor INTO l_column1, l_column2, l_column3, l_column4, l_column5, l_column6, l_column7, l_column8, l_column9;
+    FETCH l_cursor INTO l_column1, l_column2, l_column3, l_column4, l_column5, l_column6, l_column7, l_column8, l_column9, l_column10, l_column11;
     EXIT WHEN l_cursor%NOTFOUND;
 
     -- Eliminar comillas dobles del texto en l_column3
     l_column3 := REPLACE(l_column3, '"', '\"');
 
     -- Concatenar los valores de las columnas a la cadena JSON
-    l_result := l_result || '{"ID":"' || l_column1 || '","Título":"' || l_column2 ||'","Texto":"' || l_column3 ||'","Costo":"' || l_column4 || '","C":"' || l_column5 || '","Contenido_ID":"' || l_column6 || '","ORF_ID":"' || l_column7 || '","Organismo":"' || l_column8 || '","URL_TRAMITE":"' || l_column9 || '"}' ||  l_separator;
-  END LOOP;
+    l_result := l_result || '{"ID":"' || l_column1 || '","Título":"' || l_column2 ||'","Texto":"' || l_column3 ||'","Costo":"' || l_column4 || '","C":"' || l_column5 || '","Contenido_ID":"' || l_column6 || '","ORF_ID":"' || l_column7 || '","Organismo":"' || l_column8 || '","URL_TRAMITE":"' || l_column9 ||'","Categoria":"' || l_column10 ||'","Icono":"' || l_column11 || '"}' ||  l_separator;
+    END LOOP;
 
   -- Cerrar el cursor
   CLOSE l_cursor;
