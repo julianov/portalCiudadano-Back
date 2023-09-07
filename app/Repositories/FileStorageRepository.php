@@ -36,7 +36,7 @@ class FileStorageRepository
                 'type' => PDO::PARAM_INT
             ]
         ];
-     
+
         DB::executeProcedure($query, $bindings);
 
         return $pointer;
@@ -64,10 +64,9 @@ class FileStorageRepository
     {
         $image_extensions = ['png', 'jpg', 'jpeg'];
         $file_extension = $file->getClientOriginalExtension();
-        
+
         $is_image = in_array(strtolower($file_extension), $image_extensions);
-        
+
         return $is_image ? 'IMG' : 'DOC';
-        
     }
 }

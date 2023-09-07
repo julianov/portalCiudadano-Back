@@ -14,6 +14,7 @@ use App\Http\Requests\ProcedureData\{
     CreateRequest,
     UpdateByIdRequest,
     DeleteByIdRequest,
+    StoreAttachmentsRequest,
 };
 use App\Helpers\ProcedureData\{
     CreateData,
@@ -23,14 +24,10 @@ use App\Helpers\ProcedureData\{
 
 class ProcedureDataController extends BaseController
 {
-    private $service;
-    private $procedureUnitService;
-
-    public function __construct(Service $service, ProcedureUnitService $procedureUnitService)
-    {
-        $this->service = $service;
-        $this->procedureUnitService = $procedureUnitService;
-    }
+    public function __construct(
+        private Service $service,
+        private ProcedureUnitService $procedureUnitService,
+    ) {}
 
     /**
      * Get a list of procedures by user ID.
@@ -105,5 +102,19 @@ class ProcedureDataController extends BaseController
         $this->service->removeById(new DeleteData($data));
 
         return response()->json(null, Response::HTTP_OK);
+    }
+
+    /**
+     * Store attachments.
+     */
+    public function storeAttachments(StoreAttachmentsRequest $request)
+    {
+        $validated = $request->validated();
+
+        $procedure = $this->service->getById($validated['procedure_data_id']);
+
+        $attachments = $this->service->storeAttachments($validated['attachments'], $procedure);
+
+        return response()->json($attachments, Response::HTTP_OK);
     }
 }

@@ -27,7 +27,7 @@ class FileStorageService
         $id = $dataArray[0]['ID'];
 
         foreach ($files as $file) {
-            $id = $this->storeSingleFile($file, $id );
+            $id = $this->storeSingleFile($file, $id);
             array_push($ids, $id);
         }
 
@@ -39,18 +39,5 @@ class FileStorageService
         $file_id = $this->repository->store($file, $id);
 
         return $file_id;
-    }
-
-    private function getId(string $json_string): ?int
-    {
-        $row = json_decode($json_string);
-    
-        if (array_key_exists('id', $row)) {
-            return $row['id'];
-        } else if (array_key_exists('ID', $row)) {
-            return $row['ID'];
-        } else {
-            return null;
-        }
     }
 }

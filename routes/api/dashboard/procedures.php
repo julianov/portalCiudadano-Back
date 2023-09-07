@@ -10,8 +10,10 @@ Route::prefix('/procedures')
     ->group(function () {
         Route::get('/', 'getList');
         Route::post('/', 'create');
-        Route::get('/published', 'getListAvailable');
         Route::get('/getById', 'getById');
         Route::post('/update', 'updateById');
         Route::post('/delete', 'deleteById');
+
+        Route::get('/published', 'getListAvailable');
+        Route::post('/attachments', 'storeAttachments');
     });
