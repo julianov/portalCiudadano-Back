@@ -12,7 +12,8 @@ class CreateData
     private $theme;
     private $attachments;
     private $citizen_level;
-
+    private $icon;
+    private $sys_exp_id;
     private $price; 
     private $c;
     private $content_id;
@@ -43,6 +44,17 @@ class CreateData
         }else{
             $this->theme = "";
         }
+        if (isset($data['icon'])) {
+            $this->icon = $data['icon'];
+        }else{
+            $this->icon = "";
+        }
+        
+        if (isset($data['sys_exp_id'])) {
+            $this->sys_exp_id = $data['sys_exp_id'];
+        }else{
+            $this->sys_exp_id = "";
+        }
 
     }
 
@@ -66,6 +78,8 @@ class CreateData
             'citizen_level'=> $this->citizen_level,
             'price'=> $this->price,
             'url'=> $this->url,
+            'icon'=> $this->icon,
+            'sys_exp_id' => $this->sys_exp_id,
             'c'=> $this->c,
             'content_id'=> $this->content_id,
             'orf_id'=> $this->orf_id,

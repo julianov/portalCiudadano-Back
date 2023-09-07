@@ -64,7 +64,7 @@ class ProcedureUnitRepository
 
     public function create(CreateData $data)
     {
-        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE(:title, :state, :secretary, :description, :forms, :theme, :attachments, :citizen_level, :price, :url, :c, :content_id, :orf_id, :created_by); END;";
+        $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_TRAMITE(:title, :state, :secretary, :description, :forms, :theme, :attachments, :citizen_level, :price, :url, :icon, :sys_exp_id, :c, :content_id, :orf_id, :created_by); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
