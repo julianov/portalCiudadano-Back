@@ -28,9 +28,9 @@ class PersonalDataRequest extends FormRequest
 			'cellphone_number' => 'required|max:50|string',
 			'department_id' => 'required|numeric',
 			'locality_id' => 'required|numeric',
-			'address_street' => 'required|max:50|string',
+			'address_street' => 'required|max:150|string',
 			'address_number' => 'required|numeric',
-			'apartment' => 'nullable|max:50|string',
+			'apartment' => 'nullable|max:100|string',
 		];
 	}
 
