@@ -51,7 +51,30 @@ BEGIN
 END;
 
 
+FUNCTION OBTENER_LISTA_TRAMITES_PUBL
+RETURN CLOB
+AS
+     l_query      CLOB;
+     l_result     CLOB;
+     l_temp       SYS_REFCURSOR;
+     l_row        PROCEDURE_UNITS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, TITLE, STATE, DESCRIPTION, FORMS, ATTACHMENTS, CITIZEN_LEVEL, SECRETARY, THEME, PRICE, ICON, URL_PROCEDURE, SYS_EXP_ID, C, CONTENT_ID, ORF_ID,  CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM PROCEDURE_UNITS WHERE STATE = ''Publicado'' ';  
+    OPEN l_temp FOR l_query;
+    l_result := '[ ';
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID":' || l_row.ID || ',"TITLE":"' || l_row.TITLE || '","STATE":"' || l_row.STATE || '","DESCRIPTION":"' || l_row.DESCRIPTION || '","FORMS":"' || l_row.FORMS || '","ATTACHMENTS":"' || l_row.ATTACHMENTS || '","CITIZEN_LEVEL":"' || l_row.CITIZEN_LEVEL ||'","SECRETARY":"' || l_row.SECRETARY || '","THEME":"' || l_row.THEME || '","PRICE":"' || l_row.PRICE || '","ICON":"' || l_row.ICON || '","URL_PROCEDURE":"' || l_row.URL_PROCEDURE || '","SYS_EXP_ID":"' || l_row.SYS_EXP_ID ||'","C":"' || l_row.C || '","CONTENT_ID":"' || l_row.CONTENT_ID || '","ORF_ID":"' || l_row.ORF_ID || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","CREATED_BY":"' || l_row.CREATED_BY || '","UPDATED_BY":"' || l_row.UPDATED_BY ||'"},';
+        END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ', ') || ' ]';
+    RETURN l_result;
+END;
 
+ 
 FUNCTION OBTENER_TRAMITE_POR_ID (id IN NUMBER)
 RETURN CLOB
 AS
