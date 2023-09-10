@@ -15,5 +15,8 @@ Route::prefix('/procedures')
         Route::post('/delete', 'deleteById');
 
         Route::get('/published', 'getListAvailable');
+
         Route::post('/attachments', 'storeAttachments');
+        Route::get('/attachments/{attachmentId}', 'getAttachmentById');
+        Route::get('/attachments/{attachmentId}/delete', 'deleteAttachmentById');
     });

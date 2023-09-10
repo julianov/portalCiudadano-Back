@@ -6,10 +6,8 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Http\Services\{
-    ProcedureDataService as Service,
-    ProcedureUnitService,
-};
+use App\Http\Services\ProcedureUnitService;
+use App\Repositories\ProcedureDataRepository as Repository;
 use App\Http\Requests\ProcedureData\{
     CreateRequest,
     UpdateByIdRequest,
@@ -25,8 +23,8 @@ use App\Helpers\ProcedureData\{
 class ProcedureDataController extends BaseController
 {
     public function __construct(
-        private Service $service,
         private ProcedureUnitService $procedureUnitService,
+        private Repository $repository
     ) {}
 
     /**
@@ -36,7 +34,7 @@ class ProcedureDataController extends BaseController
     {
         $user = Auth::guard('authentication')->user();
 
-        $procedures = $this->service->getListByUser($user->id);
+        $procedures = $this->repository->getListByUser($user->id);
 
         return response()->json($procedures, Response::HTTP_OK);
     }
@@ -56,7 +54,7 @@ class ProcedureDataController extends BaseController
      */
     public function getById(int $id)
     {
-        $procedure = $this->service->getById($id);
+        $procedure = $this->repository->getById($id);
 
         return response()->json($procedure, Response::HTTP_OK);
     }
@@ -75,7 +73,7 @@ class ProcedureDataController extends BaseController
 
         $data['user_id'] =  $user->id;
 
-        $procedure = $this->service->create(new CreateData($data));
+        $procedure = $this->repository->create(new CreateData($data));
 
         return response()->json($procedure, Response::HTTP_CREATED);
     }
@@ -87,7 +85,7 @@ class ProcedureDataController extends BaseController
     {
         $data = $request->validated();
 
-        $procedure = $this->service->updateById(new UpdateData($data));
+        $procedure = $this->repository->updateById(new UpdateData($data));
 
         return response()->json($procedure, Response::HTTP_OK);
     }
@@ -99,7 +97,7 @@ class ProcedureDataController extends BaseController
     {
         $data = $request->validated();
 
-        $this->service->removeById(new DeleteData($data));
+        $this->repository->removeById(new DeleteData($data));
 
         return response()->json(null, Response::HTTP_OK);
     }
@@ -111,10 +109,26 @@ class ProcedureDataController extends BaseController
     {
         $validated = $request->validated();
 
-        $procedure = $this->service->getById($validated['procedure_data_id']);
+        $procedure = $this->repository->getById($validated['procedure_data_id']);
 
-        $attachments = $this->service->storeAttachments($validated['attachments'], $procedure);
+        $attachments = $this->repository->storeAttachments($validated['attachments'], $procedure);
 
         return response()->json($attachments, Response::HTTP_OK);
+    }
+
+    // TODO: test this
+    public function getAttachmentById(int $attachmentId)
+    {
+        $attachment = $this->repository->getUploadedFile($attachmentId);
+
+        return response()->json($attachment, Response::HTTP_OK);
+    }
+
+    // TODO: test this
+    public function deleteAttachmentById(int $attachmentId)
+    {
+        $this->repository->deleteUploadedFile($attachmentId);
+
+        return response()->json(null, Response::HTTP_OK);
     }
 }
