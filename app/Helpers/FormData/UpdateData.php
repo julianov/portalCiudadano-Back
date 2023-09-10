@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Helpers\ProcedureData;
+namespace App\Helpers\FormData;
 
 class UpdateData
 {
-    public $id;
-    public $user_id;
-    public $status;
-    public $updated_by;
+    public int $id;
+    public string $elements;
+    public string $attachment_names;
+
 
     public function __construct(array $data)
     {
-        $this->id = $data['id'];
-        $this->user_id = $data['user_id'];
-        $this->status = $data['status'];
+        $this->id = $data['form_data_id'];
+        $this->elements = trim(json_encode($data['elements']),'"');
+        $this->attachment_names = json_encode($data['attachment_names']);
     }
 
     public function get(string $key)
@@ -30,7 +30,8 @@ class UpdateData
     {
         return [
             'id' => $this->id,
-            'status' => $this->status,
+            'elements' => $this->elements,
+            'attachment_names' => $this->attachment_names,
         ];
     }
 }

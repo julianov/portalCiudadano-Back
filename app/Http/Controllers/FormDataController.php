@@ -7,12 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Services\FileStorageService;
 use App\Http\Controllers\Controller as BaseController;
-use App\Http\Services\FormDataService as Service;
+use App\Repositories\FormDataRepository as Repository;
 use App\Http\Requests\FormData\{
     CreateRequest,
-    UpdateByPkRequest,
-    DeleteByPkRequest,
-    GetByPkRequest
+    UpdateByIdRequest,
+    StoreAttachmentsRequest,
 };
 use App\Helpers\FormData\{
     CreateData,
@@ -21,14 +20,10 @@ use App\Helpers\FormData\{
 
 class FormDataController extends BaseController
 {
-    private $service;
-    private $fileStorageService;
-
-    public function __construct(Service $service, FileStorageService $fileStorageService)
-    {
-        $this->service = $service;
-        $this->fileStorageService = $fileStorageService;
-    }
+    public function __construct(
+        private Repository $repository,
+        private FileStorageService $fileStorageService
+    ) {}
 
     /**
      * Create a new form.
@@ -40,7 +35,7 @@ class FormDataController extends BaseController
         $data = $request->safe()->except('attachments');
         $data['user_id'] = $user->id;
 
-        $form = $this->service->create(new CreateData($data));
+        $form = $this->repository->create(new CreateData($data));
 
         $attachments = $request->file('attachments');
         if ($attachments) {
@@ -58,7 +53,7 @@ class FormDataController extends BaseController
 //     {
 //         $data = $request->validated();
 //
-//         $form = $this->service->getByPk($data['code']);
+//         $form = $this->repository->getByPk($data['code']);
 //
 //         return response()->json($form, Response::HTTP_OK);
 //     }
@@ -66,26 +61,58 @@ class FormDataController extends BaseController
     /**
      * Update a form by PK.
      */
-//     public function updateByPk(UpdateByPkRequest $request)
-//     {
-//         $user = Auth::guard('authentication')->user();
-//
-//         $data = $request->validated();
-//         //$data['updated_by'] = 48;
-//         $data['updated_by'] = $user->id;
-//
-//         $form = $this->service->updateByPk($request['code'], new UpdateData($data));
-//
-//         return response()->json($form, Response::HTTP_OK);
-//     }
+    // TODO: test this
+    public function updateById(UpdateByIdRequest $request)
+    {
+        $validated = $request->validated();
+
+        $form = $this->repository->updateById(new UpdateData($validated));
+
+        $attachments = $request->file('attachments');
+        if ($attachments) {
+            $this->fileStorageService->store($attachments, $form);
+        }
+
+        return response()->json($form, Response::HTTP_OK);
+    }
 
     /**
      * Delete a form by PK.
      */
 //     public function deleteByPk(DeleteByPkRequest $request)
 //     {
-//         $deleted =$this->service->removeByPk($request['code']);
+//         $deleted =$this->repository->removeByPk($request['code']);
 //
 //         return response()->json($deleted, Response::HTTP_OK);
 //     }
+
+    /**
+     * Store attachments.
+     */
+    public function storeAttachments(StoreAttachmentsRequest $request)
+    {
+        $validated = $request->validated();
+
+        $procedure = $this->repository->getById($validated['procedure_data_id']);
+
+        $attachments = $this->repository->storeAttachments($validated['attachments'], $procedure);
+
+        return response()->json($attachments, Response::HTTP_OK);
+    }
+
+    // TODO: test this
+    public function getAttachmentById(int $attachmentId)
+    {
+        $attachment = $this->repository->getUploadedFile($attachmentId);
+
+        return response()->json($attachment, Response::HTTP_OK);
+    }
+
+    // TODO: test this
+    public function deleteAttachmentById(int $attachmentId)
+    {
+        $this->repository->deleteUploadedFile($attachmentId);
+
+        return response()->json(null, Response::HTTP_OK);
+    }
 }

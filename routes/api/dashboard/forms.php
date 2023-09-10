@@ -9,4 +9,10 @@ Route::prefix('/forms')
     ->controller(Controller::class)
     ->group(function () {
         Route::post('/', 'create');
+
+        Route::post('/update', 'updateById');
+
+        Route::post('/attachments', 'storeAttachments');
+        Route::get('/attachments/{attachmentId}', 'getAttachmentById');
+        Route::get('/attachments/{attachmentId}/delete', 'deleteAttachmentById');
     });

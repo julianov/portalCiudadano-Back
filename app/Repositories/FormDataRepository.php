@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
+use PDO;
 
 use App\Repositories\Utilities\Result;
 use App\Errors\Infrastructure\Database\{
@@ -19,6 +21,7 @@ use App\Helpers\FormData\{
 class FormDataRepository
 {
     private string $pkg = "CIUD_TRAMITES_DATA_PKG";
+    private string $table_name = "form_data_table";
 
 //     public function getList()
 //     {
@@ -32,19 +35,20 @@ class FormDataRepository
 //         return $json->data;
 //     }
 
-//     public function getById(int $id)
-//     {
-//         $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:id) AS result FROM DUAL";
-//         $bindings = [ 'id' => $id ];
-//         $result = DB::select($query, $bindings);
-//
-//         $json = new Result($result);
-//         if (!$json->status) {
-//             throw new DatabaseReadError();
-//         }
-//
-//         return $json->data;
-//     }
+    // TODO: test this
+    public function getById(int $id)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:id) AS result FROM DUAL";
+        $bindings = [ 'id' => $id ];
+        $result = DB::select($query, $bindings);
+
+        $json = new Result($result);
+        if (!$json->status) {
+            throw new DatabaseReadError();
+        }
+
+        return $json->data;
+    }
 
     public function getLastByUserId(int $user_id)
     {
@@ -72,17 +76,18 @@ class FormDataRepository
         return $created;
     }
 
-//     public function updateById(UpdateData $data)
-//     {
-//         $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by); END;";
-//         $bindings = $data->toArray();
-//         $result = DB::statement($query, $bindings);
-//
-//         if (!$result) { throw new DatabaseWriteError(); }
-//         $updated = $this->getByPk($data->get('code'));
-//
-//         return $updated;
-//     }
+    // TODO: test this
+    public function updateById(UpdateData $data)
+    {
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by); END;";
+        $bindings = $data->toArray();
+        $result = DB::statement($query, $bindings);
+
+        if (!$result) { throw new DatabaseWriteError(); }
+        $updated = $this->getById($data->get('code'));
+
+        return $updated;
+    }
 
 //     public function removeById(string $code): bool
 //     {
@@ -95,4 +100,76 @@ class FormDataRepository
 //
 //         return $result;
 //     }
+
+public function storeAttachments(UploadedFile|array $files, string $row)
+    {
+        $ids = [];
+
+        $dataArray = json_decode($row, true);
+        $procedureId = $dataArray[0]['ID'];
+
+        foreach ($files as $file) {
+            $id = $this->storeSingleFile($file, $procedureId);
+            array_push($ids, $id);
+        }
+
+        return $ids;
+    }
+
+    public function getUploadedFile (int $multimedia_id ){
+
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2) as result FROM DUAL",
+		[
+			'p1' =>$this->table_name,
+			'p2' =>$multimedia_id // Passing the output parameter by reference
+		]);
+
+		return $result[0]->result;
+	}
+
+    public function deleteUploadedFile (int $multimedia_id)
+    {
+        $result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_ELIMINA_ARCHIVO(:p1, :p2) as result FROM DUAL",
+        [
+            'p1' =>$this->table_name,
+            'p2' =>$multimedia_id // Passing the output parameter by reference
+        ]);
+
+        return $result[0]->result;
+    }
+
+    private function storeSingleFile(UploadedFile $file, int $procedureId)
+    {
+        function getFileType($file) {
+            $image_extensions = ['png', 'jpg', 'jpeg'];
+            $file_extension = $file->getClientOriginalExtension();
+            $is_image = in_array(strtolower($file_extension), $image_extensions);
+            return $is_image ? 'IMG' : 'DOC';
+        }
+
+        $pkg = "CIUD_TRAMITES_DATA_PKG";
+        $pointer = null;
+		$blob_file =file_get_contents($file);
+
+        $query = "{$pkg}.PROCEDURE_DATA_ADJUNTO";
+        $bindings = [
+            'p_file' => [
+                "value" => &$blob_file,
+                "type" => PDO::PARAM_LOB,
+                "size" => $file->getSize()
+            ],
+            'file_type' => getFileType($file),
+            'file_extension' => $file->getClientOriginalExtension(),
+            'procedure_data_table_id' => intval($procedureId),
+            'file_name' => $file->getClientOriginalName(),
+            'P_multimedia_id' => [
+                'value' => &$pointer,
+                'type' => PDO::PARAM_INT
+            ]
+        ];
+
+        DB::executeProcedure($query, $bindings);
+
+        return $pointer;
+    }
 }
