@@ -469,7 +469,14 @@ BEGIN
                             ELSE COALESCE(MULTIMEDIA_ID || ',', '') || TO_CHAR(P_multimedia_id)
                        END
     WHERE ID = form_data_table_id;
-
+    
+    -- Actualizar la columna ATTACHMENTS en la tabla FORMS_DATA
+    UPDATE CIUDADANOS.FORMS_DATA
+    SET ATTACHMENTS = CASE 
+                        WHEN ATTACHMENTS IS NULL THEN file_name
+                        ELSE COALESCE(ATTACHMENTS || ',', '') || file_name
+                     END
+    WHERE ID = form_data_table_id;
   
 END;
 
@@ -528,7 +535,14 @@ BEGIN
                        END
     WHERE ID = procedure_data_table_id;
 
-  
+  -- Actualizar la columna ATTACHMENTS en la tabla FORMS_DATA
+    UPDATE CIUDADANOS.PROCEDURE_DATA
+    SET ATTACHMENTS = CASE 
+                        WHEN ATTACHMENTS IS NULL THEN file_name
+                        ELSE COALESCE(ATTACHMENTS || ',', '') || file_name
+                     END
+    WHERE ID = procedure_data_table_id;
+    
 END;
 
 
