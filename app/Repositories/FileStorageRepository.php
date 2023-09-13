@@ -28,7 +28,7 @@ class FileStorageRepository
                 "size" => $file->getSize()
             ],
             'file_type' => $this->getFileType($file),
-            'file_extension' => $file->getClientOriginalExtension(),
+            'file_extension' => $this->getFileExtension($file),
             'form_data_table_id' => intval($id),
             'file_name' => $file->getClientOriginalName(),
             'P_multimedia_id' => [
@@ -68,5 +68,12 @@ class FileStorageRepository
         $is_image = in_array(strtolower($file_extension), $image_extensions);
 
         return $is_image ? 'IMG' : 'DOC';
+    }
+
+    private function getFileExtension($file)
+    {
+        $mime_type = $file->getMimeType();
+
+        return explode('/', $mime_type)[1];
     }
 }

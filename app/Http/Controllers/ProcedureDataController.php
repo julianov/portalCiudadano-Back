@@ -12,7 +12,7 @@ use App\Http\Requests\ProcedureData\{
     CreateRequest,
     UpdateByIdRequest,
     DeleteByIdRequest,
-    StoreAttachmentsRequest,
+    StoreAttachmentsRequest
 };
 use App\Helpers\ProcedureData\{
     CreateData,
