@@ -23,7 +23,6 @@ class FileStorageService
         $ids = [];
 
         $dataArray = json_decode($row, true);
-        // Obtener el valor del campo "ID"
         $id = $dataArray[0]['ID'];
 
         foreach ($files as $file) {

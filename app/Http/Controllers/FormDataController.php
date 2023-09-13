@@ -35,14 +35,18 @@ class FormDataController extends BaseController
         $data = $request->safe()->except('attachments');
         $data['user_id'] = $user->id;
 
-        $form = $this->repository->create(new CreateData($data));
+        $formString = $this->repository->create(new CreateData($data));
 
         $attachments = $request->file('attachments');
         if ($attachments) {
-            $this->fileStorageService->store($attachments, $form);
+        $this->fileStorageService->store($attachments, $formString);
         }
 
-        return response()->json($form, Response::HTTP_CREATED);
+        $json = json_decode($formString, true);
+
+        $formWithAttachments = $this->repository->getById($json['ID']);
+
+        return response()->json($formWithAttachments, Response::HTTP_CREATED);
     }
 
 
