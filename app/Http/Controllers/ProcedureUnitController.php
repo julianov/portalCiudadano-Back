@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
-use App\Http\Services\ProcedureUnitService as Service;
+use App\Repositories\ProcedureUnitRepository as Repository;
 use App\Http\Requests\ProcedureUnits\{
     // GetListRequest,
     GetListBySearchRequest,
@@ -24,19 +24,14 @@ use App\Helpers\ProcedureUnits\{
 
 class ProcedureUnitController extends BaseController
 {
-    private $service;
-
-    public function __construct(Service $service)
-    {
-        $this->service = $service;
-    }
+    public function __construct(private Repository $repository) {}
 
     /**
      * Get a list of procedures.
      */
     public function getList()
     {
-        $procedures = $this->service->getList();
+        $procedures = $this->repository->getList();
 
         return response()->json($procedures, Response::HTTP_OK);
     }
@@ -48,7 +43,7 @@ class ProcedureUnitController extends BaseController
     {
         $query = $request->query();
 
-        $procedures = $this->service->getListBySearch(new SearchFilter($query));
+        $procedures = $this->repository->getListBySearch(new SearchFilter($query));
 
         return response()->json($procedures, Response::HTTP_OK);
     }
@@ -58,7 +53,7 @@ class ProcedureUnitController extends BaseController
      */
     public function getCategories()
     {
-        $categories = $this->service->getCategories();
+        $categories = $this->repository->getCategories();
 
         return response()->json($categories, Response::HTTP_OK);
     }
@@ -66,9 +61,9 @@ class ProcedureUnitController extends BaseController
     /**
      * Get a procedure by ID.
      */
-    public function getByPk(string $id)
+    public function getById(string $id)
     {
-        $procedure = $this->service->getByPk($id);
+        $procedure = $this->repository->getById($id);
 
         return response()->json($procedure, Response::HTTP_OK);
     }
@@ -83,7 +78,7 @@ class ProcedureUnitController extends BaseController
         $data = $request->validated();
         $data['created_by'] =  $user->id;
 
-        $procedure = $this->service->create(new CreateData($data));
+        $procedure = $this->repository->create(new CreateData($data));
 
         return response()->json($procedure, Response::HTTP_CREATED);
     }
@@ -98,7 +93,7 @@ class ProcedureUnitController extends BaseController
         $data = $request->validated();
         $data['updated_by'] =  $user->id;
 
-        $procedure = $this->service->updateByTitle(new UpdateData($data));
+        $procedure = $this->repository->updateByTitle(new UpdateData($data));
 
         return response()->json($procedure, Response::HTTP_OK);
     }
@@ -110,7 +105,7 @@ class ProcedureUnitController extends BaseController
     {
         $data = $request->validated();
 
-        $this->service->removeById($data['id']);
+        $this->repository->removeById($data['id']);
 
         return response()->json(null, Response::HTTP_OK);
     }

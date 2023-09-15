@@ -65,6 +65,20 @@ class FormDataRepository
         return $json->data;
     }
 
+    public function getElementsById(int $id)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_ELEMENTS(:id) AS result FROM DUAL";
+        $bindings = [ 'id' => $id ];
+        $result = DB::select($query, $bindings);
+
+        $json = new Result($result);
+        if (!$json->status) {
+            throw new DatabaseReadError();
+        }
+
+        return $json->data;
+    }
+
     public function create(CreateData $data)
     {
         $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO_DATA(:form_unit_code, :procedure_data_id, :user_id, :elements); END;";

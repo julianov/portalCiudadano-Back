@@ -59,6 +59,20 @@ class FormUnitRepository
         return $json->data;
     }
 
+    public function getElementsByPk(string $code)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_ELEMENTS(:code) AS result FROM DUAL";
+        $bindings = [ 'code' => $code ];
+        $result = DB::select($query, $bindings);
+
+        $json = new Result($result);
+        if (!$json->status) {
+            throw new DatabaseReadError();
+        }
+
+        return $json->data;
+    }
+
     public function create(CreateData $data)
     {
         $query = "DECLARE l_result BOOLEAN; BEGIN l_result := {$this->pkg}.CREAR_FORMULARIO(:code, :title, :subtitle, :description, :keywords, :elements, :status, :created_by); END;";

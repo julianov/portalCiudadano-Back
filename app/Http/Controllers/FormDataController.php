@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Repositories\FormDataRepository as Repository;
 use App\Http\Requests\FormData\{
     CreateRequest,
+    GetElementsByIdRequest,
     UpdateByIdRequest,
     StoreAttachmentsRequest,
 };
@@ -61,6 +62,15 @@ class FormDataController extends BaseController
 //
 //         return response()->json($form, Response::HTTP_OK);
 //     }
+
+    public function getElementsById(GetElementsByIdRequest $request)
+    {
+        $data = $request->validated();
+
+        $elements = $this->repository->getElementsById($data['id']);
+
+        return response()->json($elements, Response::HTTP_OK);
+    }
 
     /**
      * Update a form by PK.

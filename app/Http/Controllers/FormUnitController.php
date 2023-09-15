@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller as BaseController;
 
-use App\Http\Services\FormUnitService;
+use App\Repositories\FormUnitRepository as Repository;
 use App\Http\Requests\FormUnits\{
     CreateRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
-    GetByPkRequest
+    GetByPkRequest,
+    GetElementsByPkRequest,
 };
 use App\Helpers\FormUnits\{
     CreateData,
@@ -21,29 +22,44 @@ use App\Helpers\FormUnits\{
 
 class FormUnitController extends BaseController
 {
-    private $service;
-
-    public function __construct(FormUnitService $service)
-    {
-        $this->service = $service;
-    }
+    public function __construct(private Repository $repository) {}
 
     /**
      * Get a list of forms.
      */
     public function getList()
     {
-        $forms = $this->service->getList();
+        $forms = $this->repository->getList();
 
         return response()->json($forms, Response::HTTP_OK);
     }
 
-     public function getPublishedList()
-     {
-        $forms = $this->service->getPublishedList();
+    public function getPublishedList()
+    {
+        $forms = $this->repository->getPublishedList();
 
-         return response()->json($forms, Response::HTTP_OK);
+        return response()->json($forms, Response::HTTP_OK);
+    }
 
+    /**
+     * Get a form by PK.
+     */
+    public function getByPk(GetByPkRequest $request)
+    {
+        $data = $request->validated();
+
+        $form = $this->repository->getByPk($data['code']);
+
+        return response()->json($form, Response::HTTP_OK);
+    }
+
+    public function getElementsByPk(GetElementsByPkRequest $request)
+    {
+        $data = $request->validated();
+
+        $form = $this->repository->getElementsByPk($data['code']);
+
+        return response()->json($form, Response::HTTP_OK);
     }
 
     /**
@@ -56,22 +72,9 @@ class FormUnitController extends BaseController
         $data = $request->validated();
         $data['created_by'] = $user->id;
 
-        $form = $this->service->create(new CreateData($data));
+        $form = $this->repository->create(new CreateData($data));
 
         return response()->json($form, Response::HTTP_CREATED);
-    }
-
-
-    /**
-     * Get a form by PK.
-     */
-    public function getByPk(GetByPkRequest $request)
-    {
-        $data = $request->validated();
-
-        $form = $this->service->getByPk($data['code']);
-
-        return response()->json($form, Response::HTTP_OK);
     }
 
     /**
@@ -84,7 +87,7 @@ class FormUnitController extends BaseController
         $data = $request->validated();
         $data['updated_by'] = $user->id;
 
-        $form = $this->service->updateByPk(new UpdateData($data));
+        $form = $this->repository->updateByPk(new UpdateData($data));
 
         return response()->json($form, Response::HTTP_OK);
     }
@@ -96,7 +99,7 @@ class FormUnitController extends BaseController
     {
         $data = $request->validated();
 
-        $deleted =$this->service->removeByPk($data['code']);
+        $deleted =$this->repository->removeByPk($data['code']);
 
         return response()->json($deleted, Response::HTTP_OK);
     }

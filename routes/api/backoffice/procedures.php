@@ -9,11 +9,14 @@ Route::prefix('/procedures')
     ->controller(Controller::class)
     ->group(function () {
         Route::get('/', 'getList');
-        Route::get('/categories', 'getCategories');
-        Route::get('/searchbyweb', 'getListBySearch'); //search procedures in expedintes system
-        Route::get('/{id}', 'getByPk');
-
         Route::post('/', 'create');
+
+        Route::get('/categories', 'getCategories');
+
+        Route::get('/searchbyweb', 'getListBySearch'); //search procedures in expedintes system
+
+        Route::get('/{id}', 'getById');
+
         Route::post('/update', 'updateByTitle');
         Route::post('/delete', 'deleteById');
     });
