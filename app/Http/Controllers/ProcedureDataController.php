@@ -19,11 +19,12 @@ use App\Helpers\ProcedureData\{
     UpdateData,
     DeleteData,
 };
+use App\Repositories\ProcedureUnitRepository;
 
 class ProcedureDataController extends BaseController
 {
     public function __construct(
-        private ProcedureUnitService $procedureUnitService,
+        private ProcedureUnitRepository $procedureUnitRepository,
         private Repository $repository
     ) {}
 
@@ -32,6 +33,7 @@ class ProcedureDataController extends BaseController
      */
     public function getList()
     {
+        dd('hello');
         $user = Auth::guard('authentication')->user();
 
         $procedures = $this->repository->getListByUser($user->id);
@@ -44,7 +46,8 @@ class ProcedureDataController extends BaseController
      */
     public function getListAvailable()
     {
-        $procedures = $this->procedureUnitService->getPublicList();
+        dd('hello 2');
+        $procedures = $this->procedureUnitRepository->getPublicList();
 
         return response()->json($procedures, Response::HTTP_OK);
     }
@@ -68,7 +71,7 @@ class ProcedureDataController extends BaseController
 
         $data = $request->validated();
 
-        $procedure_unit = $this->procedureUnitService->getById($data['procedure_unit_id']);
+        $procedure_unit = $this->procedureUnitRepository->getById($data['procedure_unit_id']);
         if (!$procedure_unit) return response()->status(Response::HTTP_BAD_REQUEST);
 
         $data['user_id'] =  $user->id;
