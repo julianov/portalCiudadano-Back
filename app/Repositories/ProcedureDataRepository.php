@@ -107,7 +107,7 @@ class ProcedureDataRepository
 
         $dataArray = json_decode($row, true);
         $procedureId = $dataArray[0]['ID'];
-
+        
         foreach ($files as $file) {
             $id = $this->storeSingleFile($file, $procedureId);
             array_push($ids, $id);
@@ -159,7 +159,7 @@ class ProcedureDataRepository
                 "size" => $file->getSize()
             ],
             'file_type' => getFileType($file),
-            'file_extension' => $file->getClientOriginalExtension(),
+            'file_extension' => $this->getFileExtension($file),
             'procedure_data_table_id' => intval($procedureId),
             'file_name' => $file->getClientOriginalName(),
             'P_multimedia_id' => [
@@ -171,5 +171,12 @@ class ProcedureDataRepository
         DB::executeProcedure($query, $bindings);
 
         return $pointer;
+    }
+
+    private function getFileExtension($file)
+    {
+        $mime_type = $file->getMimeType();
+
+        return explode('/', $mime_type)[1];
     }
 }
