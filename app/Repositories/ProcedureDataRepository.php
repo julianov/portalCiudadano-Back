@@ -106,9 +106,11 @@ class ProcedureDataRepository
         $ids = [];
 
         $dataArray = json_decode($row, true);
+
         $procedureId = $dataArray[0]['ID'];
-        
+
         foreach ($files as $file) {
+            
             $id = $this->storeSingleFile($file, $procedureId);
             array_push($ids, $id);
         }
@@ -140,11 +142,16 @@ class ProcedureDataRepository
 
     private function storeSingleFile(UploadedFile $file, int $procedureId)
     {
-        function getFileType($file) {
-            $image_extensions = ['png', 'jpg', 'jpeg'];
-            $file_extension = $file->getClientOriginalExtension();
-            $is_image = in_array(strtolower($file_extension), $image_extensions);
-            return $is_image ? 'IMG' : 'DOC';
+        $tipoArchivo = $file->getMimeType();
+        $tipoArchivo= explode('/', $tipoArchivo)[1];
+        $file_type='';
+        if ($tipoArchivo == 'png' || $tipoArchivo == 'jpg' || $tipoArchivo == 'jpeg'){
+
+            $file_type="IMG";
+
+        }else{
+
+            $file_type="DOC";
         }
 
         $pkg = "CIUD_TRAMITES_DATA_PKG";
@@ -158,10 +165,12 @@ class ProcedureDataRepository
                 "type" => PDO::PARAM_LOB,
                 "size" => $file->getSize()
             ],
-            'file_type' => getFileType($file),
-            'file_extension' => $this->getFileExtension($file),
+            'file_type' => $file_type,
+            'file_extension' => $tipoArchivo,
             'procedure_data_table_id' => intval($procedureId),
             'file_name' => $file->getClientOriginalName(),
+
+            
             'P_multimedia_id' => [
                 'value' => &$pointer,
                 'type' => PDO::PARAM_INT
