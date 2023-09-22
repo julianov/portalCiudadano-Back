@@ -300,77 +300,64 @@ END;
 --------------------------------------------------------------------------------------------------------------------
 
 
+
 FUNCTION OBTENER_LISTA_FORMULARIOS
 RETURN CLOB
 AS
-     l_query      CLOB;
      l_result     CLOB;
-     l_temp       SYS_REFCURSOR;
-     l_row        FORMS_UNITS%ROWTYPE;
 BEGIN
-    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY  FROM FORMS_UNITS';    
-    OPEN l_temp FOR l_query;
-    l_result := '[ ';
-    LOOP
-        FETCH l_temp INTO l_row;
-        EXIT WHEN l_temp%NOTFOUND;
-        l_result := l_result || '{ "CODE": "' || l_row.CODE || '", "TITLE": "' || l_row.TITLE || '", "SUBTITLE": "' || l_row.SUBTITLE || '", "DESCRIPTION": "' || l_row.DESCRIPTION || '", "KEYWORDS": "' || l_row.KEYWORDS || '", "ELEMENTS": "' || l_row.ELEMENTS || '", "STATUS": "' || l_row.STATUS || '", "CREATED_AT": "' || l_row.CREATED_AT || '", "UPDATED_AT": "' || l_row.UPDATED_AT || '", "CREATED_BY": "' || l_row.CREATED_BY || '", "UPDATED_BY": "' || l_row.UPDATED_BY || '" }, ';
-    END LOOP;
-    IF l_temp%ISOPEN THEN
-        CLOSE l_temp;
-    END IF;
-    l_result := RTRIM(l_result, ', ') || ' ]';
+    SELECT '[' ||
+           LISTAGG('{ "CODE": "' || CODE || '", "TITLE": "' || TITLE || '", "KEYWORDS": "' || KEYWORDS || '", "STATUS": "' || STATUS || '" }', ', ') WITHIN GROUP (ORDER BY CODE) ||
+           ']' INTO l_result
+    FROM FORMS_UNITS;
 
     RETURN l_result;
 END;
-
 
 
 FUNCTION OBTENER_LISTA_FORM_PUBLICADOS
 RETURN CLOB
 AS
-     l_query      CLOB;
      l_result     CLOB;
-     l_temp       SYS_REFCURSOR;
-     l_row        FORMS_UNITS%ROWTYPE;
 BEGIN
-    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY  FROM FORMS_UNITS WHERE STATUS = ''Publicado'' ';    
-    OPEN l_temp FOR l_query;
-    l_result := '[ ';
-    LOOP
-        FETCH l_temp INTO l_row;
-        EXIT WHEN l_temp%NOTFOUND;
-        l_result := l_result || '{ "CODE": "' || l_row.CODE || '", "TITLE": "' || l_row.TITLE || '", "SUBTITLE": "' || l_row.SUBTITLE || '", "DESCRIPTION": "' || l_row.DESCRIPTION || '", "KEYWORDS": "' || l_row.KEYWORDS || '", "ELEMENTS": "' || l_row.ELEMENTS || '", "STATUS": "' || l_row.STATUS || '", "CREATED_AT": "' || l_row.CREATED_AT || '", "UPDATED_AT": "' || l_row.UPDATED_AT || '", "CREATED_BY": "' || l_row.CREATED_BY || '", "UPDATED_BY": "' || l_row.UPDATED_BY || '" }, ';
-    END LOOP;
-    IF l_temp%ISOPEN THEN
-        CLOSE l_temp;
-    END IF;
-    l_result := RTRIM(l_result, ', ') || ' ]';
+    SELECT '[' ||
+           LISTAGG('{ "CODE": "' || CODE || '", "TITLE": "' || TITLE || '", "SUBTITLE": "' || SUBTITLE || '", "DESCRIPTION": "' || DESCRIPTION || '", "KEYWORDS": "' || KEYWORDS || '", "STATUS": "' || STATUS || '" }', ', ') WITHIN GROUP (ORDER BY CODE) ||
+           ']' INTO l_result
+    FROM FORMS_UNITS WHERE STATUS = 'Publicado';
 
     RETURN l_result;
 END;
 
-
-FUNCTION OBTENER_FORMULARIO_POR_PK (code IN VARCHAR2)
+FUNCTION OBTENER_FORM_ELEMENTS(codigo IN VARCHAR2)
 RETURN CLOB
 AS
-     l_query      CLOB;
      l_result     CLOB;
-     l_temp       SYS_REFCURSOR;
-     l_row        FORMS_UNITS%ROWTYPE;
 BEGIN
-    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM FORMS_UNITS WHERE CODE = :code';
-    OPEN l_temp FOR l_query USING code;
-    LOOP
-        FETCH l_temp INTO l_row;
-        EXIT WHEN l_temp%NOTFOUND;
-        l_result := l_result || '[{"CODE":"' || l_row.CODE || '","TITLE":"' || l_row.TITLE || '","SUBTITLE":"' || l_row.SUBTITLE || '","DESCRIPTION":"' || l_row.DESCRIPTION ||'","KEYWORDS":"' || l_row.KEYWORDS || '","ELEMENTS":"' || l_row.ELEMENTS || '","STATUS":"' || l_row.STATUS || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","CREATED_BY":"' || l_row.CREATED_BY || '","UPDATED_BY":"' || l_row.UPDATED_BY ||'"}]';
-    END LOOP;
-    IF l_temp%ISOPEN THEN
-        CLOSE l_temp;
-    END IF;
+    SELECT 
+            ELEMENTS
+            INTO l_result
+    FROM FORMS_UNITS WHERE CODE = codigo AND ROWNUM = 1;
+
     RETURN l_result;
 END;
+
+
+FUNCTION OBTENER_FORMULARIO_POR_PK (codigo IN VARCHAR2)
+RETURN CLOB
+IS
+    l_result CLOB;
+BEGIN
+    SELECT '[' || 
+           '{ "CODE": "' || CODE || '", "TITLE": "' || TITLE || '", "SUBTITLE": "' || SUBTITLE || '", "DESCRIPTION": "' || DESCRIPTION || '", "KEYWORDS": "' || KEYWORDS || '", "STATUS": "' || STATUS || '", "CREATED_AT": "' || CREATED_AT || '" }' || 
+           ']'
+    INTO l_result
+    FROM FORMS_UNITS
+    WHERE CODE = codigo;
+
+    RETURN l_result;
+END;
+
+
 
 
 FUNCTION OBTENER_FORMULARIO_POR_TITULO (titulo IN VARCHAR2)
@@ -381,13 +368,13 @@ AS
      l_temp       SYS_REFCURSOR;
      l_row        FORMS_UNITS%ROWTYPE;
 BEGIN
-    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM FORMS_UNITS WHERE TITLE = :titulo';
+    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM FORMS_UNITS WHERE TITLE = :titulo';
 
     OPEN l_temp FOR l_query USING titulo;
     LOOP
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
-        l_result := l_result || '[{"CODE":"' || l_row.CODE || '","TITLE":"' || l_row.TITLE || '","SUBTITLE":"' || l_row.SUBTITLE || '","DESCRIPTION":"' || l_row.DESCRIPTION ||'","KEYWORDS":"' || l_row.KEYWORDS || '","ELEMENTS":"' || l_row.ELEMENTS || '","STATUS":"' || l_row.STATUS || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","CREATED_BY":"' || l_row.CREATED_BY || '","UPDATED_BY":"' || l_row.UPDATED_BY ||'"}]';
+        l_result := l_result || '[{"CODE":"' || l_row.CODE || '","TITLE":"' || l_row.TITLE || '","SUBTITLE":"' || l_row.SUBTITLE || '","DESCRIPTION":"' || l_row.DESCRIPTION ||'","KEYWORDS":"' || l_row.KEYWORDS ||'","STATUS":"' || l_row.STATUS || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","CREATED_BY":"' || l_row.CREATED_BY || '","UPDATED_BY":"' || l_row.UPDATED_BY ||'"}]';
     END LOOP;
     IF l_temp%ISOPEN THEN
         CLOSE l_temp;
@@ -399,19 +386,16 @@ END;
 FUNCTION OBTENER_FORMULARIO_PUBLICADOS
 RETURN CLOB
 AS
-    l_query   CLOB;
-    l_result  CLOB;
-    l_row     FORMS_UNITS%ROWTYPE;
+     l_result     CLOB;
 BEGIN
-    l_query := 'SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM FORMS_UNITS WHERE STATUS = ''Publicado''';
-
-    FOR l_row IN (SELECT CODE, TITLE, SUBTITLE, DESCRIPTION, KEYWORDS, ELEMENTS, STATUS, CREATED_AT, UPDATED_AT, CREATED_BY, UPDATED_BY FROM FORMS_UNITS WHERE STATUS = 'PUBLICO')
-    LOOP
-        l_result := l_result || '{"CODE":' || l_row.CODE || '","TITLE":"' || l_row.TITLE || '","SUBTITLE":"' || l_row.SUBTITLE || '","DESCRIPTION":"' || l_row.DESCRIPTION || ',"KEYWORDS":"' || l_row.KEYWORDS ||'","ELEMENTS":"' || l_row.ELEMENTS || '","STATUS":"' || l_row.STATUS || '","CREATED_AT":"' || l_row.CREATED_AT || '","UPDATED_AT":"' || l_row.UPDATED_AT || '","CREATED_BY":"' || l_row.CREATED_BY || '","UPDATED_BY":"' || l_row.UPDATED_BY ||'"}';
-    END LOOP;
+    SELECT '[' ||
+           LISTAGG('{ "CODE": "' || CODE || '", "TITLE": "' || TITLE || '", "SUBTITLE": "' || SUBTITLE || '", "DESCRIPTION": "' || DESCRIPTION || '", "KEYWORDS": "' || KEYWORDS || '", "STATUS": "' || STATUS || '" }', ', ') WITHIN GROUP (ORDER BY CODE) ||
+           ']' INTO l_result
+    FROM FORMS_UNITS WHERE STATUS = 'Publicado';
 
     RETURN l_result;
 END;
+
 
 
 FUNCTION CREAR_FORMULARIO( code IN VARCHAR2, title IN VARCHAR2, subtitle IN VARCHAR2, description IN VARCHAR2, keywords IN VARCHAR2, elements IN VARCHAR2, status IN VARCHAR2, created_by IN NUMBER)
@@ -526,4 +510,5 @@ EXCEPTION
     RETURN FALSE;
 END;
 
+                      
 END CIUD_TRAMITES_PKG;
