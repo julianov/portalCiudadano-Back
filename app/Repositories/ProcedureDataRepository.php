@@ -58,6 +58,18 @@ class ProcedureDataRepository
         return $json->data;
     }
 
+    
+    public function getByProcedureUnitId(int $id)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_UNIT_ID(:id) AS result FROM DUAL";
+        $bindings = [ 'procedure_unit_id' => $id ];
+        $result = DB::select($query, $bindings);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
     public function getLastByUser(int $user_id)
     {
         $query = "SELECT {$this->pkg}.OBTENER_ULT_TRAM_DATA_USER(:user_id) AS result FROM DUAL";

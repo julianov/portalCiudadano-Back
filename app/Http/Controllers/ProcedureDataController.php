@@ -62,6 +62,16 @@ class ProcedureDataController extends BaseController
         return response()->json($procedure, Response::HTTP_OK);
     }
 
+      /**
+     * Get a procedure by ID.
+     */
+    public function getByProcedureUnitId(int $id)
+    {
+        $procedure = $this->repository->getByProcedureUnitId($id);
+
+        return response()->json($procedure, Response::HTTP_OK);
+    }
+
     /**
      * Create a new procedure.
      */
