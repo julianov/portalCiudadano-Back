@@ -132,15 +132,20 @@ class ProcedureDataController extends BaseController
     // TODO: test this
     public function getAttachmentById(int $attachmentId)
     {
+
         $attachment = $this->repository->getUploadedFile($attachmentId);
 
         return response()->json($attachment, Response::HTTP_OK);
     }
 
     // TODO: test this
-    public function deleteAttachmentById(int $attachmentId)
+    public function deleteAttachmentById(DeleteAttachmentsRequest $request)
     {
-        $this->repository->deleteUploadedFile($attachmentId);
+        $validated = $request->validated();
+
+        $procedure_unit = $this->procedureUnitRepository->getById($request['procedure_unit_id']);
+        
+        $this->repository->deleteUploadedFile($validated['multimedia_id']);
 
         return response()->json(null, Response::HTTP_OK);
     }
