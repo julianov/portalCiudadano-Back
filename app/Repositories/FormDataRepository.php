@@ -65,10 +65,10 @@ class FormDataRepository
         return $json->data;
     }
 
-    public function getElementsById(int $id)
+    public function getElementsById(string $form_code, int $user_id)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_FORM_ELEMENTS(:id) AS result FROM DUAL";
-        $bindings = [ 'id' => $id ];
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ELEMENTS(:codigo, :user_id) AS result FROM DUAL";
+        $bindings = [ 'codigo' => $form_code , 'p_user_id' => $user_id];
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);

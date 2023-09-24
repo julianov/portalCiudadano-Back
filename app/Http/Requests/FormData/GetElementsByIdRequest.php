@@ -24,7 +24,7 @@ class GetElementsByIdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'form_data_id' => 'required|string|min:1',
+            'form_code' => 'required|string|min:1',
         ];
     }
 }

@@ -66,9 +66,11 @@ class FormDataController extends BaseController
 
     public function getElementsById(GetElementsByIdRequest $request)
     {
+        $user = Auth::guard('authentication')->user();
+
         $data = $request->validated();
 
-        $elements = $this->repository->getElementsById($data['id']);
+        $elements = $this->repository->getElementsById($data['form_code'], $user->id);
 
         return response()->json($elements, Response::HTTP_OK);
     }
