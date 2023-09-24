@@ -120,7 +120,6 @@ class ProcedureDataRepository
         $dataArray = json_decode($row, true);
 
         $procedureId = $dataArray[0]['ID'];
-
         foreach ($files as $file) {
             
             $id = $this->storeSingleFile($file, $procedureId);
@@ -143,13 +142,12 @@ class ProcedureDataRepository
 
     public function deleteUploadedFile (int $multimedia_id)
     {
-        $result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_ELIMINA_ARCHIVO(:p1, :p2) as result FROM DUAL",
-        [
-            'p1' =>$this->table_name,
-            'p2' =>$multimedia_id // Passing the output parameter by reference
+        $res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.PROCEDURE_DATA_BORRAR_ADJUNTO(:p_multimedia_id); END;",
+		[
+            'p_multimedia_id' => intval($multimedia_id),
         ]);
 
-        return $result[0]->result;
+        return $res;
     }
 
     private function storeSingleFile(UploadedFile $file, int $procedureId)
@@ -194,18 +192,20 @@ class ProcedureDataRepository
         return $pointer;
     }
 
-    private function deleteMultimedia($newAttachmentsString ,$newMultimediaIdString, $procedureDataId ){
-        $query = "DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.DELETE_PROCEDURE_MULTIMEDIA(:attachments, :multimedia_id); END;";
-        $bindings = [ 'p_id' => $procedureDataId  ,'p_attachments' => $newAttachmentsString , 'p_multimedia_id' => $newMultimediaIdString ];
-        $result = DB::statement($query, $bindings);
-        if (!$result) { throw new DatabaseWriteError(); }
-
-    }
-
-    private function getFileExtension($file)
+    public function deleteMultimedia(string $newAttachmentsString , string $newMultimediaIdString, int $procedureDataId )
     {
-        $mime_type = $file->getMimeType();
+       
+        $res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.DELETE_PROCEDURE_MULTIMEDIA(:p_attachments, :p_multimedia_id, :p_id); END;",
+		[
+			'p_attachments' => strval($newAttachmentsString),
+            'p_multimedia_id' => strval($newMultimediaIdString),
+            'p_id' => intval($procedureDataId),
+        ]);
+        
+        if (!$res) { throw new DatabaseWriteError(); }
 
-        return explode('/', $mime_type)[1];
+        return $res;
+
     }
+
 }

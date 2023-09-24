@@ -151,37 +151,53 @@ class ProcedureDataController extends BaseController
         if (!empty($data)) {
             $multimediaId = $data[0]->MULTIMEDIA_ID;
             $attachments = $data[0]->ATTACHMENTS;
-            $multimediaIdsArray = explode(',', $multimediaId);
-            $attachmentsArray = explode(',', $attachments);
+            if (strpos($multimediaId, ',') !== false) {
+                $multimediaIdsArray = explode(',', $multimediaId);
+                $attachmentsArray = explode(',', $attachments);
+                $position = array_search($request['multimedia_id'], $multimediaIdsArray);
+                if ($position !== false){
+                    unset($multimediaIdsArray[$position]);
+                    // Reindexar el array para que las claves sean numéricas consecutivas
+                    $multimediaIdsArray = array_values($multimediaIdsArray);
+                    // Generar la nueva cadena separada por comas
+                    $newMultimediaIdString=null;
+                    if (count($multimediaIdsArray) > 1) {
+                        $newMultimediaIdString = implode(',', $multimediaIdsArray);
+                    } else {
+                        // Si solo hay un elemento en $multimediaIdsArray, asignarlo directamente a $newMultimediaIdString
+                        $newMultimediaIdString = reset($multimediaIdsArray); // Obtiene el primer elemento del arreglo
+                    }
 
-            $position = array_search($request['multimedia_id'], $multimediaIdsArray);
+                    unset($attachmentsArray[$position]);
+                    // Reindexar el array para que las claves sean numéricas consecutivas
+                    $attachmentsArray = array_values($attachmentsArray);
 
-            if ($position !== false) {
-                unset($multimediaIdsArray[$position]);
-                // Reindexar el array para que las claves sean numéricas consecutivas
-                $multimediaIdsArray = array_values($multimediaIdsArray);
-                // Generar la nueva cadena separada por comas
-                $newMultimediaIdString = implode(',', $multimediaIdsArray);
-                unset($attachmentsArray[$position]);
-                // Reindexar el array para que las claves sean numéricas consecutivas
-                $attachmentsArray = array_values($attachmentsArray);
-                // Generar la nueva cadena separada por comas
-                $newAttachmentsString = implode(',', $attachmentsArray);
+                    $newAttachmentsString=null;
+                    if (count($attachmentsArray) > 1) {
+                        $newAttachmentsString = implode(',', $attachmentsArray);
+                    } else {
+                        // Si solo hay un elemento en $multimediaIdsArray, asignarlo directamente a $newMultimediaIdString
+                        $newAttachmentsString = reset($attachmentsArray); // Obtiene el primer elemento del arreglo
+                    }
+    
+                    $this->repository->deleteMultimedia($newAttachmentsString ,$newMultimediaIdString, $request['procedure_data_id'] );
+                    $this->repository->deleteUploadedFile($validated['multimedia_id']);
+    
+                    return response()->json($validated['multimedia_id'], Response::HTTP_OK);
 
+                }else{
+                    return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
 
-                $this->repository->deleteMultimedia($newAttachmentsString ,$newMultimediaIdString );
-                $this->repository->deleteUploadedFile($validated['multimedia_id']);
-
-                return response()->json(null, Response::HTTP_OK);
-
+                }
             } else {
-                return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+                $this->repository->deleteMultimedia("" ,"", intval($request['procedure_data_id']) );
+                $this->repository->deleteUploadedFile($validated['multimedia_id']);
+                return response()->json($validated['multimedia_id'], Response::HTTP_OK);
+
             }
             
         } else {
             return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-
     }
 }
