@@ -10,7 +10,7 @@ IS
     l_row FORMS_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA';
+        'SELECT ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT FROM FORMS_DATA ORDER BY CREATED_AT';
 
     l_result := '[ ';
 
@@ -170,6 +170,36 @@ BEGIN
 
 END;
 
+
+FUNCTION OBTENER_FORM_DATA_ELEMENTS(codigo IN VARCHAR2, p_user_id IN VARCHAR)
+RETURN CLOB
+AS
+     l_result     CLOB;
+BEGIN
+    SELECT 
+            ELEMENTS
+            INTO l_result
+    FROM FORMS_DATA WHERE FORM_UNIT = codigo AND USER_ID = p_user_id AND ROWNUM = 1;
+
+    RETURN l_result;
+END;
+
+
+FUNCTION OBTENER_FORMULARIO_POR_PK (codigo IN VARCHAR2)
+RETURN CLOB
+IS
+    l_result CLOB;
+BEGIN
+    SELECT '[' || 
+           '{ "CODE": "' || CODE || '", "TITLE": "' || TITLE || '", "SUBTITLE": "' || SUBTITLE || '", "DESCRIPTION": "' || DESCRIPTION || '", "KEYWORDS": "' || KEYWORDS || '", "STATUS": "' || STATUS || '", "CREATED_AT": "' || CREATED_AT || '" }' || 
+           ']'
+    INTO l_result
+    FROM FORMS_UNITS
+    WHERE CODE = codigo;
+
+    RETURN l_result;
+END;
+
 --insertar datos en tabla
 
 FUNCTION CREAR_FORMULARIO_DATA(
@@ -252,7 +282,7 @@ IS
     l_row PROCEDURE_DATA%ROWTYPE;
 BEGIN
     OPEN l_temp FOR 
-        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA';
+        'SELECT ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT FROM PROCEDURE_DATA ORDER BY CREATED_AT DESC';
 
     l_result := '[ ';
 
@@ -283,7 +313,7 @@ RETURN CLOB AS
     l_result CLOB;
 BEGIN
     SELECT '[' ||
-           LISTAGG('{ "ID": ' || ID || ', "USER_ID": ' || USER_ID || ', "ACTOR_ID": "' || ACTOR_ID || '", "REASON": "' || REASON || '", "FORMS": "' || FORMS || '", "ATTACHMENTS": "' || ATTACHMENTS || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "STATUS": "' || STATUS || '", "DATE_APPROVED": "' || DATE_APPROVED || '", "CREATED_AT": "' || CREATED_AT || '", "UPDATED_AT": "' || UPDATED_AT || '" }', ', ') WITHIN GROUP (ORDER BY ID) ||
+           LISTAGG('{ "ID":" ' || ID || '", "USER_ID":" ' || USER_ID || '", "ACTOR_ID": "' || ACTOR_ID || '", "REASON": "' || REASON || '", "FORMS": "' || FORMS || '", "ATTACHMENTS": "' || ATTACHMENTS || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "STATUS": "' || STATUS || '", "DATE_APPROVED": "' || DATE_APPROVED || '", "CREATED_AT": "' || CREATED_AT || '", "UPDATED_AT": "' || UPDATED_AT || '" }', ', ') WITHIN GROUP (ORDER BY ID) ||
            ']' INTO l_result
     FROM PROCEDURE_DATA WHERE ID = procedure_id;
 
@@ -366,7 +396,7 @@ BEGIN
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
 
-        l_result := l_result || '{"ID":' || l_row.ID || ', "USER_ID":' || l_row.USER_ID || ', "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
+        l_result := l_result || '{"ID":"' || l_row.ID || '", "USER_ID":"' || l_row.USER_ID || '", "PROCEDURE_UNITS_ID":' || l_row.PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || l_row.ACTOR_ID || '", "REASON":"' || l_row.REASON || '", "FORMS":"' || l_row.FORMS || '", "ATTACHMENTS":"' || l_row.ATTACHMENTS || '", "MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID ||'", "STATUS":"' || l_row.STATUS || '", "DATE_APPROVED":"' || l_row.DATE_APPROVED || '", "CREATED_AT":"' || l_row.CREATED_AT || '", "UPDATED_AT":"' || l_row.UPDATED_AT || '"},';
     END LOOP;
 
     IF l_temp%ISOPEN THEN
@@ -491,7 +521,7 @@ AS
     result NUMBER(10);
 BEGIN
     BEGIN
-        result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA('FORMS_DATA_DOC', p_multimedia_id);
+        result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA('NOTIFICATIONS_DOC', p_multimedia_id);
         RETURN result;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -556,7 +586,7 @@ AS
     result NUMBER(10);
 BEGIN
     BEGIN
-        result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA('PROCEDURE_DATA_DOC', p_multimedia_id);
+        result := MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_BORRA('NOTIFICATIONS_DOC', p_multimedia_id);
         RETURN result;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -568,5 +598,34 @@ BEGIN
     END;
 END;
 
+FUNCTION DELETE_PROCEDURE_MULTIMEDIA (
+    p_attachments IN VARCHAR2,
+    p_multimedia_id IN VARCHAR2,
+    p_id IN NUMBER
+) RETURN NUMBER AS
+BEGIN
+    -- Verificar si p_multimedia_id o p_attachments son cadenas vacías
+    IF p_multimedia_id = '' OR p_attachments = '' THEN
+        -- Borrar los campos ATTACHMENTS y MULTIMEDIA_ID si alguno es una cadena vacía
+        UPDATE PROCEDURE_DATA
+        SET ATTACHMENTS = NULL, -- Cambia a NULL para borrar
+            MULTIMEDIA_ID = NULL -- Cambia a NULL para borrar
+        WHERE ID = p_id; -- Debes proporcionar una condición adecuada para identificar el registro a actualizar
+    ELSE
+        -- Actualizar los campos ATTACHMENTS y MULTIMEDIA_ID en la tabla PROCEDURE_DATA
+        UPDATE PROCEDURE_DATA
+        SET ATTACHMENTS = p_attachments,
+            MULTIMEDIA_ID = p_multimedia_id
+        WHERE ID = p_id; -- Debes proporcionar una condición adecuada para identificar el registro a actualizar
+    END IF;
+    
+   
+    RETURN 1; -- Indica que la actualización fue exitosa
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RETURN -1; -- Indica un error en caso de excepción
+END;
 
 END CIUD_TRAMITES_DATA_PKG;
