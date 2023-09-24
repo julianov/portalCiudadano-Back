@@ -194,6 +194,14 @@ class ProcedureDataRepository
         return $pointer;
     }
 
+    private function deleteMultimedia($newAttachmentsString ,$newMultimediaIdString, $procedureDataId ){
+        $query = "DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.DELETE_PROCEDURE_MULTIMEDIA(:attachments, :multimedia_id); END;";
+        $bindings = [ 'p_id' => $procedureDataId  ,'p_attachments' => $newAttachmentsString , 'p_multimedia_id' => $newMultimediaIdString ];
+        $result = DB::statement($query, $bindings);
+        if (!$result) { throw new DatabaseWriteError(); }
+
+    }
+
     private function getFileExtension($file)
     {
         $mime_type = $file->getMimeType();
