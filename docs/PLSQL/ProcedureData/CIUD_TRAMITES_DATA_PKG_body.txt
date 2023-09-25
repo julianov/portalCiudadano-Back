@@ -607,4 +607,34 @@ EXCEPTION
         RETURN -1; -- Indica un error en caso de excepción
 END;
 
+FUNCTION DELETE_FORMS_MULTIMEDIA (
+    p_attachments IN VARCHAR2,
+    p_multimedia_id IN VARCHAR2,
+    p_id IN NUMBER
+) RETURN NUMBER AS
+BEGIN
+    -- Verificar si p_multimedia_id o p_attachments son cadenas vacías
+    IF p_multimedia_id = '' OR p_attachments = '' THEN
+        -- Borrar los campos ATTACHMENTS y MULTIMEDIA_ID si alguno es una cadena vacía
+        UPDATE FORMS_DATA
+        SET ATTACHMENTS = NULL, -- Cambia a NULL para borrar
+            MULTIMEDIA_ID = NULL -- Cambia a NULL para borrar
+        WHERE ID = p_id; -- Debes proporcionar una condición adecuada para identificar el registro a actualizar
+    ELSE
+        -- Actualizar los campos ATTACHMENTS y MULTIMEDIA_ID en la tabla PROCEDURE_DATA
+        UPDATE FORMS_DATA
+        SET ATTACHMENTS = p_attachments,
+            MULTIMEDIA_ID = p_multimedia_id
+        WHERE ID = p_id; -- Debes proporcionar una condición adecuada para identificar el registro a actualizar
+    END IF;
+    
+   
+    RETURN 1; -- Indica que la actualización fue exitosa
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RETURN -1; -- Indica un error en caso de excepción
+END;
+
 END CIUD_TRAMITES_DATA_PKG;

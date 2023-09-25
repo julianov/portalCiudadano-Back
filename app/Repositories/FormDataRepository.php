@@ -172,7 +172,7 @@ public function storeAttachments(UploadedFile|array $files, string $row)
         $pointer = null;
 		$blob_file =file_get_contents($file);
 
-        $query = "{$pkg}.PROCEDURE_DATA_ADJUNTO";
+        $query = "{$pkg}.FORM_DATA_ADJUNTO";
         $bindings = [
             'p_file' => [
                 "value" => &$blob_file,
@@ -195,5 +195,22 @@ public function storeAttachments(UploadedFile|array $files, string $row)
 
         return $pointer;
     }
+
+    public function deleteMultimedia(string $newAttachmentsString , string $newMultimediaIdString, int $procedureDataId )
+    {
+       
+        $res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.DELETE_FORMS_MULTIMEDIA(:p_attachments, :p_multimedia_id, :p_id); END;",
+		[
+			'p_attachments' => strval($newAttachmentsString),
+            'p_multimedia_id' => strval($newMultimediaIdString),
+            'p_id' => intval($procedureDataId),
+        ]);
+        
+        if (!$res) { throw new DatabaseWriteError(); }
+
+        return $res;
+
+    }
+
 
 }
