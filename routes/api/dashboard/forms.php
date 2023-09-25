@@ -9,6 +9,7 @@ Route::prefix('/forms')
     ->controller(Controller::class)
     ->group(function () {
         Route::post('/', 'create');
+        Route::get('/', 'getList');
 
         Route::post('/update', 'updateById');
 

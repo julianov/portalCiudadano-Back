@@ -26,6 +26,15 @@ class FormDataController extends BaseController
         private FileStorageService $fileStorageService
     ) {}
 
+    public function getList()
+    {
+        $user = Auth::guard('authentication')->user();
+
+        $forms = $this->repository->getList($user->id;);
+
+        return response()->json($forms, Response::HTTP_OK);
+    }
+
     /**
      * Create a new form.
      */

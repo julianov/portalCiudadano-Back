@@ -24,17 +24,18 @@ class FormDataRepository
     // TODO: update this table name when needed
     private string $table_name = "form_data_table";
 
-//     public function getList()
-//     {
-//         $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORM_DATA() AS result FROM DUAL";
-//         $result = DB::select($query);
-//         $json = new Result($result);
-//         if (!$json->status) {
-//             throw new DatabaseReadError();
-//         }
-//
-//         return $json->data;
-//     }
+     public function getList(int $user_id)
+     {
+         $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_USER(:p_user_id) AS result FROM DUAL";
+         $bindings = [ 'p_user_id' => $user_id ];
+         $result = DB::select($query, $bindings);
+         $json = new Result($result);
+         if (!$json->status) {
+             throw new DatabaseReadError();
+        }
+
+        return $json->data;
+     }
 
     // TODO: test this
     public function getById(int $id)
