@@ -30,7 +30,7 @@ class FormDataController extends BaseController
     {
         $user = Auth::guard('authentication')->user();
 
-        $forms = $this->repository->getList($user->id;);
+        $forms = $this->repository->getList($user->id);
 
         return response()->json($forms, Response::HTTP_OK);
     }
