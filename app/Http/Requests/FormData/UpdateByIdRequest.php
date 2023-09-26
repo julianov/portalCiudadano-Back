@@ -24,8 +24,9 @@ class UpdateByIdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'form_data_id' => 'required|integer',
-            'elements' => 'nullable',
+            'procedure_data_id' => 'required|int',
+            'form_unit_code' => 'required|string',
+            'form_data' => 'required',
             'attachments' => 'nullable',
             'attachments_names'=> 'nullable',
         ];

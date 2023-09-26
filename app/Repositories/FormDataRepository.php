@@ -95,7 +95,7 @@ class FormDataRepository
     // TODO: test this
     public function updateById(UpdateData $data)
     {
-        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_POR_PK(:code, :title, :subtitle, :description, :keywords, :elements, :status, :updated_by); END;";
+        $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_DATA(:form_unit_code, :procedure_data_id, :user_id, :elements); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
 
