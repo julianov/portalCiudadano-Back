@@ -28,6 +28,7 @@ class FormDataController extends BaseController
 
     public function getList()
     {
+
         $user = Auth::guard('authentication')->user();
 
         $forms = $this->repository->getList($user->id);
@@ -78,7 +79,6 @@ class FormDataController extends BaseController
         $user = Auth::guard('authentication')->user();
 
         $data = $request->validated();
-
         $elements = $this->repository->getElementsById($data['form_code'], $user->id);
 
         return response()->json($elements, Response::HTTP_OK);
@@ -90,16 +90,23 @@ class FormDataController extends BaseController
     // TODO: test this
     public function updateById(UpdateByIdRequest $request)
     {
-        $validated = $request->validated();
+        $user = Auth::guard('authentication')->user();
 
-        $form = $this->repository->updateById(new UpdateData($validated));
+        $data = $request->safe()->except('attachments');
+        $data['user_id'] = $user->id;
+        $formString = $this->repository->updateById(new UpdateData($data));
 
         $attachments = $request->file('attachments');
-        if ($attachments) {
-            $this->fileStorageService->store($attachments, $form);
+        
+       /* if ($attachments) {
+        $this->fileStorageService->store($attachments, $formString);
         }
+        */
+        $json = json_decode($formString, true);
 
-        return response()->json($form, Response::HTTP_OK);
+        $formWithAttachments = $this->repository->getById($json[0]['ID']);
+       
+        return response()->json($formWithAttachments, Response::HTTP_OK);
     }
 
     /**

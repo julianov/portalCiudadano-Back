@@ -40,6 +40,7 @@ class FormDataRepository
     // TODO: test this
     public function getById(int $id)
     {
+        
         $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:id) AS result FROM DUAL";
         $bindings = [ 'id' => $id ];
         $result = DB::select($query, $bindings);
@@ -68,7 +69,8 @@ class FormDataRepository
 
     public function getElementsById(string $form_code, int $user_id)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ELEMENTS(:codigo, :user_id) AS result FROM DUAL";
+
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ELEMENTS(:codigo, :p_user_id) AS result FROM DUAL";
         $bindings = [ 'codigo' => $form_code , 'p_user_id' => $user_id];
         $result = DB::select($query, $bindings);
 
@@ -98,9 +100,9 @@ class FormDataRepository
         $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ACTUALIZAR_FORMULARIO_DATA(:form_unit_code, :procedure_data_id, :user_id, :elements); END;";
         $bindings = $data->toArray();
         $result = DB::statement($query, $bindings);
-
         if (!$result) { throw new DatabaseWriteError(); }
-        $updated = $this->getById($data->get('code'));
+
+        $updated = $this->getLastByUserId($data->get('user_id'));
 
         return $updated;
     }
