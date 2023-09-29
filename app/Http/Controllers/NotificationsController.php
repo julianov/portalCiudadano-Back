@@ -101,7 +101,7 @@ class NotificationsController extends Controller
         $user = Auth::guard('authentication')->user();
 
         if ($request->has('attachment')) {
-
+                
                 $table_name = "NOTIFICATIONS";
                 $file_type="";
 
@@ -384,6 +384,10 @@ class NotificationsController extends Controller
 
         $user = Auth::guard('authentication')->user();
 
+        $request->validate([
+            "notification_rows" => "required|numeric",
+        ]);
+
         if ($user){
 
             $table = "USER_ACTORS";
@@ -397,7 +401,7 @@ class NotificationsController extends Controller
 
                 $fechaActual = Carbon::now()->format('d/m/Y');
 
-                $res_all_active_notifications = $this->notificationRepository->getAllActiveNotifications($fechaActual);
+                $res_all_active_notifications = $this->notificationRepository->getAllActiveNotifications($fechaActual, $request['notification_rows']);
 
                 if (empty($res_all_active_notifications) || $res_all_active_notifications=='[]') {
 

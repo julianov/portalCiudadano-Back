@@ -82,12 +82,13 @@ class NotificationRepository
 	}
 
 
-	public function getAllActiveNotifications($fechaActual)
+	public function getAllActiveNotifications($fechaActual,$start_position)
 	{
-
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val) as result FROM DUAL", [
-			'fecha_val' => $fechaActual
-
+		
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val, :start_position, :end_position) as result FROM DUAL", [
+			'fecha_val' => $fechaActual, 
+			'start_position' => intval($start_position), 
+			'end_position' => intval($start_position+20) //must be 1 less than the front value
 		]);
 
 		return $result[0]->result;
@@ -205,6 +206,4 @@ class NotificationRepository
 
 		return $result[0]->result;
 	}
-
-
 }
