@@ -228,6 +228,10 @@ class NotificationsController extends Controller
 
         $user = Auth::guard('authentication')->user();
 
+        $request->validate([
+            "notification_rows" => "required|numeric",
+        ]);
+
 		if($user){
 
             $column_name = "USER_ID";
@@ -252,7 +256,7 @@ class NotificationsController extends Controller
                 $edad = $fechaCumpleanos->age;
 
 
-                $res_notifications = $this->notificationRepository->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+                $res_notifications = $this->notificationRepository->getNewNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor, $request['notification_rows']);
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -273,7 +277,7 @@ class NotificationsController extends Controller
             }else{
 
                 //muestro notificaciones dirigidas a usuarios level 1
-                $res_notifications = $this->notificationRepository->getNewNotificationsLevel1($user->id, $fechaActual, $is_actor  );
+                $res_notifications = $this->notificationRepository->getNewNotificationsLevel1($user->id, $fechaActual, $is_actor, $request['notification_rows']);
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -298,13 +302,15 @@ class NotificationsController extends Controller
 
         }
 
-
     }
-
 
     public function checkUserAllNotifications(Request $request){
 
         $user = Auth::guard('authentication')->user();
+
+        $request->validate([
+            "notification_rows" => "required|numeric",
+        ]);
 
 		if($user){
 
@@ -329,7 +335,7 @@ class NotificationsController extends Controller
                 // Calcular la edad
                 $edad = $fechaCumpleanos->age;
 
-                $res_notifications = $this->notificationRepository->getAllNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor  );
+                $res_notifications = $this->notificationRepository->getAllNotifications($user->id, $fechaActual,$user_data->DEPARTMENT_ID, $user_data->LOCALITY_ID, $edad, $is_actor, $request['notification_rows']);
 
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
@@ -350,7 +356,7 @@ class NotificationsController extends Controller
             }else{
 
                // return $this->errorService->userDataNotFound();
-                $res_notifications = $this->notificationRepository->getAllNotificationsLevel1($user->id, $fechaActual, $is_actor  );
+                $res_notifications = $this->notificationRepository->getAllNotificationsLevel1($user->id, $fechaActual, $is_actor , $request['notification_rows'] );
                 if (empty($res_notifications) || $res_notifications=='[]') {
 
                     return response()->json([

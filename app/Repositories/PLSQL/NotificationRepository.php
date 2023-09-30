@@ -25,57 +25,60 @@ class NotificationRepository
 		]);
 
 		return $res;
-
 	}
 
 
-	public function getNewNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
+	public function getNewNotifications($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val, $start_position)
 	{
-
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.NUEVAS_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.NUEVAS_NOTIFICACIONES(:user_id, :fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val, :start_position, :end_position) as result FROM DUAL", [
 			'user_id' => $userId,
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
 			'localidad_val' => $localidad_val,
 			'edad_val' => $edad_val,
-			'destinatario_val' => $destinatario_val
+			'destinatario_val' => $destinatario_val,
+			'start_position' => intval($start_position), 
+			'end_position' => intval($start_position+20)
 		]);
 
 		return $result[0]->result;
 	}
 
-	public function getNewNotificationsLevel1($userId, $fecha_val, $destinatario_val)
+	public function getNewNotificationsLevel1($userId, $fecha_val, $destinatario_val ,$start_position)
 	{
-
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.NUEVAS_NOTIFICACIONES_NIVEL_1(:user_id, :fecha_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.NUEVAS_NOTIFICACIONES_NIVEL_1(:user_id, :fecha_val, :destinatario_val, :start_position, :end_position) as result FROM DUAL", [
 			'user_id' => $userId,
 			'fecha_val' => $fecha_val,
-			'destinatario_val' => $destinatario_val
+			'destinatario_val' => $destinatario_val,
+			'start_position' => intval($start_position), 
+			'end_position' => intval($start_position+20)
 		]);
 
 		return $result[0]->result;
 	}
 
-	public function getAllNotifications ($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val)
+	public function getAllNotifications ($userId, $fecha_val, $departamento_val, $localidad_val, $edad_val, $destinatario_val, $start_position)
 	{
-
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES(:fecha_val, :departamento_val, :localidad_val, :edad_val, :destinatario_val, :start_position, :end_position) as result FROM DUAL", [
 			'fecha_val' => $fecha_val,
 			'departamento_val' => $departamento_val,
 			'localidad_val' => $localidad_val,
 			'edad_val' => $edad_val,
-			'destinatario_val' => $destinatario_val
+			'destinatario_val' => $destinatario_val,
+			'start_position' => intval($start_position), 
+			'end_position' => intval($start_position+20)
 		]);
 
 		return $result[0]->result;
 	}
 
-	public function getAllNotificationsLevel1 ($userId, $fecha_val, $destinatario_val)
+	public function getAllNotificationsLevel1 ($userId, $fecha_val, $destinatario_val, $start_position)
 	{
-
-		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES_NIVEL_1(:fecha_val, :destinatario_val) as result FROM DUAL", [
+		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_NOTIFICACIONES_NIVEL_1(:fecha_val, :destinatario_val, :start_position, :end_position) as result FROM DUAL", [
 			'fecha_val' => $fecha_val,
-			'destinatario_val' => $destinatario_val
+			'destinatario_val' => $destinatario_val, 
+			'start_position' => intval($start_position), 
+			'end_position' => intval($start_position+20)
 		]);
 
 		return $result[0]->result;
@@ -84,7 +87,6 @@ class NotificationRepository
 
 	public function getAllActiveNotifications($fechaActual,$start_position)
 	{
-		
 		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val, :start_position, :end_position) as result FROM DUAL", [
 			'fecha_val' => $fechaActual, 
 			'start_position' => intval($start_position), 
@@ -127,7 +129,6 @@ class NotificationRepository
 
 	public function notificationAttachment ( $file_path, $tamanio, $file_type, $file_extension, $table_id, $file_name)
 	{
-
 		$blob_file =file_get_contents($file_path) ;
 
 		$inmuebleId = null;
@@ -148,7 +149,6 @@ class NotificationRepository
 
 
 	public function getAttachmentFileName (string $table, int $multimedia_id ){
-
 
 		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_CONT_NOMBRE(:p1, :p2) as result FROM DUAL",
 		[
@@ -174,7 +174,6 @@ class NotificationRepository
 
 	public function deleteUploadedFile (string $table, int $multimedia_id ){
 
-
 		$res = DB::statement("DECLARE result NUMBER; BEGIN result := CIUD_NOTIFICACIONES_PKG.BORRAR_ADJUNTO(:multimedia_id); END;",
 			[
 				'multimedia_id' => $multimedia_id,
@@ -197,7 +196,6 @@ class NotificationRepository
 	}
 
 	public function notificationUsersReached(int $notification_id){
-
 
 		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.OBTENER_USUARIOS_ALCANZADOS(:p_id) as result FROM DUAL",
 		[

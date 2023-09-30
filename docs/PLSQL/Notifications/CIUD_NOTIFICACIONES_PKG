@@ -1,26 +1,46 @@
 create or replace PACKAGE            CIUD_NOTIFICACIONES_PKG AS
 
-
-
 FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
 RETURN VARCHAR2;
 
 FUNCTION NOTIFICACION_LEIDA(user_id IN NUMBER, notificacion_id IN NUMBER) 
 RETURN CLOB;
 
-FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2)
+--FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2)
+--RETURN CLOB;
+FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB;
 
-FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+--FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+--RETURN CLOB;
+FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER) 
 RETURN CLOB;
 
-FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+--FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+--RETURN CLOB;
+FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB;
 
-FUNCTION OBTENER_NOTIFICACIONES(fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
-RETURN CLOB;
+--FUNCTION OBTENER_NOTIFICACIONES(fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+--RETURN CLOB;
+FUNCTION OBTENER_NOTIFICACIONES(
+    fecha_val IN VARCHAR2,
+    departamento_val IN NUMBER,
+    localidad_val IN NUMBER,
+    edad_val IN NUMBER,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+) RETURN CLOB;
 
-FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+--FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+--RETURN CLOB;
+FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(
+    fecha_val IN VARCHAR2,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+)
 RETURN CLOB;
 
 FUNCTION OBTENER_EMAIL_USUARIOS(min_fecha_nacimiento IN VARCHAR2,max_fecha_nacimiento IN VARCHAR2,localidad_id IN VARCHAR2,departamento_id IN VARCHAR2, tipo_de_usuario IN VARCHAR2)

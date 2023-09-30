@@ -1,8 +1,6 @@
 create or replace PACKAGE BODY            CIUD_NOTIFICACIONES_PKG AS
 
 
-
-
 FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
 RETURN VARCHAR2
 AS
@@ -49,6 +47,33 @@ END;
 
 
 --BUSQUEDA DE TODAS LAS NOTIFICACIONES ACTIVAS - UTILIZADO POR EL ACTOR PARA CORROBORAR
+ /*
+FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2)
+RETURN CLOB
+AS
+    l_query      CLOB;
+    l_result     CLOB;
+    l_temp       SYS_REFCURSOR;
+    l_row        NOTIFICATIONS%ROWTYPE;
+BEGIN
+    l_query := 'SELECT ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, CREATED_BY, CREATED_AT, UPDATED_AT, DELETED_AT FROM NOTIFICATIONS WHERE ' || 
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') >= NOTIFICATION_DATE_FROM) AND ' ||
+               '(TO_DATE(:fecha_val, ''DD/MM/YYYY'') <= NOTIFICATION_DATE_TO)';
+    OPEN l_temp FOR l_query USING fecha_val, fecha_val;
+
+    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    LOOP
+        FETCH l_temp INTO l_row;
+        EXIT WHEN l_temp%NOTFOUND;
+        l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '","DELETED_AT":"' || l_row.DELETED_AT ||'"},';
+    END LOOP;
+    IF l_temp%ISOPEN THEN
+        CLOSE l_temp;
+    END IF;
+    l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;*/
 FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB
 AS
@@ -78,7 +103,7 @@ END;
 
 
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO
-FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+/*FUNCTION NUEVAS_NOTIFICACIONES(user_id IN NUMBER, fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
 RETURN CLOB
 AS
     l_query      CLOB;
@@ -97,9 +122,9 @@ BEGIN
                'ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = :user_id) AND ' ||
                'DELETED_AT IS NULL';
     OPEN l_temp FOR l_query USING fecha_val, fecha_val, departamento_val, localidad_val, edad_val, edad_val, destinatario_val, user_id;
-
-    l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
-    LOOP
+*/ 
+   -- l_result := '['; -- AGREGAMOS EL CORCHETE DE APERTURA DEL ARRAY JSON
+    /* LOOP
         FETCH l_temp INTO l_row;
         EXIT WHEN l_temp%NOTFOUND;
         l_result := l_result || '{"ID": ' || l_row.ID || ', "RECIPIENTS":"' || l_row.RECIPIENTS || '","AGE_FROM":' || l_row.AGE_FROM || ',"AGE_TO":' || l_row.AGE_TO || ',"DEPARTMENT":' || l_row.DEPARTMENT_ID || ',"LOCALITY":' || l_row.LOCALITY_ID || ',"MESSAGE_TITLE":"' || l_row.MESSAGE_TITLE || '","MESSAGE_BODY":"' || l_row.MESSAGE_BODY || '","MULTIMEDIA_ID":"' || l_row.MULTIMEDIA_ID || '","NOTIFICATION_DATE_FROM":"' || l_row.NOTIFICATION_DATE_FROM || '","NOTIFICATION_DATE_TO":"' || l_row.NOTIFICATION_DATE_TO || '","SEND_BY_EMAIL":"' || l_row.SEND_BY_EMAIL || '","CREATED_AT":"' || l_row.CREATED_AT || '"},';
@@ -110,10 +135,56 @@ BEGIN
     l_result := RTRIM(l_result, ',') || ']';
 
     RETURN l_result;
+END;*/
+
+FUNCTION NUEVAS_NOTIFICACIONES(
+    user_id IN NUMBER,
+    fecha_val IN VARCHAR2,
+    departamento_val IN NUMBER,
+    localidad_val IN NUMBER,
+    edad_val IN NUMBER,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+)
+RETURN CLOB
+AS
+    l_result CLOB;
+BEGIN
+    SELECT '[' ||
+           LISTAGG(
+               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
+               ', '
+           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
+           ']' INTO l_result
+    FROM (
+        SELECT 
+            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
+            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
+            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
+            CREATED_AT,
+            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+        FROM NOTIFICATIONS
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+          AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
+          AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
+          AND (edad_val >= AGE_FROM)
+          AND (edad_val <= AGE_TO)
+          AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
+          AND ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = user_id)
+          AND DELETED_AT IS NULL
+    )
+    WHERE rn BETWEEN start_position AND end_position;
+
+    RETURN l_result;
 END;
 
+
+
+
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO QUE ES LEVEL 1
-FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+/* FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(user_id IN NUMBER, fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
 RETURN CLOB
 AS
     l_query      CLOB;
@@ -145,10 +216,44 @@ BEGIN
     l_result := RTRIM(l_result, ',') || ']';
 
     RETURN l_result;
+END; */
+
+FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(
+    user_id IN NUMBER,
+    fecha_val IN VARCHAR2,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+)
+RETURN CLOB
+AS
+    l_result CLOB;
+BEGIN
+    SELECT '[' ||
+           LISTAGG(
+               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
+               ', '
+           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
+           ']' INTO l_result
+    FROM (
+        SELECT 
+            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
+            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
+            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
+            CREATED_AT,
+            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+        FROM NOTIFICATIONS
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+    )
+    WHERE rn BETWEEN start_position AND end_position;
+
+    RETURN l_result;
 END;
 
+
 --BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO
-FUNCTION OBTENER_NOTIFICACIONES(fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
+/*FUNCTION OBTENER_NOTIFICACIONES(fecha_val IN VARCHAR2, departamento_val IN NUMBER, localidad_val IN NUMBER, edad_val IN NUMBER, destinatario_val IN VARCHAR2)
 RETURN CLOB
 AS
     l_query      CLOB;
@@ -179,10 +284,52 @@ BEGIN
     l_result := RTRIM(l_result, ',') || ']';
 
     RETURN l_result;
+END;*/
+
+FUNCTION OBTENER_NOTIFICACIONES(
+    fecha_val IN VARCHAR2,
+    departamento_val IN NUMBER,
+    localidad_val IN NUMBER,
+    edad_val IN NUMBER,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+)
+RETURN CLOB
+AS
+    l_result     CLOB; -- Cambio de tipo de dato a CLOB
+BEGIN
+    SELECT '[' ||
+           LISTAGG(
+               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
+               ', '
+           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
+           ']' INTO l_result
+    FROM (
+        SELECT 
+            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
+            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
+            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
+            CREATED_AT,
+            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+        FROM NOTIFICATIONS
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+          AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
+          AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
+          AND (edad_val >= AGE_FROM)
+          AND (edad_val <= AGE_TO)
+          AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
+          AND DELETED_AT IS NULL
+    )
+    WHERE rn BETWEEN start_position AND end_position;
+
+    RETURN l_result;
 END;
 
+
 --BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO NIVEL 1
-FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
+/*FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(fecha_val IN VARCHAR2, destinatario_val IN VARCHAR2)
 RETURN CLOB
 AS
     l_query      CLOB;
@@ -211,6 +358,39 @@ BEGIN
         CLOSE l_temp;
     END IF;
     l_result := RTRIM(l_result, ',') || ']';
+
+    RETURN l_result;
+END;*/
+
+FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(
+    fecha_val IN VARCHAR2,
+    destinatario_val IN VARCHAR2,
+    start_position IN NUMBER,
+    end_position IN NUMBER
+)
+RETURN CLOB
+AS
+    l_result     CLOB; -- Cambio de tipo de dato a CLOB
+BEGIN
+    SELECT '[' ||
+           LISTAGG(
+               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
+               ', '
+           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
+           ']' INTO l_result
+    FROM (
+        SELECT 
+            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
+            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
+            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
+            CREATED_AT,
+            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+        FROM NOTIFICATIONS
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+          AND DELETED_AT IS NULL
+    )
+    WHERE rn BETWEEN start_position AND end_position;
 
     RETURN l_result;
 END;
@@ -608,6 +788,5 @@ BEGIN
             RETURN 0;
     END;
 END;
-
 
 END CIUD_NOTIFICACIONES_PKG;
