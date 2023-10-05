@@ -4,6 +4,8 @@ namespace App\Http\Requests\ProcedureUnits;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use App\Helpers\Pagination;
+
 class GetListRequest extends FormRequest
 {
     /**
@@ -18,6 +20,6 @@ class GetListRequest extends FormRequest
 
     public function rules()
     {
-        return [];
+        return Pagination::rules();
     }
 }

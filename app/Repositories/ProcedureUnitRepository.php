@@ -12,28 +12,34 @@ use App\Errors\Infrastructure\Database\{
     // DatabaseDeleteError
 };
 use App\Helpers\ProcedureUnits\{
+    GetListFilter,
+    GetListPublicFilter,
     CreateData,
     UpdateData,
     SearchFilter,
 };
+use App\Helpers\Pagination;
 
 class ProcedureUnitRepository
 {
     private string $pkg = "CIUD_TRAMITES_PKG";
 
-    public function getList()
+    public function getList(GetListFilter $filter)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES() AS result FROM DUAL";
-        $result = DB::select($query);
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES(:start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
         return $json->data;
     }
 
-    public function getPublicList() {
-        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES_PUBL() AS result FROM DUAL";
-        $result = DB::select($query);
+    public function getPublicList(GetListPublicFilter $filter)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAMITES_PUBL(:start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 

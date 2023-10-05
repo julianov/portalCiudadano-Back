@@ -14,6 +14,7 @@ use App\Errors\Infrastructure\Database\{
     // DatabaseDeleteError
 };
 use App\Helpers\ProcedureData\{
+    GetListFilter,
     CreateData,
     DeleteData,
     UpdateData,
@@ -26,10 +27,11 @@ class ProcedureDataRepository
     // TODO: Change this to the correct table name
     private string $table_name = 'procedure_data';
 
-    public function getList()
+    public function getList(GetListFilter $filter)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAM_DATA() AS result FROM DUAL";
-        $result = DB::select($query);
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_TRAM_DATA(:start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
@@ -58,7 +60,7 @@ class ProcedureDataRepository
         return $json->data;
     }
 
-    
+
     public function getByProcedureUnitId(int $id)
     {
         $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_UNIT_ID(:id) AS result FROM DUAL";
@@ -121,7 +123,7 @@ class ProcedureDataRepository
 
         $procedureId = $dataArray[0]['ID'];
         foreach ($files as $file) {
-            
+
             $id = $this->storeSingleFile($file, $procedureId);
             array_push($ids, $id);
         }
@@ -180,7 +182,7 @@ class ProcedureDataRepository
             'procedure_data_table_id' => intval($procedureId),
             'file_name' => $file->getClientOriginalName(),
 
-            
+
             'P_multimedia_id' => [
                 'value' => &$pointer,
                 'type' => PDO::PARAM_INT
@@ -194,14 +196,14 @@ class ProcedureDataRepository
 
     public function deleteMultimedia(string $newAttachmentsString , string $newMultimediaIdString, int $procedureDataId )
     {
-       
+
         $res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.DELETE_PROCEDURE_MULTIMEDIA(:p_attachments, :p_multimedia_id, :p_id); END;",
 		[
 			'p_attachments' => strval($newAttachmentsString),
             'p_multimedia_id' => strval($newMultimediaIdString),
             'p_id' => intval($procedureDataId),
         ]);
-        
+
         if (!$res) { throw new DatabaseWriteError(); }
 
         return $res;

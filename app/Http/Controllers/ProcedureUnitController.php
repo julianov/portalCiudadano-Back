@@ -9,17 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\ProcedureUnitRepository as Repository;
 use App\Http\Requests\ProcedureUnits\{
-    // GetListRequest,
+    GetListRequest,
     GetListBySearchRequest,
     CreateRequest,
-    // GetByIdRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
 };
 use App\Helpers\ProcedureUnits\{
+    GetListFilter,
+    SearchFilter,
     CreateData,
     UpdateData,
-    SearchFilter,
 };
 
 class ProcedureUnitController extends BaseController
@@ -29,9 +29,11 @@ class ProcedureUnitController extends BaseController
     /**
      * Get a list of procedures.
      */
-    public function getList()
+    public function getList(GetListRequest $request)
     {
-        $procedures = $this->repository->getList();
+        $data = $request->validated();
+
+        $procedures = $this->repository->getList(new GetListFilter($data));
 
         return response()->json($procedures, Response::HTTP_OK);
     }

@@ -12,10 +12,14 @@ use App\Http\Requests\FormUnits\{
     CreateRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
+    GetListRequest,
+    GetListPublicRequest,
     GetByPkRequest,
     GetElementsByPkRequest,
 };
 use App\Helpers\FormUnits\{
+    GetListFilter,
+    GetListPublicFilter,
     CreateData,
     UpdateData,
 };
@@ -27,16 +31,20 @@ class FormUnitController extends BaseController
     /**
      * Get a list of forms.
      */
-    public function getList()
+    public function getList(GetListRequest $request)
     {
-        $forms = $this->repository->getList();
+        $data = $request->validated();
+
+        $forms = $this->repository->getList(new GetListFilter($data));
 
         return response()->json($forms, Response::HTTP_OK);
     }
 
-    public function getPublishedList()
+    public function getPublishedList(GetListPublicRequest $request)
     {
-        $forms = $this->repository->getPublishedList();
+        $data = $request->validated();
+
+        $forms = $this->repository->getPublishedList(new GetListPublicFilter($data));
 
         return response()->json($forms, Response::HTTP_OK);
     }

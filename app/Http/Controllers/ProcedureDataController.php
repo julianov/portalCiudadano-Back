@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Http\Services\ProcedureUnitService;
 use App\Repositories\ProcedureDataRepository as Repository;
 use App\Http\Requests\ProcedureData\{
+    GetListPublicRequest,
     CreateRequest,
     UpdateByIdRequest,
     DeleteByIdRequest,
@@ -21,6 +22,9 @@ use App\Helpers\ProcedureData\{
     DeleteData,
 };
 use App\Repositories\ProcedureUnitRepository;
+use App\Helpers\ProcedureUnits\{
+    GetListPublicFilter,
+};
 
 class ProcedureDataController extends BaseController
 {
@@ -34,7 +38,6 @@ class ProcedureDataController extends BaseController
      */
     public function getList()
     {
-
         $user = Auth::guard('authentication')->user();
 
         $procedures = $this->repository->getListByUser($user->id);
@@ -45,10 +48,12 @@ class ProcedureDataController extends BaseController
     /**
      * Get a list of public procedures.
      */
-    public function getListAvailable()
+    public function getListAvailable(GetListPublicRequest $request)
     {
-    
-        $procedures = $this->procedureUnitRepository->getPublicList();
+        $data = $request->validated();
+
+        $procedures = $this->procedureUnitRepository->getPublicList(new GetListPublicFilter($data));
+
         return response()->json($procedures, Response::HTTP_OK);
     }
 
@@ -120,7 +125,7 @@ class ProcedureDataController extends BaseController
      */
     public function storeAttachments(StoreAttachmentsRequest $request)
     {
-        
+
         $validated = $request->validated();
         $procedure = $this->repository->getById($validated['procedure_data_id']);
 
@@ -144,7 +149,7 @@ class ProcedureDataController extends BaseController
         $validated = $request->validated();
 
         $procedure_data = $this->repository->getById($request['procedure_data_id']);
-        
+
         $data = json_decode($procedure_data);
 
         // Obtener los valores de MULTIMEDIA_ID y ATTACHMENTS
@@ -179,10 +184,10 @@ class ProcedureDataController extends BaseController
                         // Si solo hay un elemento en $multimediaIdsArray, asignarlo directamente a $newMultimediaIdString
                         $newAttachmentsString = reset($attachmentsArray); // Obtiene el primer elemento del arreglo
                     }
-    
+
                     $this->repository->deleteMultimedia($newAttachmentsString ,$newMultimediaIdString, $request['procedure_data_id'] );
                     $this->repository->deleteUploadedFile($validated['multimedia_id']);
-    
+
                     return response()->json($validated['multimedia_id'], Response::HTTP_OK);
 
                 }else{
@@ -195,7 +200,7 @@ class ProcedureDataController extends BaseController
                 return response()->json($validated['multimedia_id'], Response::HTTP_OK);
 
             }
-            
+
         } else {
             return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }

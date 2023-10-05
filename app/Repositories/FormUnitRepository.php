@@ -12,6 +12,8 @@ use App\Errors\Infrastructure\Database\{
     DatabaseDeleteError
 };
 use App\Helpers\FormUnits\{
+    GetListFilter,
+    GetListPublicFilter,
     CreateData,
     UpdateData,
 };
@@ -20,10 +22,11 @@ class FormUnitRepository
 {
     private string $pkg = "CIUD_TRAMITES_PKG";
 
-    public function getList()
+    public function getList(GetListFilter $filter)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORMULARIOS() AS result FROM DUAL";
-        $result = DB::select($query);
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORMULARIOS(:start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) {
             throw new DatabaseReadError();
@@ -32,10 +35,11 @@ class FormUnitRepository
         return $json->data;
     }
 
-    public function getPublishedList()
+    public function getPublishedList(GetListPublicFilter $filter)
     {
-        $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORM_PUBLICADOS() AS result FROM DUAL";
-        $result = DB::select($query);
+        $query = "SELECT {$this->pkg}.OBTENER_LISTA_FORM_PUBLICADOS(:start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) {
             throw new DatabaseReadError();
