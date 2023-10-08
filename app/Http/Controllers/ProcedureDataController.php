@@ -25,6 +25,9 @@ use App\Repositories\ProcedureUnitRepository;
 use App\Helpers\ProcedureUnits\{
     GetListPublicFilter,
 };
+use App\Helpers\ProcedureData\{
+    GetListFilter,
+};
 
 class ProcedureDataController extends BaseController
 {
@@ -40,7 +43,8 @@ class ProcedureDataController extends BaseController
     {
         $user = Auth::guard('authentication')->user();
         $data = $request->validated();
-        $procedures = $this->repository->getListByUser(new GetListPublicFilter($data), $user->id);
+        
+        $procedures = $this->repository->getListByUser(new GetListFilter($data), $user->id);
 
         return response()->json($procedures, Response::HTTP_OK);
     }

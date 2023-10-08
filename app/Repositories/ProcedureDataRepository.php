@@ -43,6 +43,7 @@ class ProcedureDataRepository
         $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_USER(:p_user_id, :start_position, :end_position) AS result FROM DUAL";
         $bindings = $filter->toArray();
         $bindings['p_user_id'] = $userId;
+        
         $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
