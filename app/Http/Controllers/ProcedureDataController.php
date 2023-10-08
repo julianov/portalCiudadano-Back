@@ -36,11 +36,11 @@ class ProcedureDataController extends BaseController
     /**
      * Get a list of procedures by user ID.
      */
-    public function getList()
+    public function getList(GetListPublicRequest $request)
     {
         $user = Auth::guard('authentication')->user();
-
-        $procedures = $this->repository->getListByUser($user->id);
+        $data = $request->validated();
+        $procedures = $this->repository->getListByUser(new GetListPublicFilter($data), $user->id);
 
         return response()->json($procedures, Response::HTTP_OK);
     }
