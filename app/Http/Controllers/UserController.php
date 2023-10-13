@@ -241,7 +241,6 @@ class UserController extends Controller
 						$table = "USER_AUTHENTICATION";
 						$user_auth = $this->genericRepository->getRow($table, $column_name, $column_value);
 	
-	
 						if (!empty($user_auth)) {
 	
 							$token = $user->createToken('user_token', [$user_auth->AUTH_LEVEL])->accessToken;

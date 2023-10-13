@@ -1,5 +1,7 @@
 create or replace PACKAGE            CIUD_NOTIFICACIONES_PKG AS
 
+
+
 FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
 RETURN VARCHAR2;
 

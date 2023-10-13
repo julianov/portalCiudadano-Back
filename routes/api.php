@@ -37,6 +37,7 @@ Route::prefix("/v0/user")->controller(Controllers\UserController::class)->group(
 	Route::middleware(['auth:authentication'])->post('/change/email/', [Controllers\UserController::class, 'changeEmail']);
 	Route::post('/change/email/level1', [Controllers\UserController::class, 'changeEmailLevel1']);
 
+	Route::post('/logout', [Controllers\UserController::class, 'logout']);
 
 });
 

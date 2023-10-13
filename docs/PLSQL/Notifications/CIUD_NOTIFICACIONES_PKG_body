@@ -1,6 +1,8 @@
 create or replace PACKAGE BODY            CIUD_NOTIFICACIONES_PKG AS
 
 
+
+
 FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
 RETURN VARCHAR2
 AS
@@ -788,5 +790,6 @@ BEGIN
             RETURN 0;
     END;
 END;
+
 
 END CIUD_NOTIFICACIONES_PKG;
