@@ -36,6 +36,15 @@ class FormDataController extends BaseController
         return response()->json($forms, Response::HTTP_OK);
     }
 
+    public function getByPk(GetElementsByIdRequest $request)
+    {
+        $data = $request->validated();
+
+        $form = $this->repository->getElementsByPk($data['code']);
+
+        return response()->json($form, Response::HTTP_OK);
+    }
+
     /**
      * Create a new form.
      */

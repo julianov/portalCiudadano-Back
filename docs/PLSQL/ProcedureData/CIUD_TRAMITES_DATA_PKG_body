@@ -39,14 +39,25 @@ END; */
 FUNCTION OBTENER_LISTA_FORM_DATA(start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB
 IS
-    l_result CLOB;
+    l_result1 CLOB;
+    l_result2 CLOB;
+    l_result3 CLOB;
+    l_count  NUMBER;
 BEGIN
+    -- Obtener el recuento total de filas
+    SELECT COUNT(*) INTO l_count
+    FROM FORMS_DATA;
+
+    -- Inicializar el resultado con la parte de "count"
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) || ', "data": ';
+
+    -- Concatenar la lista de datos
     SELECT '[' ||
            LISTAGG(
                '{"ID":' || ID || ', "FORM_UNIT":"' || FORM_UNIT || '", "PROCEDURE_DATA_ID":"' || PROCEDURE_DATA_ID || '", "USER_ID":' || USER_ID || ', "ELEMENTS":"' || ELEMENTS || '", "ATTACHMENTS":"' || ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || MULTIMEDIA_ID || '", "STATUS":"' || STATUS || '", "APPROVED_AT":"' || APPROVED_AT || '", "CREATED_AT":"' || CREATED_AT || '", "UPDATED_AT":"' || UPDATED_AT || '"}',
                ', '
            ) WITHIN GROUP (ORDER BY ID) ||
-           ']' INTO l_result
+           ']' INTO l_result2
     FROM (
         SELECT 
             ID, FORM_UNIT, PROCEDURE_DATA_ID, USER_ID, ELEMENTS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, APPROVED_AT, CREATED_AT, UPDATED_AT,
@@ -55,7 +66,10 @@ BEGIN
     )
     WHERE rn BETWEEN start_position AND end_position;
 
-    RETURN l_result;
+    -- Completar el resultado con la parte restante
+    l_result3 := l_result1 || l_result2 ||'}';
+
+    RETURN l_result3;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -63,6 +77,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
 END;
+
 
 
 FUNCTION OBTENER_FORM_DATA_ID(id IN NUMBER) 
@@ -311,14 +326,25 @@ END; */
 FUNCTION OBTENER_LISTA_TRAM_DATA(start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB
 IS
-    l_result CLOB;
+    l_result1 CLOB;
+    l_result2 CLOB;
+    l_result3 CLOB;
+    l_count  NUMBER;
 BEGIN
+    -- Obtener el recuento total de filas
+    SELECT COUNT(*) INTO l_count
+    FROM PROCEDURE_DATA;
+
+    -- Inicializar el resultado con la parte de "count"
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) || ', "data": ';
+
+    -- Concatenar la lista de datos
     SELECT '[' ||
            LISTAGG(
                '{"ID":' || ID || ', "USER_ID":' || USER_ID || ', "ACTOR_ID":"' || ACTOR_ID || '", "REASON":"' || REASON || '", "FORMS":"' || FORMS || '", "ATTACHMENTS":"' || ATTACHMENTS || '", "MULTIMEDIA_ID":"' || MULTIMEDIA_ID ||'", "STATUS":"' || STATUS || '", "DATE_APPROVED":"' || DATE_APPROVED || '", "CREATED_AT":"' || CREATED_AT || '", "UPDATED_AT":"' || UPDATED_AT || '"}',
                ', '
            ) WITHIN GROUP (ORDER BY ID) ||
-           ']' INTO l_result
+           ']' INTO l_result2
     FROM (
         SELECT 
             ID, USER_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT,
@@ -327,7 +353,10 @@ BEGIN
     )
     WHERE rn BETWEEN start_position AND end_position;
 
-    RETURN l_result;
+    -- Completar el resultado con la parte restante
+    l_result3 := l_result1 || l_result2 ||'}';
+
+    RETURN l_result3;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -408,17 +437,30 @@ BEGIN
 
 END;*/
 
+
 FUNCTION OBTENER_TRAM_DATA_USER(p_user_id IN NUMBER, start_position IN NUMBER, end_position IN NUMBER) 
 RETURN CLOB
 IS
-    l_result CLOB;
+    l_result1 CLOB;
+    l_result2 CLOB;
+    l_result3 CLOB;
+    l_count  NUMBER;
 BEGIN
+    -- Obtener el recuento total de filas
+    SELECT COUNT(*) INTO l_count
+    FROM PROCEDURE_DATA
+    WHERE USER_ID = p_user_id;
+
+    -- Inicializar el resultado con la parte de "count"
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) || ', "data": ';
+
+    -- Concatenar la lista de datos
     SELECT '[' ||
            LISTAGG(
                '{"ID":' || ID || ', "USER_ID":' || USER_ID || ', "PROCEDURE_UNITS_ID":' || PROCEDURE_UNITS_ID ||  ', "ACTOR_ID":"' || ACTOR_ID || '", "REASON":"' || REASON || '", "FORMS":"' || FORMS || '", "ATTACHMENTS":"' || ATTACHMENTS ||'", "MULTIMEDIA_ID":"' || MULTIMEDIA_ID || '", "STATUS":"' || STATUS || '", "DATE_APPROVED":"' || DATE_APPROVED || '", "CREATED_AT":"' || CREATED_AT || '", "UPDATED_AT":"' || UPDATED_AT || '"}',
                ', '
            ) WITHIN GROUP (ORDER BY ID) ||
-           ']' INTO l_result
+           ']' INTO l_result2
     FROM (
         SELECT 
             ID, USER_ID, PROCEDURE_UNITS_ID, ACTOR_ID, REASON, FORMS, ATTACHMENTS, MULTIMEDIA_ID, STATUS, DATE_APPROVED, CREATED_AT, UPDATED_AT,
@@ -428,7 +470,10 @@ BEGIN
     )
     WHERE rn BETWEEN start_position AND end_position;
 
-    RETURN l_result;
+    -- Completar el resultado con la parte restante
+    l_result3 := l_result1 || l_result2 ||'}';
+
+    RETURN l_result3;
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -436,7 +481,6 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
 END;
-
 
 
 FUNCTION OBTENER_ULT_TRAM_DATA_USER (user_id IN NUMBER)
@@ -636,8 +680,6 @@ BEGIN
     WHERE ID = procedure_data_table_id;
     
 END;
-
-
 
 FUNCTION PROCEDURE_DATA_BORRAR_ADJUNTO (p_multimedia_id IN NUMBER) 
 RETURN NUMBER

@@ -41,8 +41,8 @@ class FormDataRepository
     public function getById(int $id)
     {
         
-        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:id) AS result FROM DUAL";
-        $bindings = [ 'id' => $id ];
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:p_id) AS result FROM DUAL";
+        $bindings = [ 'p_id' => $id ];
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);
