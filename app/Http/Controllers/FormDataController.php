@@ -39,8 +39,9 @@ class FormDataController extends BaseController
     public function getByPk(GetElementsByIdRequest $request)
     {
         $data = $request->validated();
+        $user = Auth::guard('authentication')->user();
 
-        $form = $this->repository->getElementsByPk($data['code']);
+        $form = $this->repository->getFormByCode($data['form_code'], $user->id);
 
         return response()->json($form, Response::HTTP_OK);
     }
@@ -64,8 +65,8 @@ class FormDataController extends BaseController
         }
         
         $json = json_decode($formString, true);
-        
-        $formWithAttachments = $this->repository->getById($json[0]['ID']);
+      
+        $formWithAttachments = $this->repository->getFormByCode($json[0]['FORM_UNIT'], $user->id);
        
         return response()->json($formWithAttachments, Response::HTTP_CREATED);
     }
@@ -100,7 +101,6 @@ class FormDataController extends BaseController
     public function updateById(UpdateByIdRequest $request)
     {
         $user = Auth::guard('authentication')->user();
-
         $data = $request->safe()->except('attachments');
         $data['user_id'] = $user->id;
         $formString = $this->repository->updateById(new UpdateData($data));
@@ -112,10 +112,23 @@ class FormDataController extends BaseController
         }
         */
         $json = json_decode($formString, true);
+        $formWithAttachments = $this->repository->getFormByCode($json[0]['FORM_UNIT'], $user->id);
+        $elements = $this->repository->getElementsById($json[0]['FORM_UNIT'], $user->id);
+        
+ // Decodificar el JSON en un arreglo asociativo
+$formWithAttachmentsArray = json_decode($formWithAttachments, true);
 
-        $formWithAttachments = $this->repository->getById($json[0]['ID']);
-       
-        return response()->json($formWithAttachments, Response::HTTP_OK);
+// Agregar el nuevo campo al objeto
+$nuevoCampo = $elements;
+foreach ($formWithAttachmentsArray as &$obj) {
+    $obj["ELEMENTS"] = $nuevoCampo;
+}
+
+// Codificar el arreglo asociativo de vuelta a JSON
+$nuevoJsonString = json_encode($formWithAttachmentsArray);
+
+
+        return response()->json($nuevoJsonString, Response::HTTP_OK);
     }
 
     /**
@@ -133,9 +146,11 @@ class FormDataController extends BaseController
      */
     public function storeAttachments(StoreAttachmentsRequest $request)
     {
-        $validated = $request->validated();
+        $user = Auth::guard('authentication')->user();
 
-        $procedure = $this->repository->getById($validated['procedure_data_id']);
+        $validated = $request->validated();
+        
+        $procedure = $this->repository->getFormByCode($validated['procedure_data_id'], $user->id);
 
         $attachments = $this->repository->storeAttachments($validated['attachments'], $procedure);
 

@@ -38,11 +38,11 @@ class FormDataRepository
      }
 
     // TODO: test this
-    public function getById(int $id)
+    public function getFormByCode(string $code, int $user_id)
     {
         
-        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:p_id) AS result FROM DUAL";
-        $bindings = [ 'p_id' => $id ];
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_POR_CODIGO(:p_form_unit, :p_user_id) AS result FROM DUAL";
+        $bindings = [ 'p_form_unit' => $code , 'p_user_id' => $user_id];
         $result = DB::select($query, $bindings);
 
         $json = new Result($result);
