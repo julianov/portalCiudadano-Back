@@ -102,7 +102,7 @@ class FormDataRepository
         $result = DB::statement($query, $bindings);
         if (!$result) { throw new DatabaseWriteError(); }
 
-        $updated = $this->getLastByUserId($data->get('user_id'));
+        $updated = $this->getFormByCode( $data->get('form_unit_code') , $data->get('user_id'));
 
         return $updated;
     }
@@ -216,3 +216,4 @@ public function storeAttachments(UploadedFile|array $files, string $row)
 
 
 }
+

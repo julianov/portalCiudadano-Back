@@ -115,17 +115,18 @@ class FormDataController extends BaseController
         $formWithAttachments = $this->repository->getFormByCode($json[0]['FORM_UNIT'], $user->id);
         $elements = $this->repository->getElementsById($json[0]['FORM_UNIT'], $user->id);
         
- // Decodificar el JSON en un arreglo asociativo
-$formWithAttachmentsArray = json_decode($formWithAttachments, true);
+        // Decodificar el JSON en un arreglo asociativo
+        $formWithAttachmentsArray = json_decode($formWithAttachments, true);
 
-// Agregar el nuevo campo al objeto
-$nuevoCampo = $elements;
-foreach ($formWithAttachmentsArray as &$obj) {
-    $obj["ELEMENTS"] = $nuevoCampo;
-}
+        // Agregar el nuevo campo al objeto
+        $decodedelements = json_decode(stripslashes($elements), true);
 
-// Codificar el arreglo asociativo de vuelta a JSON
-$nuevoJsonString = json_encode($formWithAttachmentsArray);
+        foreach ($formWithAttachmentsArray as &$obj) {
+            $obj["ELEMENTS"] = $decodedelements;
+        }
+
+        // Codificar el arreglo asociativo de vuelta a JSON
+        $nuevoJsonString = json_encode($formWithAttachmentsArray);
 
 
         return response()->json($nuevoJsonString, Response::HTTP_OK);
