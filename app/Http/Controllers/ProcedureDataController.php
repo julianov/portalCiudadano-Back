@@ -10,6 +10,7 @@ use App\Http\Services\ProcedureUnitService;
 use App\Repositories\ProcedureDataRepository as Repository;
 use App\Http\Requests\ProcedureData\{
     GetListPublicRequest,
+    GetListBySearchRequest,
     CreateRequest,
     UpdateByIdRequest,
     DeleteByIdRequest,
@@ -17,6 +18,7 @@ use App\Http\Requests\ProcedureData\{
     DeleteAttachmentsRequest
 };
 use App\Helpers\ProcedureData\{
+    GetListBySearchFilter,
     CreateData,
     UpdateData,
     DeleteData,
@@ -43,7 +45,7 @@ class ProcedureDataController extends BaseController
     {
         $user = Auth::guard('authentication')->user();
         $data = $request->validated();
-        
+
         $procedures = $this->repository->getListByUser(new GetListFilter($data), $user->id);
 
         return response()->json($procedures, Response::HTTP_OK);
@@ -61,6 +63,14 @@ class ProcedureDataController extends BaseController
         return response()->json($procedures, Response::HTTP_OK);
     }
 
+    public function getListBySearch(GetListBySearchRequest $request)
+    {
+        $data = $request->validated();
+
+        $procedures = $this->repository->getListBySearch(new GetListBySearchFilter($data));
+
+        return response()->json($procedures, Response::HTTP_OK);
+    }
     /**
      * Get a procedure by ID.
      */

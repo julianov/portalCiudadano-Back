@@ -10,11 +10,10 @@ use App\Repositories\Utilities\Result;
 use App\Errors\Infrastructure\Database\{
     DatabaseReadError,
     DatabaseWriteError,
-    // DatabaseUpdateError,
-    // DatabaseDeleteError
 };
 use App\Helpers\ProcedureData\{
     GetListFilter,
+    GetListBySearchFilter,
     CreateData,
     DeleteData,
     UpdateData,
@@ -43,7 +42,19 @@ class ProcedureDataRepository
         $query = "SELECT {$this->pkg}.OBTENER_TRAM_DATA_USER(:p_user_id, :start_position, :end_position) AS result FROM DUAL";
         $bindings = $filter->toArray();
         $bindings['p_user_id'] = $userId;
-        
+
+        $result = DB::select($query, $bindings);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
+    public function getListBySearch(GetListBySearchFilter $filter)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_T_DATA_BUSQUEDA(:keyword, :start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+
         $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
