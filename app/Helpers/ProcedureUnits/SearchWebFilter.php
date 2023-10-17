@@ -2,7 +2,7 @@
 
 namespace App\Helpers\ProcedureUnits;
 
-class SearchFilter
+class SearchWebFilter
 {
     private $title = null;
     private $category = null;

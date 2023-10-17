@@ -8,8 +8,6 @@ use App\Repositories\Utilities\Result;
 use App\Errors\Infrastructure\Database\{
     DatabaseReadError,
     DatabaseWriteError,
-    // DatabaseUpdateError,
-    // DatabaseDeleteError
 };
 use App\Helpers\ProcedureUnits\{
     GetListFilter,
@@ -17,6 +15,7 @@ use App\Helpers\ProcedureUnits\{
     CreateData,
     UpdateData,
     SearchFilter,
+    SearchWebFilter,
 };
 use App\Helpers\Pagination;
 
@@ -125,13 +124,17 @@ class ProcedureUnitRepository
 
     public function getListBySearch(SearchFilter $filter)
     {
-        /*$query = "VARIABLE l_cursor REFCURSOR; EXEC INTERNET.CIUDADANO_PKG.CIU_TRAMITES_BUSCA(:title, :category, l_cursor";
-        $bindings = $filter->getFilter();
+        $query = "SELECT {$this->pkg}.OBTENER_T_UNIT_BUSQUEDA(:keyword, :start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
         $result = DB::select($query, $bindings);
         $json = new Result($result);
         if (!$json->status) { throw new DatabaseReadError(); }
 
-        return $json->data;*/
+        return $json->data;
+    }
+
+    public function getListBySearchWeb(SearchWebFilter $filter)
+    {
         $query = "SELECT {$this->pkg}.TRAMITES_BUSCA_WEB() AS result FROM DUAL";
         $result = DB::select($query);
         $json = new Result($result);

@@ -11,6 +11,7 @@ use App\Repositories\ProcedureUnitRepository as Repository;
 use App\Http\Requests\ProcedureUnits\{
     GetListRequest,
     GetListBySearchRequest,
+    GetListBySearchWebRequest,
     CreateRequest,
     UpdateByPkRequest,
     DeleteByPkRequest,
@@ -18,6 +19,7 @@ use App\Http\Requests\ProcedureUnits\{
 use App\Helpers\ProcedureUnits\{
     GetListFilter,
     SearchFilter,
+    SearchWebFilter,
     CreateData,
     UpdateData,
 };
@@ -46,6 +48,18 @@ class ProcedureUnitController extends BaseController
         $query = $request->query();
 
         $procedures = $this->repository->getListBySearch(new SearchFilter($query));
+
+        return response()->json($procedures, Response::HTTP_OK);
+    }
+
+    /**
+     * Get a list of procedures by search (external resource).
+     */
+    public function getListBySearchWeb(GetListBySearchWebRequest $request)
+    {
+        $query = $request->query();
+
+        $procedures = $this->repository->getListBySearchWeb(new SearchWebFilter($query));
 
         return response()->json($procedures, Response::HTTP_OK);
     }

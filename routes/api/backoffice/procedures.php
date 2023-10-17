@@ -13,7 +13,7 @@ Route::prefix('/procedures')
 
         Route::get('/categories', 'getCategories');
 
-        Route::get('/searchbyweb', 'getListBySearch'); //search procedures in expedintes system
+        Route::get('/searchbyweb', 'getListBySearchWeb'); //search procedures in expedintes system
 
         Route::get('/{id}', 'getById');
 
