@@ -11,6 +11,7 @@ Route::prefix('/forms')
         Route::get('/', 'getList');
         Route::post('/', 'create');
 
+        Route::get('/search', 'getListBySearch');
         Route::get('/published', 'getPublishedList');
         Route::get('/elements', 'getElementsByPk');
 

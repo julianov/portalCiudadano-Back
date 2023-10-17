@@ -13,12 +13,14 @@ use App\Http\Requests\FormUnits\{
     UpdateByPkRequest,
     DeleteByPkRequest,
     GetListRequest,
+    GetListBySearchRequest,
     GetListPublicRequest,
     GetByPkRequest,
     GetElementsByPkRequest,
 };
 use App\Helpers\FormUnits\{
     GetListFilter,
+    GetListBySearchFilter,
     GetListPublicFilter,
     CreateData,
     UpdateData,
@@ -45,6 +47,15 @@ class FormUnitController extends BaseController
         $data = $request->validated();
 
         $forms = $this->repository->getPublishedList(new GetListPublicFilter($data));
+
+        return response()->json($forms, Response::HTTP_OK);
+    }
+
+    public function getListBySearch(GetListBySearchRequest $request)
+    {
+        $query = $request->validated();
+
+        $forms = $this->repository->getListBySearch(new GetListBySearchFilter($data));
 
         return response()->json($forms, Response::HTTP_OK);
     }

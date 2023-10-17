@@ -13,6 +13,7 @@ use App\Errors\Infrastructure\Database\{
 };
 use App\Helpers\FormUnits\{
     GetListFilter,
+    GetListBySearchFilter,
     GetListPublicFilter,
     CreateData,
     UpdateData,
@@ -46,7 +47,19 @@ class FormUnitRepository
         }
 
         return $json->data;
+    }
 
+    public function getListBySearch(GetListBySearchFilter $filter)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_F_UNIT_BUSQUEDA(:keyword, :start_position, :end_position) AS result FROM DUAL";
+        $bindings = $filter->toArray();
+        $result = DB::select($query, $bindings);
+        $json = new Result($result);
+        if (!$json->status) {
+            throw new DatabaseReadError();
+        }
+
+        return $json->data;
     }
 
     public function getByPk(string $code)
