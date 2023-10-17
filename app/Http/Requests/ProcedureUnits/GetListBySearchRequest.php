@@ -4,6 +4,8 @@ namespace App\Http\Requests\ProcedureUnits;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use App\Helpers\Pagination;
+
 class GetListBySearchRequest extends FormRequest
 {
     /**
@@ -18,9 +20,11 @@ class GetListBySearchRequest extends FormRequest
 
     public function rules()
     {
-        return [
-            'category' => 'nullable|string|min:1',
-            'title' => 'nullable|string|min:1'
-        ];
+        return array_merge(
+            Pagination::rules(),
+            [
+                'keyword' => 'required|string|min:1',
+            ]
+        );
     }
 }
