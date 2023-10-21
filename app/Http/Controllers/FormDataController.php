@@ -128,7 +128,6 @@ class FormDataController extends BaseController
         // Codificar el arreglo asociativo de vuelta a JSON
         $nuevoJsonString = json_encode($formWithAttachmentsArray);
 
-
         return response()->json($nuevoJsonString, Response::HTTP_OK);
     }
 

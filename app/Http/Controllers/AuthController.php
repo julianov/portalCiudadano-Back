@@ -341,12 +341,12 @@ class AuthController extends Controller
             $decoded_token = json_decode($jsonToken, true);
                         
             $cuit = $decoded_token['cuit'];
-            $tipo_persona = $decoded_token['tipo_persona'];
-            $proveedor = $decoded_token['proveedor'];
-            $preferred_username = $decoded_token['preferred_username'];
+            //$tipo_persona = $decoded_token['tipo_persona'];
+            //$proveedor = $decoded_token['proveedor'];
+            //$preferred_username = $decoded_token['preferred_username'];
             $given_name = $decoded_token['given_name'];
             $family_name = $decoded_token['family_name'];
-            $nivel = $decoded_token['nivel'];
+            //$nivel = $decoded_token['nivel'];
             
             $user = $this->userService->getUser($cuil);
 
@@ -439,19 +439,17 @@ class AuthController extends Controller
 
             $access_token = $data['access_token'];
 
-/*            $decoded_token = base64_decode($access_token);*/
-
             list($header, $payload, $signature) = explode('.', $access_token);
             $jsonToken = base64_decode($payload);
             $decoded_token = json_decode($jsonToken, true);
                         
             $cuit = $decoded_token['cuit'];
-            $tipo_persona = $decoded_token['tipo_persona'];
-            $proveedor = $decoded_token['proveedor'];
-            $preferred_username = $decoded_token['preferred_username'];
+            //$tipo_persona = $decoded_token['tipo_persona'];
+            //$proveedor = $decoded_token['proveedor'];
+            //$preferred_username = $decoded_token['preferred_username'];
             $given_name = $decoded_token['given_name'];
             $family_name = $decoded_token['family_name'];
-            $nivel = $decoded_token['nivel'];
+            //$nivel = $decoded_token['nivel'];
             
             $user = $this->userService->getUser($cuil);
 
