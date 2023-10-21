@@ -71,6 +71,7 @@ class ProcedureDataController extends BaseController
 
         return response()->json($procedures, Response::HTTP_OK);
     }
+
     /**
      * Get a procedure by ID.
      */
@@ -139,7 +140,6 @@ class ProcedureDataController extends BaseController
      */
     public function storeAttachments(StoreAttachmentsRequest $request)
     {
-
         $validated = $request->validated();
         $procedure = $this->repository->getById($validated['procedure_data_id']);
 
@@ -151,7 +151,6 @@ class ProcedureDataController extends BaseController
     // TODO: test this
     public function getAttachmentById(int $attachmentId)
     {
-
         $attachment = $this->repository->getUploadedFile($attachmentId);
 
         return response()->json($attachment, Response::HTTP_OK);
