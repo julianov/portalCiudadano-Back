@@ -38,7 +38,7 @@ class NotificationRepository
 			'edad_val' => $edad_val,
 			'destinatario_val' => $destinatario_val,
 			'start_position' => intval($start_position), 
-			'end_position' => intval($start_position+20)
+			'end_position' => intval($start_position+9)
 		]);
 
 		return $result[0]->result;
@@ -51,7 +51,7 @@ class NotificationRepository
 			'fecha_val' => $fecha_val,
 			'destinatario_val' => $destinatario_val,
 			'start_position' => intval($start_position), 
-			'end_position' => intval($start_position+20)
+			'end_position' => intval($start_position+9)
 		]);
 
 		return $result[0]->result;
@@ -66,7 +66,7 @@ class NotificationRepository
 			'edad_val' => $edad_val,
 			'destinatario_val' => $destinatario_val,
 			'start_position' => intval($start_position), 
-			'end_position' => intval($start_position+20)
+			'end_position' => intval($start_position+9)
 		]);
 
 		return $result[0]->result;
@@ -78,7 +78,7 @@ class NotificationRepository
 			'fecha_val' => $fecha_val,
 			'destinatario_val' => $destinatario_val, 
 			'start_position' => intval($start_position), 
-			'end_position' => intval($start_position+20)
+			'end_position' => intval($start_position+9)
 		]);
 
 		return $result[0]->result;
@@ -90,7 +90,7 @@ class NotificationRepository
 		$result = DB::select("SELECT CIUD_NOTIFICACIONES_PKG.TODAS_NOTIFICACIONES_ACTIVAS( :fecha_val, :start_position, :end_position) as result FROM DUAL", [
 			'fecha_val' => $fechaActual, 
 			'start_position' => intval($start_position), 
-			'end_position' => intval($start_position+20) //must be 1 less than the front value
+			'end_position' => intval($start_position+9) //must be 1 less than the front value
 		]);
 
 		return $result[0]->result;
