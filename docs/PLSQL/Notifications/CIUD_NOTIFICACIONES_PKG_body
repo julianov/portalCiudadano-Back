@@ -1,8 +1,5 @@
 create or replace PACKAGE BODY            CIUD_NOTIFICACIONES_PKG AS
 
-
-
-
 FUNCTION FILA_NOTIFICATIONS( p_column_name IN VARCHAR2, p_column_value IN VARCHAR2)
 RETURN VARCHAR2
 AS
@@ -76,32 +73,59 @@ BEGIN
 
     RETURN l_result;
 END;*/
+
+
 FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB
 AS
-    l_result CLOB;
-BEGIN
-    SELECT '[' ||
-           LISTAGG(
-               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '", "DELETED_AT": "' || TO_CHAR(DELETED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
-               ', '
-           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
-           ']' INTO l_result
-    FROM (
+    l_result1 CLOB;
+    l_result2 CLOB := '';  -- Inicializa l_result2 para almacenar registros individuales
+    l_result3 CLOB;
+    l_result_size NUMBER;
+    l_count NUMBER;
+    l_row_check NUMBER := 0;
+    l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
+
+    CURSOR c_notifications IS
         SELECT 
-            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
-            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
-            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
-            CREATED_AT, DELETED_AT,
-            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '", "DELETED_AT": "' || TO_CHAR(DELETED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
         FROM NOTIFICATIONS
         WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
           AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-    )
-    WHERE rn BETWEEN start_position AND end_position;
+        ORDER BY CREATED_AT DESC;
 
-    RETURN l_result;
+BEGIN
+    SELECT COUNT(*) INTO l_count
+    FROM NOTIFICATIONS
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO;
+
+    FOR r in c_notifications LOOP
+        IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
+            l_json_record := r.json_record;
+
+            l_result_size := DBMS_LOB.GETLENGTH(l_result1 || l_result2 || l_json_record || '}');
+
+            IF l_result_size > 10000 THEN
+                EXIT;
+            ELSE
+                -- Agregar coma si no es el primer registro
+                IF l_row_check != 0 THEN
+                    l_result2 := l_result2 || ', ';
+                END IF;
+                l_result2 := l_result2 || l_json_record;
+                l_row_check := l_row_check + 1;
+            END IF;
+        END IF;
+    END LOOP;
+    
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+
+    l_result3 := l_result1 || l_result2 || ']}';
+
+    RETURN l_result3;
 END;
+
 
 
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO
@@ -151,21 +175,17 @@ FUNCTION NUEVAS_NOTIFICACIONES(
 )
 RETURN CLOB
 AS
-    l_result CLOB;
-BEGIN
-    SELECT '[' ||
-           LISTAGG(
-               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
-               ', '
-           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
-           ']' INTO l_result
-    FROM (
+    l_result1 CLOB;
+    l_result2 CLOB := '';  -- Inicializa l_result2 para almacenar registros individuales
+    l_result3 CLOB;
+    l_result_size NUMBER;
+    l_count NUMBER;
+    l_row_check NUMBER := 0;
+    l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
+
+     CURSOR c_notifications IS
         SELECT 
-            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
-            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
-            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
-            CREATED_AT,
-            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
         FROM NOTIFICATIONS
         WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
           AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
@@ -176,13 +196,46 @@ BEGIN
           AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
           AND ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = user_id)
           AND DELETED_AT IS NULL
-    )
-    WHERE rn BETWEEN start_position AND end_position;
+        ORDER BY CREATED_AT DESC;
 
-    RETURN l_result;
+BEGIN
+    SELECT COUNT(*) INTO l_count
+    FROM NOTIFICATIONS
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+      AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
+      AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
+      AND (edad_val >= AGE_FROM)
+      AND (edad_val <= AGE_TO)
+      AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
+      AND ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = user_id)
+      AND DELETED_AT IS NULL;
+
+    FOR r in c_notifications LOOP
+        IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
+            l_json_record := r.json_record;
+
+            l_result_size := DBMS_LOB.GETLENGTH(l_result1 || l_result2 || l_json_record || '}');
+
+            IF l_result_size > 10000 THEN
+                EXIT;
+            ELSE
+                -- Agregar coma si no es el primer registro
+                IF l_row_check != 0 THEN
+                    l_result2 := l_result2 || ', ';
+                END IF;
+                l_result2 := l_result2 || l_json_record;
+                l_row_check := l_row_check + 1;
+            END IF;
+        END IF;
+    END LOOP;
+    
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+
+    l_result3 := l_result1 || l_result2 || ']}';
+
+    RETURN l_result3;
 END;
-
-
 
 
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO QUE ES LEVEL 1
@@ -229,29 +282,56 @@ FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(
 )
 RETURN CLOB
 AS
-    l_result CLOB;
-BEGIN
-    SELECT '[' ||
-           LISTAGG(
-               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
-               ', '
-           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
-           ']' INTO l_result
-    FROM (
+    l_result1 CLOB;
+    l_result2 CLOB := '';  -- Inicializa l_result2 para almacenar registros individuales
+    l_result3 CLOB;
+    l_result_size NUMBER;
+    l_count NUMBER;
+    l_row_check NUMBER := 0;
+    l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
+
+    CURSOR c_notifications IS
         SELECT 
-            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
-            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
-            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
-            CREATED_AT,
-            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
         FROM NOTIFICATIONS
         WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
           AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-    )
-    WHERE rn BETWEEN start_position AND end_position;
+          AND (RECIPIENTS = destinatario_val)
+        ORDER BY CREATED_AT DESC;
 
-    RETURN l_result;
+BEGIN
+    SELECT COUNT(*) INTO l_count
+    FROM NOTIFICATIONS
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+      AND (RECIPIENTS = destinatario_val);
+
+    FOR r in c_notifications LOOP
+        IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
+            l_json_record := r.json_record;
+
+            l_result_size := DBMS_LOB.GETLENGTH(l_result1 || l_result2 || l_json_record || '}');
+
+            IF l_result_size > 10000 THEN
+                EXIT;
+            ELSE
+                -- Agregar coma si no es el primer registro
+                IF l_row_check != 0 THEN
+                    l_result2 := l_result2 || ', ';
+                END IF;
+                l_result2 := l_result2 || l_json_record;
+                l_row_check := l_row_check + 1;
+            END IF;
+        END IF;
+    END LOOP;
+    
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+
+    l_result3 := l_result1 || l_result2 || ']}';
+
+    RETURN l_result3;
 END;
+
 
 
 --BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO
@@ -299,21 +379,18 @@ FUNCTION OBTENER_NOTIFICACIONES(
 )
 RETURN CLOB
 AS
-    l_result     CLOB; -- Cambio de tipo de dato a CLOB
-BEGIN
-    SELECT '[' ||
-           LISTAGG(
-               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
-               ', '
-           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
-           ']' INTO l_result
-    FROM (
+    l_result1 CLOB;
+    l_result2 CLOB := '';  -- Inicializa l_result2 para almacenar registros individuales
+    l_result3 CLOB;
+    l_result_size NUMBER;
+    l_count NUMBER;
+    l_row_check NUMBER := 0;
+    l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
+
+
+    CURSOR c_notifications IS
         SELECT 
-            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
-            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
-            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
-            CREATED_AT,
-            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
         FROM NOTIFICATIONS
         WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
           AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
@@ -323,11 +400,46 @@ BEGIN
           AND (edad_val <= AGE_TO)
           AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
           AND DELETED_AT IS NULL
-    )
-    WHERE rn BETWEEN start_position AND end_position;
+        ORDER BY CREATED_AT DESC;
 
-    RETURN l_result;
+BEGIN
+    SELECT COUNT(*) INTO l_count
+    FROM NOTIFICATIONS
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+      AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
+      AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
+      AND (edad_val >= AGE_FROM)
+      AND (edad_val <= AGE_TO)
+      AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
+      AND DELETED_AT IS NULL;
+
+    FOR r in c_notifications LOOP
+        IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
+            l_json_record := r.json_record;
+
+            l_result_size := DBMS_LOB.GETLENGTH(l_result1 || l_result2 || l_json_record || '}');
+
+            IF l_result_size > 10000 THEN
+                EXIT;
+            ELSE
+                -- Agregar coma si no es el primer registro
+                IF l_row_check != 0 THEN
+                    l_result2 := l_result2 || ', ';
+                END IF;
+                l_result2 := l_result2 || l_json_record;
+                l_row_check := l_row_check + 1;
+            END IF;
+        END IF;
+    END LOOP;
+    
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+
+    l_result3 := l_result1 || l_result2 || ']}';
+
+    RETURN l_result3;
 END;
+
 
 
 --BUSQUEDA DE TODAS NOTIFICACIONES, DIRIGIDAS A UN USUARIO NIVEL 1
@@ -364,6 +476,7 @@ BEGIN
     RETURN l_result;
 END;*/
 
+
 FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(
     fecha_val IN VARCHAR2,
     destinatario_val IN VARCHAR2,
@@ -372,29 +485,56 @@ FUNCTION OBTENER_NOTIFICACIONES_NIVEL_1(
 )
 RETURN CLOB
 AS
-    l_result     CLOB; -- Cambio de tipo de dato a CLOB
-BEGIN
-    SELECT '[' ||
-           LISTAGG(
-               '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}',
-               ', '
-           ) WITHIN GROUP (ORDER BY CREATED_AT DESC) ||
-           ']' INTO l_result
-    FROM (
+    l_result1 CLOB;
+    l_result2 CLOB := '';  -- Inicializa l_result2 para almacenar registros individuales
+    l_result3 CLOB;
+    l_result_size NUMBER;
+    l_count NUMBER;
+    l_row_check NUMBER := 0;
+    l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
+
+
+
+    CURSOR c_notifications IS
         SELECT 
-            ID, RECIPIENTS, AGE_FROM, AGE_TO, DEPARTMENT_ID, LOCALITY_ID, 
-            MESSAGE_TITLE, MESSAGE_BODY, MULTIMEDIA_ID, 
-            NOTIFICATION_DATE_FROM, NOTIFICATION_DATE_TO, SEND_BY_EMAIL, 
-            CREATED_AT,
-            ROW_NUMBER() OVER (ORDER BY CREATED_AT DESC) AS rn
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
         FROM NOTIFICATIONS
         WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
           AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
           AND DELETED_AT IS NULL
-    )
-    WHERE rn BETWEEN start_position AND end_position;
+        ORDER BY CREATED_AT DESC;
 
-    RETURN l_result;
+BEGIN
+    SELECT COUNT(*) INTO l_count
+    FROM NOTIFICATIONS
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
+      AND DELETED_AT IS NULL;
+
+    FOR r in c_notifications LOOP
+        IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
+            l_json_record := r.json_record;
+
+            l_result_size := DBMS_LOB.GETLENGTH(l_result1 || l_result2 || l_json_record || '}');
+
+            IF l_result_size > 10000 THEN
+                EXIT;
+            ELSE
+                -- Agregar coma si no es el primer registro
+                IF l_row_check != 0 THEN
+                    l_result2 := l_result2 || ', ';
+                END IF;
+                l_result2 := l_result2 || l_json_record;
+                l_row_check := l_row_check + 1;
+            END IF;
+        END IF;
+    END LOOP;
+    
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+
+    l_result3 := l_result1 || l_result2 || ']}';
+
+    RETURN l_result3;
 END;
 
 
