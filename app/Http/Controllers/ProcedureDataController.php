@@ -15,7 +15,8 @@ use App\Http\Requests\ProcedureData\{
     UpdateByIdRequest,
     DeleteByIdRequest,
     StoreAttachmentsRequest,
-    DeleteAttachmentsRequest
+    DeleteAttachmentsRequest,
+    GetProcedureAttachment
 };
 use App\Helpers\ProcedureData\{
     GetListBySearchFilter,
@@ -71,7 +72,6 @@ class ProcedureDataController extends BaseController
 
         return response()->json($procedures, Response::HTTP_OK);
     }
-
     /**
      * Get a procedure by ID.
      */
@@ -140,6 +140,7 @@ class ProcedureDataController extends BaseController
      */
     public function storeAttachments(StoreAttachmentsRequest $request)
     {
+
         $validated = $request->validated();
         $procedure = $this->repository->getById($validated['procedure_data_id']);
 
@@ -149,11 +150,33 @@ class ProcedureDataController extends BaseController
     }
 
     // TODO: test this
-    public function getAttachmentById(int $attachmentId)
+    public function getAttachmentById(GetProcedureAttachment $request)
     {
-        $attachment = $this->repository->getUploadedFile($attachmentId);
+        $validated = $request->validated();
 
-        return response()->json($attachment, Response::HTTP_OK);
+        $attachment = $this->repository->getUploadedFile('NOTIFICATIONS_DOC', $validated['attachmentId']);
+        
+        return $attachment;
+    }
+
+    public function getAttachmentName (GetProcedureAttachment $request)
+    {
+        $validated = $request->validated();
+
+        $attachment_name = $this->repository->getAttachmentFileName('NOTIFICATIONS_DOC', $validated['attachmentId']);
+        
+        if ($attachment_name){
+
+            return response()->json([
+                'status' => true,
+                'attachment_name' => $attachment_name
+            ], 200);
+
+        }else{
+
+            return $this->errorService->databaseReadError();
+
+        }
     }
 
     // TODO: test this

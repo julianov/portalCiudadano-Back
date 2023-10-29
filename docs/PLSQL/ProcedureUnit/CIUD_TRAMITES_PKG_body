@@ -327,9 +327,9 @@ FUNCTION TRAMITES_BUSCA_WEB RETURN CLOB IS
   l_cursor SYS_REFCURSOR;
   l_result CLOB := '[';
   l_separator VARCHAR2(10) := ', ';
-  l_column1 NUMBER;
+  l_column1 VARCHAR2(1024);
   l_column2 VARCHAR2(1024);
-  l_column3 CLOB;
+  l_column3 VARCHAR2(1024);
   l_column4 VARCHAR2(1024);
   l_column5 VARCHAR2(1024);
   l_column6 VARCHAR2(1024);

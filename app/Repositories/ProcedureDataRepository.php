@@ -144,16 +144,27 @@ class ProcedureDataRepository
         return $ids;
     }
 
-    public function getUploadedFile (int $multimedia_id ){
-
+    public function getUploadedFile (string $table, int $multimedia_id ){
 		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_LEE_ARCHIVO(:p1, :p2) as result FROM DUAL",
 		[
-			'p1' =>$this->table_name,
+			'p1' =>$table,
 			'p2' =>$multimedia_id // Passing the output parameter by reference
 		]);
 
 		return $result[0]->result;
 	}
+
+    public function getAttachmentFileName (string $table, int $multimedia_id ){
+
+		$result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_CONT_NOMBRE(:p1, :p2) as result FROM DUAL",
+		[
+			'p1' =>$table,
+			'p2' =>$multimedia_id // Passing the output parameter by reference
+		]);
+
+		return $result[0]->result;
+	}
+    
 
     public function deleteUploadedFile (int $multimedia_id)
     {

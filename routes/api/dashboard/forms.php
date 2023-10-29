@@ -17,6 +17,7 @@ Route::prefix('/forms')
         Route::get('/elements', 'getElementsById');
 
         Route::post('/attachments', 'storeAttachments');
-        Route::get('/attachments/{attachmentId}', 'getAttachmentById');
+        Route::get('/attachments/', 'getAttachmentById');
+        Route::get('/attachments/name/', 'getAttachmentName');
         Route::get('/attachments/{attachmentId}/delete', 'deleteAttachmentById');
     });
