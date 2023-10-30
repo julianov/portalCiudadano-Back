@@ -119,6 +119,7 @@ class AuthController extends Controller
                     "Content-Type" => "application/x-www-form-urlencoded",
                 ],
             ]);
+
             $data = json_decode($response->getBody()->getContents(), true);
 
             $access_token = $data['access_token'];
@@ -128,7 +129,7 @@ class AuthController extends Controller
             list($header, $payload, $signature) = explode('.', $access_token);
             $jsonToken = base64_decode($payload);
             $decoded_token = json_decode($jsonToken, true);
-                        
+                  
             $cuit = $decoded_token['cuit'];
             $tipo_persona = $decoded_token['tipo_persona'];
             $proveedor = $decoded_token['proveedor'];
@@ -150,9 +151,9 @@ class AuthController extends Controller
                 $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
                 $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
 
-                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
-                    //datos consistentes sube a nivel 3
-                    
+                //if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                if ($user_cuil == $cuit){
+
                     $res_user_auth = $this->userService->setAuthType($user, "AFIP", "level_3");
 
 					if ($res_user_auth) {
@@ -213,9 +214,20 @@ class AuthController extends Controller
             $url = config("autenticar.base_url_api_miargentina")."protocol/openid-connect/token";
 
             $redirectUri = config("autenticar.redirect_uri_miargentina");
-
+            $requestData = [
+                "grant_type" => config("autenticar.grant_type"),
+                "code" => $code,
+                "redirect_uri" => urldecode($redirectUri), // No es necesario codificar manualmente el redirect_uri
+                "client_id" => config("autenticar.client_id"),
+                "client_secret" => config("autenticar.secret_miargentina"),
+            ];
+            
+            // Combina la URL y los datos de solicitud en una cadena
+            $requestUrl = $url . '?' . http_build_query($requestData);
+            
+            // Muestra la URL completa con dd
             $response = $client->post($url, [
-                RequestOptions::FORM_PARAMS => [
+                "form_params" => [
                     "grant_type" => config("autenticar.grant_type"),
                     "code" => $code,
                     "redirect_uri" => $redirectUri,
@@ -235,7 +247,7 @@ class AuthController extends Controller
             list($header, $payload, $signature) = explode('.', $access_token);
             $jsonToken = base64_decode($payload);
             $decoded_token = json_decode($jsonToken, true);
-                        
+  
             $cuit = $decoded_token['cuit'];
             $tipo_persona = $decoded_token['tipo_persona'];
             $proveedor = $decoded_token['proveedor'];
@@ -256,7 +268,9 @@ class AuthController extends Controller
                 $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
                 $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
 
-                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                //if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                if ($user_cuil == $cuit){
+
                     //datos consistentes sube a nivel 3
                     
                     $res_user_auth = $this->userService->setAuthType($user, "MIARGENTINA", "level_3");
@@ -331,7 +345,7 @@ class AuthController extends Controller
                 ],
             ]);
             $data = json_decode($response->getBody()->getContents(), true);
-
+            
             $access_token = $data['access_token'];
 
 /*            $decoded_token = base64_decode($access_token);*/
@@ -339,7 +353,7 @@ class AuthController extends Controller
             list($header, $payload, $signature) = explode('.', $access_token);
             $jsonToken = base64_decode($payload);
             $decoded_token = json_decode($jsonToken, true);
-                        
+            
             $cuit = $decoded_token['cuit'];
             //$tipo_persona = $decoded_token['tipo_persona'];
             //$proveedor = $decoded_token['proveedor'];
@@ -361,9 +375,11 @@ class AuthController extends Controller
                 $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
                 $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
 
-                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                //if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                if ($user_cuil == $cuit){
+
                     //datos consistentes sube a nivel 3
-                    
+
                     $res_user_auth = $this->userService->setAuthType($user, "ANSES", "level_3");
 
 					if ($res_user_auth) {
@@ -464,7 +480,9 @@ class AuthController extends Controller
                 $normalizedLast_name1 = mb_strtolower(strtolower($user_last_name));
                 $normalizedLast_name2 = mb_strtolower(strtolower($family_name));
 
-                if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                //if ($user_cuil == $cuit && $normalizedName1 == $normalizedName2 && $normalizedLast_name1 = $normalizedLast_name2 ){
+                if ($user_cuil == $cuit){
+
                     //datos consistentes sube a nivel 3
                     
                     $res_user_auth = $this->userService->setAuthType($user, "RENAPER", "level_3");
@@ -676,12 +694,15 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
         $host = env('BASEUR_ER_WS_TOKEN');
+
         $response = Http::post($host, [
             '_tk' => $validated['token'],
         ]);
+
         $responseBody = $response->body();
     
         if ($responseBody == 1) {
+            
             $prs_id = $this->wsService->getPrs_id($validated['dni']);
             $user = null;
             $errorMessage = null;
