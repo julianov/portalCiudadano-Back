@@ -4,56 +4,8 @@
         <title>Portal ciudadano - Gobierno de Entre Ríos</title>
         <meta name="description" content="Our first page">
         <meta name="keywords" content="html tutorial template">
-        <style>
-            #btn_cambiar_pass {
-                border: solid 1px #00aff0;
-                background: #00aff0;
-                border-radius: 50px;
-                display: inline-block;
-                margin-left: auto;
-                margin-right: auto;
-                text-align: center;
-                padding: 0 30px;
-                text-decoration: none;
-            }
-            #central {
-                display: flex;
-                flex-direction: column;
-                justify-content: left;
-                text-align: left;
-            }
-            #btn_validar_email_txt {
-                color: white;
-                font-size: 1em;
-                font-family: sans-serif;
-                font-style: normal;
-            }
-            #info_text {
-                font-family: sans-serif;
-                font-style: normal;
-                font-size: 1.5em;
-            }
-            #username_text {
-                font-family: sans-serif;
-                font-style: normal;
-                font-size: 2em;
-                font-weight: bold;
-            }
-            #header {
-                background-color: #7ca157;
-                padding: 30px;
-                text-align: left;
-            }
-            #header h1 {
-                margin: 0;
-                font-size: 24px;
-                color: white;
-            }
-            .horizontal-line {
-                border-top: 1px solid black;
-                width: 100%;
-            }
-        </style>
+        <link rel="stylesheet" href="{{asset('css/changePassword.css')}}">
+
     </head>
     <body>
     <div id="central">
