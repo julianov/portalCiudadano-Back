@@ -67,8 +67,8 @@ class ProcedureDataController extends BaseController
     public function getListBySearch(GetListBySearchRequest $request)
     {
         $data = $request->validated();
-
-        $procedures = $this->repository->getListBySearch(new GetListBySearchFilter($data));
+        
+        $procedures = $this->procedureUnitRepository->getListBySearch(new GetListBySearchFilter($data));
 
         return response()->json($procedures, Response::HTTP_OK);
     }
@@ -164,7 +164,6 @@ class ProcedureDataController extends BaseController
         $validated = $request->validated();
 
         $attachment_name = $this->repository->getAttachmentFileName('NOTIFICATIONS_DOC', $validated['attachmentId']);
-        
         if ($attachment_name){
 
             return response()->json([

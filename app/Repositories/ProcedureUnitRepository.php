@@ -17,6 +17,11 @@ use App\Helpers\ProcedureUnits\{
     SearchFilter,
     SearchWebFilter,
 };
+
+use App\Helpers\ProcedureData\{
+    GetListBySearchFilter,
+};
+
 use App\Helpers\Pagination;
 
 class ProcedureUnitRepository
@@ -122,7 +127,7 @@ class ProcedureUnitRepository
         return $json->data;
     }
 
-    public function getListBySearch(SearchFilter $filter)
+    public function getListBySearch(GetListBySearchFilter $filter)
     {
         $query = "SELECT {$this->pkg}.OBTENER_T_UNIT_BUSQUEDA(:keyword, :start_position, :end_position) AS result FROM DUAL";
         $bindings = $filter->toArray();
@@ -138,6 +143,7 @@ class ProcedureUnitRepository
         $query = "SELECT {$this->pkg}.TRAMITES_BUSCA_WEB() AS result FROM DUAL";
         $result = DB::select($query);
         $json = new Result($result);
+        
         if (!$json->status) { throw new DatabaseReadError(); }
 
         return $json->data;
