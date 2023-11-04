@@ -4,26 +4,27 @@ namespace App\Helpers\ProcedureData;
 
 use App\Helpers\Pagination;
 
-class GetListBySearchFilter extends Pagination
+class GetListBySearchFilter
 {
     private string $keyword = '';
+    private int $start_position;
+    private int $end_position;
 
     public function __construct(array $query)
     {
-        parent::__construct($query);
 
         $this->keyword = $query['keyword'];
+        $this->start_position = $query['start_position'];
+        $this->end_position = $query['end_position'];
     }
 
     public function toArray()
     {
-        $pagination_filter = parent::toArray();
+        return [
+            'keyword' => $this->keyword,
+            'start_position' => $this->start_position,
+            'end_position' => $this->end_position,
+        ];
 
-        return array_merge(
-            $pagination_filter,
-            [
-                'keyword' => $this->keyword,
-            ]
-        );
     }
 }
