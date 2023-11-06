@@ -684,6 +684,7 @@ class UserController extends Controller
 						return response()->json([
 							'status' => true,
 							'message' => 'Email changed',
+							'new_email'=> $new_email
 						], 201);
 
 					} else {

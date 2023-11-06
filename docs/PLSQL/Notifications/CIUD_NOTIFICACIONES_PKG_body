@@ -75,6 +75,7 @@ BEGIN
 END;*/
 
 
+
 FUNCTION TODAS_NOTIFICACIONES_ACTIVAS(fecha_val IN VARCHAR2, start_position IN NUMBER, end_position IN NUMBER)
 RETURN CLOB
 AS
@@ -83,7 +84,8 @@ AS
     l_result3 CLOB;
     l_result_size NUMBER;
     l_count NUMBER;
-    l_row_check NUMBER := 0;
+    l_row_check NUMBER := start_position;
+    l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
     CURSOR c_notifications IS
@@ -115,17 +117,17 @@ BEGIN
                 END IF;
                 l_result2 := l_result2 || l_json_record;
                 l_row_check := l_row_check + 1;
+                l_row_number := l_row_number + 1;
             END IF;
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
 
     l_result3 := l_result1 || l_result2 || ']}';
 
     RETURN l_result3;
 END;
-
 
 
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO
@@ -180,7 +182,8 @@ AS
     l_result3 CLOB;
     l_result_size NUMBER;
     l_count NUMBER;
-    l_row_check NUMBER := 0;
+    l_row_check NUMBER := start_position;
+    l_row_number NUMBER := 0 ;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
      CURSOR c_notifications IS
@@ -226,11 +229,12 @@ BEGIN
                 END IF;
                 l_result2 := l_result2 || l_json_record;
                 l_row_check := l_row_check + 1;
+                l_row_number := l_row_number + 1;
             END IF;
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
 
     l_result3 := l_result1 || l_result2 || ']}';
 
@@ -287,7 +291,8 @@ AS
     l_result3 CLOB;
     l_result_size NUMBER;
     l_count NUMBER;
-    l_row_check NUMBER := 0;
+    l_row_check NUMBER := start_position;
+    l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
     CURSOR c_notifications IS
@@ -321,11 +326,12 @@ BEGIN
                 END IF;
                 l_result2 := l_result2 || l_json_record;
                 l_row_check := l_row_check + 1;
+                l_row_number := l_row_number + 1;
             END IF;
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
 
     l_result3 := l_result1 || l_result2 || ']}';
 
@@ -384,7 +390,8 @@ AS
     l_result3 CLOB;
     l_result_size NUMBER;
     l_count NUMBER;
-    l_row_check NUMBER := 0;
+    l_row_check NUMBER := start_position;
+    l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
 
@@ -429,11 +436,12 @@ BEGIN
                 END IF;
                 l_result2 := l_result2 || l_json_record;
                 l_row_check := l_row_check + 1;
+                l_row_number := l_row_number + 1;
             END IF;
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
 
     l_result3 := l_result1 || l_result2 || ']}';
 
@@ -490,7 +498,8 @@ AS
     l_result3 CLOB;
     l_result_size NUMBER;
     l_count NUMBER;
-    l_row_check NUMBER := 0;
+    l_row_check NUMBER := start_position;
+    l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
 
@@ -526,11 +535,12 @@ BEGIN
                 END IF;
                 l_result2 := l_result2 || l_json_record;
                 l_row_check := l_row_check + 1;
+                l_row_number := l_row_number + 1;
             END IF;
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_check) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
+    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
 
     l_result3 := l_result1 || l_result2 || ']}';
 
