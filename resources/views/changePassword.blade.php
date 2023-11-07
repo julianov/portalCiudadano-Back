@@ -21,7 +21,7 @@
 
                     <br>
                     <a id="btn_cambiar_pass" href="{{'https://sistemasdesa.entrerios.gov.ar/cdig/html/ciudadanoDigital_Front/build/auth/password/update?token=' . $mixto  }}">
-                        <p id="btn_validar_email_txt">CAMBIAR PASSWORD</p>
+                        <p id="btn_validar_email_txt">CAMBIAR CONTRASEÑA</p>
                     </a> 
                     <br>
                     <br>
