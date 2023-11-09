@@ -166,7 +166,7 @@ BEGIN
 END;*/
 
 FUNCTION NUEVAS_NOTIFICACIONES(
-    user_id IN NUMBER,
+    p_user_id IN NUMBER,
     fecha_val IN VARCHAR2,
     departamento_val IN NUMBER,
     localidad_val IN NUMBER,
@@ -183,38 +183,42 @@ AS
     l_result_size NUMBER;
     l_count NUMBER;
     l_row_check NUMBER := start_position;
-    l_row_number NUMBER := 0 ;
+    l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
-     CURSOR c_notifications IS
+    CURSOR c_notifications_new IS
         SELECT 
-            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
-        FROM NOTIFICATIONS
-        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
-          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-          AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
-          AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
-          AND (edad_val >= AGE_FROM)
-          AND (edad_val <= AGE_TO)
-          AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
-          AND ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = user_id)
-          AND DELETED_AT IS NULL
-        ORDER BY CREATED_AT DESC;
+            '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' AS json_record
+        FROM NOTIFICATIONS N
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') BETWEEN N.NOTIFICATION_DATE_FROM AND N.NOTIFICATION_DATE_TO
+          AND (N.DEPARTMENT_ID = 0 OR N.DEPARTMENT_ID = departamento_val)
+          AND (N.LOCALITY_ID = 0 OR N.LOCALITY_ID = localidad_val)
+          AND edad_val BETWEEN N.AGE_FROM AND N.AGE_TO
+          AND (N.RECIPIENTS = destinatario_val OR N.RECIPIENTS = 'both')
+          AND NOT EXISTS (
+              SELECT 1 
+              FROM USER_NOTIFICATIONS UN
+              WHERE UN.USER_ID = p_user_id AND UN.NOTIFICATION_ID = N.ID
+          )
+          AND N.DELETED_AT IS NULL
+        ORDER BY N.CREATED_AT DESC;
 
 BEGIN
     SELECT COUNT(*) INTO l_count
-    FROM NOTIFICATIONS
-    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
-      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-      AND ((DEPARTMENT_ID = 0) OR (DEPARTMENT_ID = departamento_val))
-      AND ((LOCALITY_ID = 0) OR (LOCALITY_ID = localidad_val))
-      AND (edad_val >= AGE_FROM)
-      AND (edad_val <= AGE_TO)
-      AND ((RECIPIENTS = destinatario_val) OR (RECIPIENTS = 'both'))
-      AND ID NOT IN (SELECT NOTIFICATION_ID FROM USER_NOTIFICATIONS WHERE USER_ID = user_id)
-      AND DELETED_AT IS NULL;
+    FROM NOTIFICATIONS N
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') BETWEEN N.NOTIFICATION_DATE_FROM AND N.NOTIFICATION_DATE_TO
+      AND (N.DEPARTMENT_ID = 0 OR N.DEPARTMENT_ID = departamento_val)
+      AND (N.LOCALITY_ID = 0 OR N.LOCALITY_ID = localidad_val)
+      AND edad_val BETWEEN N.AGE_FROM AND N.AGE_TO
+      AND (N.RECIPIENTS = destinatario_val OR N.RECIPIENTS = 'both')
+      AND NOT EXISTS (
+          SELECT 1 
+          FROM USER_NOTIFICATIONS UN
+          WHERE UN.USER_ID = p_user_id AND UN.NOTIFICATION_ID = N.ID
+      )
+      AND N.DELETED_AT IS NULL;
 
-    FOR r in c_notifications LOOP
+    FOR r in c_notifications_new LOOP
         IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
             l_json_record := r.json_record;
 
@@ -234,12 +238,12 @@ BEGIN
         END IF;
     END LOOP;
     
-    l_result1 := '{ "count": ' || TO_CHAR(l_count) ||  ',"rows": ' || TO_CHAR(l_row_number) || ', "data": [';  -- Cambiado para que la data esté entre corchetes
-
+    l_result1 := '{ "count": ' || l_count ||  ',"rows": ' || l_row_number || ', "data": [';
     l_result3 := l_result1 || l_result2 || ']}';
-
     RETURN l_result3;
 END;
+
+
 
 
 --BUSQUEDA DE NOTIFICACIONES SIN LEER, DIRIGIDAS A UN USUARIO QUE ES LEVEL 1
@@ -278,7 +282,7 @@ BEGIN
 END; */
 
 FUNCTION NUEVAS_NOTIFICACIONES_NIVEL_1(
-    user_id IN NUMBER,
+    p_user_id IN NUMBER,
     fecha_val IN VARCHAR2,
     destinatario_val IN VARCHAR2,
     start_position IN NUMBER,
@@ -295,23 +299,36 @@ AS
     l_row_number NUMBER := 0;
     l_json_record VARCHAR2(4000); -- Para almacenar el registro individual como JSON
 
-    CURSOR c_notifications IS
+    CURSOR c_notifications_new_leve1 IS
         SELECT 
             '{ "ID": "' || ID || '", "RECIPIENTS": "' || RECIPIENTS || '", "AGE_FROM": "' || AGE_FROM || '", "AGE_TO": "' || AGE_TO || '", "DEPARTMENT": "' || DEPARTMENT_ID || '", "LOCALITY": "' || LOCALITY_ID || '", "MESSAGE_TITLE": "' || MESSAGE_TITLE || '", "MESSAGE_BODY": "' || MESSAGE_BODY || '", "MULTIMEDIA_ID": "' || MULTIMEDIA_ID || '", "NOTIFICATION_DATE_FROM": "' || TO_CHAR(NOTIFICATION_DATE_FROM, 'DD/MM/YYYY HH24:MI:SS') || '", "NOTIFICATION_DATE_TO": "' || TO_CHAR(NOTIFICATION_DATE_TO, 'DD/MM/YYYY HH24:MI:SS') || '", "SEND_BY_EMAIL": "' || SEND_BY_EMAIL || '", "CREATED_AT": "' || TO_CHAR(CREATED_AT, 'DD/MM/YYYY HH24:MI:SS') || '"}' as json_record
-        FROM NOTIFICATIONS
-        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
-          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-          AND (RECIPIENTS = destinatario_val)
-        ORDER BY CREATED_AT DESC;
+        FROM NOTIFICATIONS N
+        WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= N.NOTIFICATION_DATE_FROM
+          AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= N.NOTIFICATION_DATE_TO
+          AND (N.RECIPIENTS = destinatario_val OR N.RECIPIENTS = 'both')
+          AND NOT EXISTS (
+              SELECT 1 
+              FROM USER_NOTIFICATIONS UN
+              WHERE UN.USER_ID = p_user_id AND UN.NOTIFICATION_ID = N.ID
+          )
+          AND N.DELETED_AT IS NULL
+        ORDER BY N.CREATED_AT DESC;
 
 BEGIN
     SELECT COUNT(*) INTO l_count
-    FROM NOTIFICATIONS
-    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= NOTIFICATION_DATE_FROM
-      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= NOTIFICATION_DATE_TO
-      AND (RECIPIENTS = destinatario_val);
+    FROM NOTIFICATIONS N
+    WHERE TO_DATE(fecha_val, 'DD/MM/YYYY') >= N.NOTIFICATION_DATE_FROM
+      AND TO_DATE(fecha_val, 'DD/MM/YYYY') <= N.NOTIFICATION_DATE_TO
+      AND (N.RECIPIENTS = destinatario_val OR N.RECIPIENTS = 'both')
+          AND NOT EXISTS (
+              SELECT 1 
+              FROM USER_NOTIFICATIONS UN
+              WHERE UN.USER_ID = p_user_id AND UN.NOTIFICATION_ID = N.ID
+          )
+          AND N.DELETED_AT IS NULL
+        ORDER BY N.CREATED_AT DESC;
 
-    FOR r in c_notifications LOOP
+    FOR r in c_notifications_new_leve1 LOOP
         IF l_row_check + 1 >= start_position AND l_row_check + 1 <= end_position THEN
             l_json_record := r.json_record;
 
