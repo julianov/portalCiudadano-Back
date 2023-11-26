@@ -142,7 +142,7 @@ class FormDataController extends BaseController
 
         $validated = $request->validated();
         
-        $form_data = $this->repository->getById($request['form_data_id']
+        $form_data = $this->repository->getById($request['form_data_id']);
 
         $attachments = $this->repository->storeAttachments($validated['attachments'], $form_data);
 
@@ -240,6 +240,5 @@ class FormDataController extends BaseController
         } else {
             return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
     }
 }
