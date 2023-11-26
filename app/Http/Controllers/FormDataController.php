@@ -13,7 +13,7 @@ use App\Http\Requests\FormData\{
     GetElementsByIdRequest,
     UpdateByIdRequest,
     StoreAttachmentsRequest,
-    GetProcedureAttachment,
+    GetFormAttachment,
     DeleteAttachmentsRequest,
 };
 use App\Helpers\FormData\{
@@ -150,7 +150,7 @@ class FormDataController extends BaseController
     }
 
     // TODO: test this
-    public function getAttachmentById(GetProcedureAttachment $request)
+    public function getAttachmentById(GetFormAttachment $request)
     {
         $validated = $request->validated();
 
@@ -159,7 +159,7 @@ class FormDataController extends BaseController
         return $attachment;
     }
 
-    public function getAttachmentName (GetProcedureAttachment $request)
+    public function getAttachmentName (GetFormAttachment $request)
     {
         $validated = $request->validated();
 

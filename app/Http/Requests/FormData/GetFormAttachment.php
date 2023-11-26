@@ -4,7 +4,7 @@ namespace App\Http\Requests\ProcedureData;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetProcedureAttachment extends FormRequest
+class GetFormAttachment extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
