@@ -37,6 +37,17 @@ class FormDataRepository
         return $json->data;
      }
 
+     public function getById(int $id)
+    {
+        $query = "SELECT {$this->pkg}.OBTENER_FORM_DATA_ID(:id) AS result FROM DUAL";
+        $bindings = [ 'id' => $id ];
+        $result = DB::select($query, $bindings);
+        $json = new Result($result);
+        if (!$json->status) { throw new DatabaseReadError(); }
+
+        return $json->data;
+    }
+
     // TODO: test this
     public function getFormByCode(string $code, int $user_id)
     {
@@ -107,19 +118,8 @@ class FormDataRepository
         return $updated;
     }
 
-//     public function removeById(string $code): bool
-//     {
-//         $query = "DECLARE result BOOLEAN; BEGIN result := {$this->pkg}.ELIMINAR_FORMULARIO_POR_PK(:code);END;";
-//         $bindings = [ 'code' => $code ];
-//         $result = DB::statement($query, $bindings);
-//
-//         if (!$result) { throw new DatabaseWriteError(); }
-//
-//
-//         return $result;
-//     }
 
-public function storeAttachments(UploadedFile|array $files, string $row)
+    public function storeAttachments(UploadedFile|array $files, string $row)
     {
         $ids = [];
 

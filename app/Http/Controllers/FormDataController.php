@@ -14,6 +14,7 @@ use App\Http\Requests\FormData\{
     UpdateByIdRequest,
     StoreAttachmentsRequest,
     GetProcedureAttachment,
+    DeleteAttachmentsRequest,
 };
 use App\Helpers\FormData\{
     CreateData,
@@ -133,16 +134,6 @@ class FormDataController extends BaseController
     }
 
     /**
-     * Delete a form by PK.
-     */
-//     public function deleteByPk(DeleteByPkRequest $request)
-//     {
-//         $deleted =$this->repository->removeByPk($request['code']);
-//
-//         return response()->json($deleted, Response::HTTP_OK);
-//     }
-
-    /**
      * Store attachments.
      */
     public function storeAttachments(StoreAttachmentsRequest $request)
@@ -151,9 +142,9 @@ class FormDataController extends BaseController
 
         $validated = $request->validated();
         
-        $procedure = $this->repository->getFormByCode($validated['procedure_data_id'], $user->id);
+        $form_data = $this->repository->getById($request['form_data_id']
 
-        $attachments = $this->repository->storeAttachments($validated['attachments'], $procedure);
+        $attachments = $this->repository->storeAttachments($validated['attachments'], $form_data);
 
         return response()->json($attachments, Response::HTTP_OK);
     }
@@ -189,10 +180,66 @@ class FormDataController extends BaseController
     }
 
     // TODO: test this
-    public function deleteAttachmentById(int $attachmentId)
+    public function deleteAttachmentById(DeleteAttachmentsRequest $request)
     {
-        $this->repository->deleteUploadedFile($attachmentId);
+        $validated = $request->validated();
 
-        return response()->json(null, Response::HTTP_OK);
+        $form_data = $this->repository->getById($request['form_data_id']);
+
+        $data = json_decode($form_data);
+
+        // Obtener los valores de MULTIMEDIA_ID y ATTACHMENTS
+        if (!empty($data)) {
+            $multimediaId = $data[0]->MULTIMEDIA_ID;
+            $attachments = $data[0]->ATTACHMENTS;
+            if (strpos($multimediaId, ',') !== false) {
+                $multimediaIdsArray = explode(',', $multimediaId);
+                $attachmentsArray = explode(',', $attachments);
+                $position = array_search($request['multimedia_id'], $multimediaIdsArray);
+                if ($position !== false){
+                    unset($multimediaIdsArray[$position]);
+                    // Reindexar el array para que las claves sean numéricas consecutivas
+                    $multimediaIdsArray = array_values($multimediaIdsArray);
+                    // Generar la nueva cadena separada por comas
+                    $newMultimediaIdString=null;
+                    if (count($multimediaIdsArray) > 1) {
+                        $newMultimediaIdString = implode(',', $multimediaIdsArray);
+                    } else {
+                        // Si solo hay un elemento en $multimediaIdsArray, asignarlo directamente a $newMultimediaIdString
+                        $newMultimediaIdString = reset($multimediaIdsArray); // Obtiene el primer elemento del arreglo
+                    }
+
+                    unset($attachmentsArray[$position]);
+                    // Reindexar el array para que las claves sean numéricas consecutivas
+                    $attachmentsArray = array_values($attachmentsArray);
+
+                    $newAttachmentsString=null;
+                    if (count($attachmentsArray) > 1) {
+                        $newAttachmentsString = implode(',', $attachmentsArray);
+                    } else {
+                        // Si solo hay un elemento en $multimediaIdsArray, asignarlo directamente a $newMultimediaIdString
+                        $newAttachmentsString = reset($attachmentsArray); // Obtiene el primer elemento del arreglo
+                    }
+
+                    $this->repository->deleteMultimedia($newAttachmentsString ,$newMultimediaIdString, $request['form_data_id'] );
+                    $this->repository->deleteUploadedFile($validated['multimedia_id']);
+
+                    return response()->json($validated['multimedia_id'], Response::HTTP_OK);
+
+                }else{
+                    return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+
+                }
+            } else {
+                $this->repository->deleteMultimedia("" ,"", intval($request['form_data_id']) );
+                $this->repository->deleteUploadedFile($validated['multimedia_id']);
+                return response()->json($validated['multimedia_id'], Response::HTTP_OK);
+
+            }
+
+        } else {
+            return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     }
 }
