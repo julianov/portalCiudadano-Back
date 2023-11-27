@@ -238,7 +238,7 @@ class FormDataController extends BaseController
             }
 
         } else {
-            return response()->json(['error' => 'Problemas en la base de datos: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return response()->json(['error' => 'Problemas en la base de datos: '], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

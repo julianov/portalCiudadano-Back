@@ -157,13 +157,13 @@ class FormDataRepository
 
     public function deleteUploadedFile (int $multimedia_id)
     {
-        $result = DB::select("SELECT MULTIMEDIA.MMD_UTILIDADES_DGIN.MULTIMEDIA_ELIMINA_ARCHIVO(:p1, :p2) as result FROM DUAL",
-        [
-            'p1' =>$this->table_name,
-            'p2' =>$multimedia_id // Passing the output parameter by reference
+       
+        $res = DB::statement("DECLARE l_result NUMBER; BEGIN l_result := {$this->pkg}.FORMS_DATA_BORRAR_ADJUNTO(:p_multimedia_id); END;",
+		[
+            'p_multimedia_id' => intval($multimedia_id),
         ]);
 
-        return $result[0]->result;
+        return $res;
     }
 
     private function storeSingleFile(UploadedFile $file, int $procedureId)
