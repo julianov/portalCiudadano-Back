@@ -15,7 +15,6 @@ class MetricasController extends Controller
 
     public function __construct(MetricasRepository $repository, ErrorService $errorService)
 	{
-
 		$this->repository = $repository;
         $this->errorService = $errorService;
 
@@ -23,8 +22,8 @@ class MetricasController extends Controller
 
     public function metrics(Request $request)
     {
-        $this->repository->
-        $data = $repo->obtenerEstadisticasTotales();
+        
+        $data = $this->repository->obtenerEstadisticasTotales();
         return response()->json($data);
     }
 }
