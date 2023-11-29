@@ -1,4 +1,4 @@
-/*<!doctype html>
+<!doctype html>
 <html lang="es">
     <head>
         <title>Portal ciudadano - Gobierno de Entre Ríos</title>
