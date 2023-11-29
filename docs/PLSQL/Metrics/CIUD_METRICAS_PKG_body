@@ -1,0 +1,103 @@
+create or replace PACKAGE BODY            CIUD_METRICAS_PKG AS
+
+FUNCTION OBTENER_ESTADISTICAS_TOTALES 
+RETURN CLOB 
+IS
+    l_result CLOB;
+
+    -- Variables para estadísticas de usuarios
+    total_users NUMBER(19,0);
+    total_users_level1 NUMBER(19,0);
+    total_users_level2 NUMBER(19,0);
+    total_users_level3 NUMBER(19,0);
+
+
+    -- Variables para estadísticas de notificaciones
+    total_created NUMBER(19,0);
+    total_read NUMBER(19,0);
+    total_active NUMBER(19,0);
+
+    -- Variables para estadísticas de trámites
+    total_created_proc NUMBER;
+    total_initiated NUMBER;
+    total_pending NUMBER;
+    total_approved NUMBER;
+
+BEGIN
+    -- ESTADÍSTICAS DE USUARIOS
+    SELECT COUNT(ID) INTO total_users
+    FROM CIUDADANOS.USERS;
+    
+    SELECT COUNT(us.ID) INTO total_users_level1
+    FROM CIUDADANOS.USERS us 
+    JOIN USER_AUTHENTICATION ua on ua.user_id=us.id
+    WHERE ua.AUTH_LEVEL='level_1';
+    
+    SELECT COUNT(us.ID) INTO total_users_level2
+    FROM CIUDADANOS.USERS us 
+    JOIN USER_AUTHENTICATION ua on ua.user_id=us.id
+    WHERE ua.AUTH_LEVEL='level_2';
+
+    SELECT COUNT(us.ID) INTO total_users_level3
+    FROM CIUDADANOS.USERS us 
+    JOIN USER_AUTHENTICATION ua on ua.user_id=us.id
+    WHERE ua.AUTH_LEVEL='level_3';
+    
+    -- ESTADÍSTICAS DE NOTIFICACIONES
+    SELECT COUNT(*) INTO total_created
+    FROM CIUDADANOS.NOTIFICATIONS;
+
+    SELECT COUNT(DISTINCT NOTIFICATION_ID) INTO total_read
+    FROM CIUDADANOS.USER_NOTIFICATIONS
+    WHERE READINGS >= 1;
+    
+    SELECT COUNT(*) INTO total_active
+    FROM CIUDADANOS.NOTIFICATIONS
+    WHERE NOTIFICATION_DATE_TO >= SYSDATE AND DELETED_AT IS NULL ;
+
+    -- ESTADÍSTICAS DE TRÁMITES
+    SELECT COUNT(ID) INTO total_created_proc
+    FROM CIUDADANOS.PROCEDURE_DATA;
+
+    SELECT COUNT(ID) INTO total_initiated
+    FROM CIUDADANOS.PROCEDURE_DATA
+    WHERE STATUS = 'INICIADO';
+
+    SELECT COUNT(ID) INTO total_pending
+    FROM CIUDADANOS.PROCEDURE_DATA
+    WHERE STATUS = 'PENDIENTE';
+
+    SELECT COUNT(ID) INTO total_approved
+    FROM CIUDADANOS.PROCEDURE_DATA
+    WHERE STATUS = 'APROBADO';
+
+    -- Crear JSON
+    l_result := '{ ' ||
+
+                '"Usuarios": {' ||
+                '"Total de usuarios registrados": ' || total_users || ', ' ||
+                '"Total de usuarios registrados nivel 1": ' || total_users_level1 || ', ' ||
+                '"Total de usuarios registrados nivel 2": ' || total_users_level2 || ', ' ||
+                '"Total de usuarios registrados nivel 3": ' || total_users_level3 ||
+                '}, ' ||
+
+                '"Notificaciones generales": {' ||
+                '"Total notificaciones creadas": ' || total_created || ', ' ||
+                '"Total notificaciones leídas": ' || total_read || ', ' ||
+               '"Total notificaciones activas": ' ||  total_active ||
+                '}, ' ||
+
+                '"Trámites": {' ||
+                '"Total de trámites creados": ' || total_created_proc || ', ' ||
+                '"Total de trámites iniciados": ' || total_initiated || ', ' ||
+                '"Total de trámites pendientes de aprobación": ' || total_pending || ', ' ||
+                '"Total de trámites aprobados": ' || total_approved ||
+                '}' ||
+
+                ' }';
+
+    RETURN l_result;
+
+END;
+
+END CIUD_METRICAS_PKG;
