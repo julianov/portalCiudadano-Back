@@ -88,7 +88,10 @@ Route::prefix("/v0/notification")->controller(Controllers\NotificationsControlle
 
 });
 
+Route::prefix("/v0/metrics")->controller(Controllers\AuthController::class)->group(function () {
+	Route::middleware(['auth:authentication'])->get('/all', [Controllers\MetricasController::class, 'metric']);
 
+});
 // Route modularization
 Route::prefix('/v0')
     ->group(function () {

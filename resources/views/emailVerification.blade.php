@@ -16,7 +16,7 @@
             <tr>
                 <td style="padding: 20px;"> 
                     <h1 style="font-size: 1.3rem;">{{$user->name }} {{$user->last_name}}</h1>
-                    <p style="font-size: 1rem;">Para darte de alta en la plataforma, accede a tu cuenta haciendo clic en este botón.</p>
+                    <p style="font-size: 1rem;">Para darte de alta en la plataforma, accede a tu cuenta haciendo clic en este botón..</p>
                     <br>
                     <a id="btn_cambiar_pass" href="{{'https://sistemasdesa.entrerios.gov.ar/cdig/html/ciudadanoDigital_Front/build/auth/email/validate?token=' . $mixto }}">
                         <p id="btn_validar_email_txt">Validá tu e-mail</p>
