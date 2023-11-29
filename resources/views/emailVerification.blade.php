@@ -54,10 +54,11 @@
             }</style>
     </head>
     <body>
+    <div id="header" style="background-color: #7ca157; padding: 30px; text-align: left;">
+        <h1 style="font-size: 2.3rem; color: var(--maincolor); font-weight: bold; width: 100%; margin-top: 10px; margin-bottom:10px; font-family: serif;">Ciudadano Digital</h1>
+    </div>
     <div id="central">
-        <div id="header">
-            <h1 style="font-size: 2.3rem; color: var(--maincolor); font-weight: bold; width: 100%; margin-top: 10px; margin-bottom:10px; font-family: serif;">Ciudadano Digital</h1>
-       </div>
+        
         <table style="width: 100%; border: none; border-collapse: collapse;">
             <tr>
                 <td style="padding: 20px;"> 
